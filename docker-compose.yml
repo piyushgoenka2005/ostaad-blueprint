@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  ostaad-boq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ostaad_boq_engine
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - HOST=0.0.0.0
+      - PORT=8000
+    volumes:
+      - ./assets:/app/assets:ro
+
+  # Optional Cloudflare Tunnel service
+  # Connects directly to Cloudflare Zero Trust without opening inbound firewall ports
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: ostaad_cloudflare_tunnel
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      - ostaad-boq
