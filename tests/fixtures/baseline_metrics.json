@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-10-06T18:31:00+05:30",
+  "pipeline_version": "baseline_pre_hybrid",
+  "test_suite_summary": {
+    "total_tests": 80,
+    "passed": 69,
+    "failed": 11,
+    "duration_seconds": 354.0
+  },
+  "barakar_benchmark": {
+    "file": "assets/barakar 01.11.2025-Model WITHOUT GRID.pdf",
+    "classification_gate_passed": true,
+    "detected_drawing_type": "SITE_TOPOGRAPHICAL_SURVEY",
+    "confidence": 0.95,
+    "rooms_detected": 0,
+    "current_lines_generated": 7,
+    "expected_architectural_lines": 0,
+    "root_cause_of_failures": "report.lines was populated with 7 civil site lines where test contract expected 0 architectural lines or dedicated site takeoff segregation; vlm_engine fallback previously hallucinated 8 doors, 8 windows, WC, wash basins on drawings when unconstrained."
+  },
+  "phases_status": {
+    "phase_0_baseline": "COMPLETED",
+    "phase_1_schema": "READY_TO_START"
+  }
+}

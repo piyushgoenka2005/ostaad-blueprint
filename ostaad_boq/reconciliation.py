@@ -10,6 +10,8 @@ from typing import Any
 from .models import (
     BOQReport,
     CalculationMethod,
+    ClassificationResult,
+    GeometricFeature,
     ItemCategory,
     LinearRun,
     ReconciliationFlag,
@@ -19,6 +21,17 @@ from .models import (
     UnitType,
 )
 from .ocr import OCRItem
+from .evidence_graph import build_evidence_graph, audit_and_fuse_evidence
+from .schedules import extract_schedules_and_legends, reconcile_schedules_with_takeoff
+from .classification_engine import classify_boq_lines
+from .derived_materials import calculate_architectural_derived_materials
+from .audit_trail import audit_and_enrich_report
+from .pricing_engine import price_boq_report
+
+
+
+
+
 
 
 def assemble_and_reconcile_boq(
@@ -28,11 +41,14 @@ def assemble_and_reconcile_boq(
     ocr_items: list[OCRItem],
     linear_runs: list[LinearRun],
     room_polygons: list[dict],
+    classification: ClassificationResult | None = None,
+    geometric_features: list[GeometricFeature] | None = None,
 ) -> BOQReport:
     """Fuse all perception and geometric streams into a reconciled, audited BOQ report."""
     lines: list[TakeoffLine] = []
     rooms: list[RoomTakeoff] = []
     flags: list[ReconciliationFlag] = []
+
 
     # 1. Scale audit flag if scale is unresolved or estimated
     if not scale.scale_known:
@@ -203,50 +219,68 @@ def assemble_and_reconcile_boq(
         )
 
     # 7. Derived Material Quantities (clearly flagged as is_measured=False)
-    # Flooring finish line item
-    if total_stated_sqft > 0:
-        lines.append(
-            TakeoffLine(
-                id="mat-flooring",
-                item_description="Finished Flooring Underlayment & Surface (Total Conditioned Space)",
-                category=ItemCategory.FINISHES_FLOORING.value,
-                quantity=round(total_stated_sqft, 1),
-                unit=UnitType.SF,
-                confidence=0.98,
-                source_sheet=sheet_name,
-                calculation_method=CalculationMethod.CALLOUT_STATED,
-                assumptions="Aggregated directly from room area callouts with 10% waste factor recommended",
-                is_measured=True,
-            )
-        )
+    door_count = len([s for s in semantic_data.get("symbol_candidates", []) if s.symbol_type == "door"]) or len(semantic_data.get("doors", []))
+    window_count = len([s for s in semantic_data.get("symbol_candidates", []) if s.symbol_type == "window"]) or len(semantic_data.get("windows", []))
 
-    # Drywall wallboard derived material
-    total_wall_lf = sum(lr.length for lr in linear_runs)
-    if total_wall_lf > 0 and scale.scale_known:
-        # Assuming 9-foot ceilings, 2 sides per partition wall
-        drywall_sf = round(total_wall_lf * 9.0 * 2.0, 0)
-        lines.append(
-            TakeoffLine(
-                id="mat-drywall",
-                item_description="1/2\" Gypsum Wallboard (Walls, 2 sides)",
-                category=ItemCategory.FINISHES_WALLS.value,
-                quantity=drywall_sf,
-                unit=UnitType.SF,
-                confidence=0.85,
-                source_sheet=sheet_name,
-                calculation_method=CalculationMethod.DERIVED_MATERIAL,
-                assumptions="Derived: Total wall linear footage * 9'-0\" ceiling height * 2 sides (openings un-deducted)",
-                is_measured=False,  # Derived estimate, not a primary counted entity
-            )
-        )
+    derived_lines = calculate_architectural_derived_materials(
+        linear_runs=linear_runs,
+        rooms=rooms,
+        door_count=door_count,
+        window_count=window_count,
+        scale=scale,
+        sheet_name=sheet_name,
+    )
+    lines.extend(derived_lines)
 
-    return BOQReport(
+
+    symbol_candidates = semantic_data.get("symbol_candidates", [])
+    geo_features = geometric_features or []
+
+    # Stage 7: Build multi-modal evidence graph & corroborate lines
+    evidence_graph = build_evidence_graph(
+        sheet_name=sheet_name,
+        ocr_items=ocr_items,
+        geometric_features=geo_features,
+        symbol_candidates=symbol_candidates,
+        takeoff_lines=lines,
+        classification=classification,
+    )
+    audited_lines, audit_flags = audit_and_fuse_evidence(evidence_graph, lines, classification)
+    flags.extend(audit_flags)
+
+    # Stage 8: Extract schedules & legends, then cross-reference
+    schedules, legend_items = extract_schedules_and_legends(ocr_items, classification)
+    sched_flags = reconcile_schedules_with_takeoff(schedules, symbol_candidates, audited_lines)
+    flags.extend(sched_flags)
+
+    # Stage 9: CSI MasterFormat & NRM Standardized Classification
+    classify_boq_lines(audited_lines)
+
+    report = BOQReport(
         project_name="Architectural Floor Plan Takeoff",
         sheet_name=sheet_name,
         scale=scale,
-        lines=lines,
+        classification=classification or ClassificationResult(),
+        lines=audited_lines,
         rooms=rooms,
         linear_runs=linear_runs,
+        geometric_features=geo_features,
+        symbol_candidates=symbol_candidates,
+        schedules=schedules,
+        legend_items=legend_items,
         reconciliation_flags=flags,
+        evidence_graph=evidence_graph,
         metadata={"total_conditioned_sqft": total_stated_sqft},
     )
+
+    # Stage 11: Audit trail, spatial bounding boxes, and confidence breakdown
+    report = audit_and_enrich_report(report)
+
+    # Stage 12: Cost Estimation & Pricing Engine
+    currency = "INR" if (scale and scale.unit in ["m", "metre", "meter"]) else "USD"
+    return price_boq_report(report, currency=currency)
+
+
+
+
+

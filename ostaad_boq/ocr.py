@@ -16,10 +16,41 @@ from .ingest import IngestedSheet
 
 @dataclass
 class OCRItem:
-    """Extracted text string with bounding box coordinates and confidence."""
+    """Extracted text string with bounding box coordinates, confidence, and provenance."""
     text: str
     confidence: float
     bbox: tuple[float, float, float, float]  # (x_min, y_min, x_max, y_max) normalized 0..1
+    source_type: str = "ocr_raster"         # 'native_vector_text', 'ocr_raster'
+    normalized_text: str = ""
+    page_number: int = 1
+    font_size: float = 0.0
+
+    def __post_init__(self) -> None:
+        if not self.normalized_text:
+            self.normalized_text = re.sub(r"\s+", " ", self.text).strip().lower()
+
+
+def _boxes_overlap(
+    b1: tuple[float, float, float, float],
+    b2: tuple[float, float, float, float],
+    threshold: float = 0.35,
+) -> bool:
+    """Determine if two normalized bounding boxes overlap significantly."""
+    x_left = max(b1[0], b2[0])
+    y_top = max(b1[1], b2[1])
+    x_right = min(b1[2], b2[2])
+    y_bottom = min(b1[3], b2[3])
+
+    if x_right <= x_left or y_bottom <= y_top:
+        return False
+
+    inter_area = (x_right - x_left) * (y_bottom - y_top)
+    area1 = (b1[2] - b1[0]) * (b1[3] - b1[1])
+    area2 = (b2[2] - b2[0]) * (b2[3] - b2[1])
+    union_area = area1 + area2 - inter_area
+    if union_area <= 0:
+        return False
+    return (inter_area / union_area) > threshold
 
 
 # Regular expressions for architectural callouts
@@ -38,7 +69,7 @@ SCALE_STRING_PATTERN = re.compile(
 
 
 class OCREngine:
-    """Robust OCR engine combining PaddleOCR, EasyOCR, and native vector PDF text."""
+    """Hybrid OCR engine combining native vector PDF text and Apache-2.0 EasyOCR."""
 
     def __init__(self, languages: list[str] | None = None) -> None:
         self.languages = languages or ["en"]
@@ -65,12 +96,12 @@ class OCREngine:
         return self._easyocr_reader
 
     def extract_text(self, sheet: IngestedSheet) -> list[OCRItem]:
-        """Extract all text tokens with normalized bounding boxes from a sheet."""
+        """Extract all text tokens with provenance and spatial deduplication."""
         items: list[OCRItem] = []
+        w, h = float(sheet.width_px), float(sheet.height_px)
 
-        # 1. First prioritize native vector PDF text if present
+        # 1. Harvest native vector PDF text (exact coordinates & vector provenance)
         if sheet.is_vector_pdf and sheet.native_text:
-            w, h = float(sheet.width_px), float(sheet.height_px)
             for nb in sheet.native_text:
                 x0, y0, x1, y1 = nb.bbox
                 items.append(
@@ -83,78 +114,140 @@ class OCREngine:
                             max(0.0, min(1.0, x1 / w)),
                             max(0.0, min(1.0, y1 / h)),
                         ),
+                        source_type="native_vector_text",
+                        font_size=nb.font_size,
                     )
                 )
-            if items:
-                return items
 
-        # 2. Run vision OCR (EasyOCR reliably extracts CAD numbers & text)
-        reader = self._get_easy_reader()
-        if reader is not None:
-            import numpy as np
+        # 2. Run vision OCR (EasyOCR captures stroked SHX CAD text & raster annotations)
+        # If native vector text already provided scale or area metadata, we can safely bypass heavy raster OCR.
+        # Otherwise (e.g. AutoCAD SHX stroked fonts), run optimized EasyOCR (canvas_size=1600, batch_size=4).
+        meta_probe = parse_title_block_metadata(items)
+        has_essential_meta = (meta_probe.get("scale_string") is not None or meta_probe.get("total_premises_area") is not None)
+        should_run_raster = not (sheet.is_vector_pdf and len(sheet.native_text) >= 50 and has_essential_meta)
 
-            img_np = np.array(sheet.image)
-            w, h = float(sheet.width_px), float(sheet.height_px)
-            try:
-                results = reader.readtext(img_np)
-                for bbox_pts, text, conf in results:
-                    text_clean = text.strip()
-                    if not text_clean:
-                        continue
-                    xs = [pt[0] for pt in bbox_pts]
-                    ys = [pt[1] for pt in bbox_pts]
-                    items.append(
-                        OCRItem(
-                            text=text_clean,
-                            confidence=float(conf),
-                            bbox=(
-                                max(0.0, min(1.0, min(xs) / w)),
-                                max(0.0, min(1.0, min(ys) / h)),
-                                max(0.0, min(1.0, max(xs) / w)),
-                                max(0.0, min(1.0, max(ys) / h)),
-                            ),
-                        )
-                    )
-            except Exception:
-                pass
+        raster_items: list[OCRItem] = []
+        if should_run_raster:
+            reader = self._get_easy_reader()
+            if reader is not None:
+                import numpy as np
 
-        if items:
-            return items
-
-        # 3. PaddleOCR secondary fallback
-        paddle = self._get_paddle_reader()
-        if paddle is not None:
-            import numpy as np
-
-            img_np = np.array(sheet.image)
-            w, h = float(sheet.width_px), float(sheet.height_px)
-            try:
-                result = paddle.ocr(img_np, cls=False)
-                if result and result[0]:
-                    for line in result[0]:
-                        bbox_pts = line[0]
-                        text, conf = line[1]
+                img_np = np.array(sheet.image)
+                try:
+                    results = reader.readtext(img_np, canvas_size=1600, batch_size=4)
+                    for bbox_pts, text, conf in results:
                         text_clean = text.strip()
                         if not text_clean:
                             continue
                         xs = [pt[0] for pt in bbox_pts]
                         ys = [pt[1] for pt in bbox_pts]
-                        items.append(
-                            OCRItem(
-                                text=text_clean,
-                                confidence=float(conf),
-                                bbox=(
-                                    max(0.0, min(1.0, min(xs) / w)),
-                                    max(0.0, min(1.0, min(ys) / h)),
-                                    max(0.0, min(1.0, max(xs) / w)),
-                                    max(0.0, min(1.0, max(ys) / h)),
-                                ),
-                            )
+                        norm_bbox = (
+                            max(0.0, min(1.0, min(xs) / w)),
+                            max(0.0, min(1.0, min(ys) / h)),
+                            max(0.0, min(1.0, max(xs) / w)),
+                            max(0.0, min(1.0, max(ys) / h)),
                         )
-            except Exception:
-                pass
+                        # Spatial deduplication: skip if overlapping with an already extracted native vector block
+                        is_dup = any(_boxes_overlap(norm_bbox, it.bbox) for it in items)
+                        if not is_dup:
+                            raster_items.append(
+                                OCRItem(
+                                    text=text_clean,
+                                    confidence=float(conf),
+                                    bbox=norm_bbox,
+                                    source_type="ocr_raster",
+                                )
+                            )
+                except Exception:
+                    pass
 
+            items.extend(raster_items)
+
+        # Sort items in natural reading order (top-to-bottom, left-to-right)
+        items.sort(key=lambda it: (round(it.bbox[1], 2), it.bbox[0]))
         return items
+
+
+def parse_title_block_metadata(ocr_items: list[OCRItem]) -> dict[str, Any]:
+    """Parse title block metadata: scale, total premises/floor area, unit, and callouts."""
+    result: dict[str, Any] = {
+        "scale_string": None,
+        "scale_ratio": None,
+        "measurement_unit": None,
+        "total_premises_area": None,
+        "area_unit": None,
+        "raw_area_callout": None,
+    }
+
+    # 1. Scale extraction (e.g. 'SCALE 1:250', 'SCALE 1.250', '1:100', '1/4" = 1\'-0"')
+    scale_re = re.compile(
+        r"""(?:scale\s*[:=.]?\s*)?(?P<ratio>1\s*[:. ]?\s*(?P<denom>20|25|50|100|200|250|500|1000|1250|2000|2500))\b""",
+        re.IGNORECASE,
+    )
+    for it in ocr_items:
+        m = scale_re.search(it.text)
+        if m:
+            denom = int(m.group("denom"))
+            result["scale_ratio"] = denom
+            result["scale_string"] = f"1:{denom}"
+            result["measurement_unit"] = "metre"
+            break
+
+    if not result["scale_string"]:
+        for it in ocr_items:
+            m = SCALE_STRING_PATTERN.search(it.text)
+            if m:
+                result["scale_string"] = it.text.strip()
+                result["measurement_unit"] = "ft"
+                break
+
+    # 2. Total Premises Area / Built-up Area
+    # Single-token check
+    single_area_re = re.compile(
+        r"""(?:total\s*(?:premises|built-?up|carpet|plot)?\s*area\s*[:=]?\s*)(?P<val>[\d,]+(?:\.\d+)?)\s*(?P<unit>sq\.?\s*m\.?|m2|m²|sq\.?\s*ft\.?|sf)""",
+        re.IGNORECASE,
+    )
+    for it in ocr_items:
+        m = single_area_re.search(it.text)
+        if m:
+            val_str = m.group("val").replace(",", "")
+            result["total_premises_area"] = float(val_str)
+            raw_u = m.group("unit").lower().replace(" ", "").replace(".", "")
+            result["area_unit"] = "sq.m." if "m" in raw_u else "sq.ft."
+            result["measurement_unit"] = "metre" if "m" in raw_u else "ft"
+            result["raw_area_callout"] = it.text.strip()
+            break
+
+    # Multi-token proximity check (e.g. 'TOTAL PREMISES AREA' on line 1, '10907.8046 SQ.M.' on line 2)
+    if result["total_premises_area"] is None:
+        for i, it in enumerate(ocr_items):
+            t_lower = it.text.lower()
+            is_title = ("total" in t_lower and ("premises" in t_lower or "area" in t_lower)) or (
+                t_lower == "total" and i + 1 < len(ocr_items) and "premises" in ocr_items[i + 1].text.lower()
+            )
+            if is_title:
+                for j in range(i + 1, min(len(ocr_items), i + 8)):
+                    cand = ocr_items[j]
+                    cand_text = cand.text.strip()
+                    num_match = re.search(r"""(?P<val>\d{3,7}(?:\.\d+)?)""", cand_text)
+                    if num_match:
+                        val = float(num_match.group("val"))
+                        result["total_premises_area"] = val
+                        unit_str = cand_text[num_match.end():].strip().lower()
+                        if not unit_str and j + 1 < len(ocr_items):
+                            unit_str = ocr_items[j + 1].text.strip().lower()
+                        if "sq" in unit_str or "m" in unit_str:
+                            result["area_unit"] = "sq.m." if "m" in unit_str else "sq.ft."
+                            result["measurement_unit"] = "metre" if "m" in unit_str else "ft"
+                        else:
+                            result["area_unit"] = "sq.m."
+                            result["measurement_unit"] = "metre"
+                        result["raw_area_callout"] = f"{it.text} = {cand_text}"
+                        break
+                if result["total_premises_area"] is not None:
+                    break
+
+    return result
 
 
 def parse_room_area_callouts(ocr_items: list[OCRItem]) -> list[dict]:

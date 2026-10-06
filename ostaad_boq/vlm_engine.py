@@ -1,8 +1,10 @@
-"""VLM-assisted semantic extraction module for Ostaad Blueprint-to-BOQ Engine.
+"""VLM-assisted semantic perception and candidate extraction module for Ostaad BOQ.
 
-Uses multimodal vision foundation models (Gemini / Claude / OpenAI) when API keys
-are provided via environment variables, with a dynamic deterministic local fallback
-based on OCR layout, metric/imperial decimal numbers, and architectural heuristics.
+Integrates Gemini 3.8 Flash (and Gemini 3.1 Pro Preview escalation) via GeminiService.
+Enforces the core architectural principle:
+- Gemini outputs SEMANTIC PERCEPTION AND CANDIDATE EVIDENCE, NEVER AUTHORITATIVE MEASUREMENTS.
+- Coordinate boxes are unscaled from [0, 1000] to Canonical [0.0, 1.0].
+- When no physical evidence exists on the sheet, ZERO items are hallucinated.
 """
 
 from __future__ import annotations
@@ -11,96 +13,227 @@ import io
 import json
 import os
 import re
-from typing import Any
+import logging
+from typing import Any, List, Optional
 from PIL import Image
 
-from .models import ItemCategory, UnitType, CalculationMethod, TakeoffLine, RoomTakeoff
-from .ocr import OCRItem, AREA_PATTERN
+from .models import (
+    ItemCategory,
+    UnitType,
+    CalculationMethod,
+    ValidationStatus,
+    QuantityType,
+    EvidenceCandidate,
+    TakeoffLine,
+    RoomTakeoff,
+    SymbolCandidate,
+    DrawingType,
+)
+from .ocr import OCRItem, parse_room_area_callouts
+from .gemini_service import (
+    GeminiService,
+    GeminiObjectDetectionResponse,
+    GeminiTitleBlockResponse,
+    GeminiScheduleResponse,
+)
+from .coordinate_transform import CoordinateTransformer
+from .anti_hallucination import AntiHallucinationEngine
+
+logger = logging.getLogger("ostaad_boq.vlm")
 
 
-VLM_PROMPT = """You are an expert construction estimator and quantity surveyor reviewing a 2D architectural blueprint floor plan.
-Analyze the drawing and extract an exact, structured count of all building elements, fixtures, and room areas.
+GEMINI_PERCEPTION_PROMPT = """You are an expert construction estimator performing semantic perception on a 2D construction blueprint.
+Locate all visible architectural openings (doors, windows) and room labels.
+For each element found on the drawing:
+1. Return its label (e.g. 'D1', 'W1', 'Door', 'Window', 'Bedroom', 'Kitchen').
+2. Return its bounding box as box_2d: [ymin, xmin, ymax, xmax] with integer coordinates in the normalized range [0, 1000].
+3. Categorize each element strictly as 'door', 'window', 'room_label', or 'structural'.
 
-Return ONLY a valid JSON object matching this schema:
-{
-  "doors": [
-    {"description": "Single Interior Swing Door", "quantity": 8, "confidence": 0.95, "locations": ["Bedrooms", "Bathrooms", "Storage"]}
-  ],
-  "windows": [
-    {"description": "Exterior Window Unit", "quantity": 8, "confidence": 0.92, "locations": ["Perimeter walls"]}
-  ],
-  "plumbing_fixtures": [
-    {"description": "Water Closet (Toilet)", "quantity": 2, "confidence": 0.98, "locations": ["Bathroom 1", "Bathroom 2"]},
-    {"description": "Bathroom Vanity Sink", "quantity": 2, "confidence": 0.95, "locations": ["Bathroom 1", "Bathroom 2"]},
-    {"description": "Kitchen Double Sink", "quantity": 1, "confidence": 0.97, "locations": ["Kitchen"]},
-    {"description": "Shower / Bathtub Unit", "quantity": 2, "confidence": 0.94, "locations": ["Bathroom 1", "Bathroom 2"]}
-  ],
-  "appliances": [
-    {"description": "Residential Range / Cooktop (4-burner)", "quantity": 1, "confidence": 0.96, "locations": ["Kitchen"]}
-  ],
-  "casework": [
-    {"description": "Kitchen Base and Wall Cabinets", "quantity": 1, "unit": "LS", "confidence": 0.90, "locations": ["Kitchen"]}
-  ],
-  "rooms": [
-    {"name": "Room 1", "stated_area_sqft": 130, "confidence": 0.95}
-  ]
-}
-
-Ensure counts match the drawing exactly. If room areas are metric (m²), convert them to sq ft by multiplying by 10.76.
+CRITICAL INSTRUCTIONS:
+- Do NOT guess or hallucinate items that are not physically drawn on the sheet.
+- If the drawing is a site plan, land survey, or has no doors/windows, return an empty list of candidates.
+- Do NOT estimate lengths, areas, or dimensions. Return spatial bounding boxes and labels only.
 """
+
+
+def detect_drawing_symbols(ocr_items: list[OCRItem]) -> list[SymbolCandidate]:
+    """Deterministic visual symbol and opening detector with spatial attribution and confidence."""
+    candidates: list[SymbolCandidate] = []
+
+    door_re = re.compile(r"""^(?:D[1-9]?(\s*\(.*\))?|MD|ED|MAIN\s*DOOR)$""", re.IGNORECASE)
+    window_re = re.compile(r"""^(?:W[1-9]?|V[1-9]?|KW|AW|VENT)$""", re.IGNORECASE)
+    column_re = re.compile(r"""^(?:C[1-9]?|COL[1-9]?)$""", re.IGNORECASE)
+    plumbing_re = re.compile(r"""^(?:WC|EWC|IWC|TOILET|BATH)$""", re.IGNORECASE)
+    electrical_re = re.compile(r"""^(?:DB|SB[1-9]?|MCB)$""", re.IGNORECASE)
+
+    for idx, it in enumerate(ocr_items):
+        clean = it.text.strip()
+        if door_re.match(clean):
+            candidates.append(
+                SymbolCandidate(
+                    id=f"sym-door-{idx}",
+                    symbol_type="door",
+                    label=clean.upper(),
+                    description=f"Architectural Door Opening ({clean.upper()})",
+                    bbox=list(it.bbox),
+                    detector_source="symbol_tag_detector",
+                    model_version="ostaad-tag-v1.0",
+                    confidence=round(it.confidence, 2),
+                    attributes={"raw_tag": clean, "provenance": it.source_type},
+                )
+            )
+        elif window_re.match(clean):
+            is_vent = clean.upper().startswith("V")
+            desc = "Louvered Ventilator Opening" if is_vent else f"Window Opening ({clean.upper()})"
+            candidates.append(
+                SymbolCandidate(
+                    id=f"sym-win-{idx}",
+                    symbol_type="window",
+                    label=clean.upper(),
+                    description=desc,
+                    bbox=list(it.bbox),
+                    detector_source="symbol_tag_detector",
+                    model_version="ostaad-tag-v1.0",
+                    confidence=round(it.confidence, 2),
+                    attributes={"raw_tag": clean, "is_ventilator": is_vent, "provenance": it.source_type},
+                )
+            )
+        elif column_re.match(clean):
+            candidates.append(
+                SymbolCandidate(
+                    id=f"sym-col-{idx}",
+                    symbol_type="column",
+                    label=clean.upper(),
+                    description=f"Structural RCC Column ({clean.upper()})",
+                    bbox=list(it.bbox),
+                    detector_source="symbol_tag_detector",
+                    model_version="ostaad-tag-v1.0",
+                    confidence=round(it.confidence, 2),
+                    attributes={"raw_tag": clean, "provenance": it.source_type},
+                )
+            )
+        elif plumbing_re.match(clean):
+            candidates.append(
+                SymbolCandidate(
+                    id=f"sym-plumb-{idx}",
+                    symbol_type="plumbing_fixture",
+                    label=clean.upper(),
+                    description=f"Sanitary Plumbing Fixture ({clean.upper()})",
+                    bbox=list(it.bbox),
+                    detector_source="symbol_tag_detector",
+                    model_version="ostaad-tag-v1.0",
+                    confidence=round(it.confidence, 2),
+                    attributes={"raw_tag": clean, "provenance": it.source_type},
+                )
+            )
+        elif electrical_re.match(clean):
+            candidates.append(
+                SymbolCandidate(
+                    id=f"sym-elec-{idx}",
+                    symbol_type="electrical_device",
+                    label=clean.upper(),
+                    description=f"Electrical Distribution / Switchboard ({clean.upper()})",
+                    bbox=list(it.bbox),
+                    detector_source="symbol_tag_detector",
+                    model_version="ostaad-tag-v1.0",
+                    confidence=round(it.confidence, 2),
+                    attributes={"raw_tag": clean, "provenance": it.source_type},
+                )
+            )
+
+    return candidates
 
 
 def extract_semantic_elements(
     image: Image.Image,
     sheet_name: str = "Sheet 1",
     ocr_items: list[OCRItem] | None = None,
+    drawing_type: DrawingType = DrawingType.UNKNOWN,
 ) -> dict[str, Any]:
-    """Run VLM semantic extraction if configured, or fall back to dynamic local extraction."""
-    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    """Run VLM semantic extraction or deterministic evidence harvesting.
+    
+    Strict Invariant:
+    If drawing_type is SITE_TOPOGRAPHICAL_SURVEY, all residential doors, windows,
+    rooms, and plumbing fixtures are prohibited and return empty lists.
+    """
+    items = ocr_items or []
+    detected_symbols = detect_drawing_symbols(items)
+    evidence_candidates: list[EvidenceCandidate] = []
 
-    if api_key:
+    # Strict Invariant: Site surveys do not extract residential architecture
+    if drawing_type == DrawingType.SITE_TOPOGRAPHICAL_SURVEY:
+        return {
+            "doors": [],
+            "windows": [],
+            "plumbing_fixtures": [],
+            "appliances": [],
+            "casework": [],
+            "rooms": [],
+            "symbol_candidates": [],
+            "evidence_candidates": [],
+            "telemetry": None,
+        }
+
+    # Attempt Gemini perception if client is available
+    gemini = GeminiService()
+    gemini_telemetry = None
+
+    if gemini.is_available:
         try:
-            return _call_gemini_vlm(image, api_key)
-        except Exception:
-            pass
+            buf = io.BytesIO()
+            thumb = image.copy()
+            thumb.thumbnail((1600, 1600))
+            thumb.save(buf, format="JPEG", quality=85)
+            img_bytes = buf.getvalue()
 
-    return _dynamic_local_fallback(image, sheet_name, ocr_items or [])
+            detection_res, gemini_telemetry = gemini.generate_structured(
+                prompt=GEMINI_PERCEPTION_PROMPT,
+                image_bytes=img_bytes,
+                response_model=GeminiObjectDetectionResponse,
+            )
 
+            if detection_res and isinstance(detection_res, GeminiObjectDetectionResponse):
+                for cand_box in detection_res.candidates:
+                    can_box = CoordinateTransformer.gemini_box_to_canonical(cand_box.box_2d)
+                    evidence_candidates.append(
+                        EvidenceCandidate(
+                            item_type=cand_box.category,
+                            category=f"08 00 00 - {cand_box.category.title()}",
+                            source="GEMINI",
+                            source_model=gemini_telemetry.model_id if gemini_telemetry else "gemini-3.8-flash",
+                            sheet_id=sheet_name,
+                            bbox_normalized=can_box,
+                            raw_text=cand_box.label,
+                            normalized_text=cand_box.label.upper(),
+                            quantity=1.0,
+                            unit="EA",
+                            confidence=cand_box.confidence,
+                            validation_status=ValidationStatus.NEEDS_REVIEW,
+                            quantity_type=QuantityType.ESTIMATED_QUANTITY,
+                        )
+                    )
+        except Exception as e:
+            logger.warning(f"Gemini perception call failed: {e}")
 
-def _call_gemini_vlm(image: Image.Image, api_key: str) -> dict[str, Any]:
-    """Call Google Gemini 2.5 Flash for rapid multimodal blueprint understanding."""
-    from google import genai
-    from google.genai import types
-
-    client = genai.Client(api_key=api_key)
-    buf = io.BytesIO()
-    image.save(buf, format="JPEG", quality=90)
-    image_bytes = buf.getvalue()
-
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=[
-            types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
-            VLM_PROMPT,
-        ],
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            temperature=0.1,
-        ),
+    # Fall back to deterministic OCR-based symbol harvesting
+    return _assemble_deterministic_elements(
+        ocr_items=items,
+        detected_symbols=detected_symbols,
+        evidence_candidates=evidence_candidates,
+        telemetry=gemini_telemetry,
     )
 
-    return json.loads(response.text)
 
-
-def _dynamic_local_fallback(
-    image: Image.Image,
-    sheet_name: str,
+def _assemble_deterministic_elements(
     ocr_items: list[OCRItem],
+    detected_symbols: list[SymbolCandidate],
+    evidence_candidates: list[EvidenceCandidate],
+    telemetry: Any = None,
 ) -> dict[str, Any]:
-    from .ocr import parse_room_area_callouts
+    """Assemble verified elements strictly from corroborated OCR tokens and vector symbols."""
     extracted_rooms: list[dict] = []
-    
-    # 1. Extract rooms directly from explicit area callouts if available
+
+    # 1. Extract rooms directly from explicit area callouts
     callout_rooms = parse_room_area_callouts(ocr_items)
     if callout_rooms:
         for cr in callout_rooms:
@@ -111,108 +244,86 @@ def _dynamic_local_fallback(
                 "bbox": list(cr["bbox"]),
             })
     else:
-        # Check for text tokens with decimal area numbers (e.g. 12.1, 20.3, 31.4, 62.5, 45.9)
-        # Common in metric CAD drawings: decimal values between 4.0 and 150.0 m²
-        decimal_areas: list[tuple[float, OCRItem]] = []
-        for it in ocr_items:
-            clean = it.text.strip()
-            m_sf = AREA_PATTERN.search(clean)
-            if m_sf:
-                try:
-                    val = float(m_sf.group("val"))
-                    decimal_areas.append((val, it))
-                    continue
-                except ValueError:
-                    pass
-
-            if re.match(r"^\d{1,3}\.\d$", clean):
-                try:
-                    val = float(clean)
-                    if 4.0 <= val <= 180.0:
-                        decimal_areas.append((round(val * 10.7639, 1), it))
-                except ValueError:
-                    pass
-
+        # Check for explicit room label tokens
         room_keywords = ["bed", "bath", "kitchen", "living", "dining", "hall", "closet", "entry", "storage", "room", "porch", "balcony"]
         named_tokens = [it for it in ocr_items if any(k in it.text.lower() for k in room_keywords)]
-
         if named_tokens:
-            for idx, nt in enumerate(named_tokens[:15]):
-                matched_area = None
-                for area_val, area_it in decimal_areas:
-                    if abs(area_it.bbox[1] - nt.bbox[1]) < 0.08:
-                        matched_area = area_val
-                        break
+            for nt in named_tokens[:15]:
                 extracted_rooms.append({
                     "name": nt.text.title(),
-                    "stated_area_sqft": matched_area or 100.0,
+                    "stated_area_sqft": None,
                     "confidence": nt.confidence,
                     "bbox": list(nt.bbox),
                 })
-        elif decimal_areas:
-            for idx, (sqft, it) in enumerate(decimal_areas):
-                extracted_rooms.append({
-                    "name": f"Room Space {idx + 1}",
-                    "stated_area_sqft": sqft,
-                    "confidence": it.confidence,
-                    "bbox": list(it.bbox),
-                })
 
-    # 2. Count explicit door tags (D, D1, D2, D3) and window tags (W, W1, W2, V)
-    d_tags = [it for it in ocr_items if re.match(r"""^D[1-9]?(\s*\(.*\))?$""", it.text.strip(), re.IGNORECASE)]
-    w_tags = [it for it in ocr_items if re.match(r"""^W[1-9]?$""", it.text.strip(), re.IGNORECASE)]
-    v_tags = [it for it in ocr_items if re.match(r"""^V$""", it.text.strip(), re.IGNORECASE)]
+    # 2. Extract verified symbol detections
+    door_symbols = [s for s in detected_symbols if s.symbol_type == "door"]
+    window_symbols = [s for s in detected_symbols if s.symbol_type == "window"]
 
-    room_count = max(len(extracted_rooms), 6)
-    if d_tags:
-        # Separate main/exterior doors from interior doors
-        ext_doors = sum(1 for t in d_tags if "1" in t.text or "main" in t.text.lower()) or 1
-        int_doors = max(1, len(d_tags) - ext_doors)
-    else:
-        int_doors = max(room_count - 2, 4)
-        ext_doors = 2
+    # 3. Assemble doors list: ONLY IF DETECTED
+    doors_list: list[dict] = []
+    if door_symbols:
+        door_counts: dict[str, int] = {}
+        for d in door_symbols:
+            door_counts[d.label] = door_counts.get(d.label, 0) + 1
+        for label, count in door_counts.items():
+            doors_list.append({
+                "description": f"Door Unit ({label})",
+                "quantity": count,
+                "confidence": 0.94,
+                "locations": ["Perimeter & Interior Partitions"],
+            })
 
-    if w_tags or v_tags:
-        casement_windows = len(w_tags)
-        vent_windows = len(v_tags)
-    else:
-        casement_windows = max(int(room_count * 1.1), 6)
-        vent_windows = 2
+    # 4. Assemble windows list: ONLY IF DETECTED
+    windows_list: list[dict] = []
+    if window_symbols:
+        win_counts: dict[str, int] = {}
+        for w in window_symbols:
+            win_counts[w.label] = win_counts.get(w.label, 0) + 1
+        for label, count in win_counts.items():
+            is_v = label.startswith("V")
+            desc = f"Louvered Ventilator ({label})" if is_v else f"Exterior Window Unit ({label})"
+            windows_list.append({
+                "description": desc,
+                "quantity": count,
+                "confidence": 0.94,
+                "locations": ["Toilet Exterior Walls" if is_v else "Exterior Walls"],
+            })
 
-    # Fixtures based on room presence
-    has_kitchen = any("kitchen" in r["name"].lower() for r in extracted_rooms) or True
-    bath_count = sum(1 for r in extracted_rooms if any(k in r["name"].lower() for k in ["toilet", "bath", "wc"])) or 2
+    # 5. Plumbing fixtures: ONLY IF TOILETS / KITCHENS ARE EXPLICITLY FOUND
+    has_kitchen = any("kitchen" in r["name"].lower() for r in extracted_rooms)
+    bath_count = sum(1 for r in extracted_rooms if any(k in r["name"].lower() for k in ["toilet", "bath", "wc"]))
 
-    doors_list = [
-        {"description": "Single Interior Swing Door (Flush/Panel)", "quantity": int_doors, "confidence": 0.92, "locations": ["Interior Partitions"]},
-        {"description": "Exterior Entry / Balcony Door (Solid Core)", "quantity": ext_doors, "confidence": 0.92, "locations": ["Perimeter Entry & Balcony"]},
-    ]
+    plumbing_fixtures: list[dict] = []
+    appliances: list[dict] = []
+    casework: list[dict] = []
 
-    windows_list = [
-        {"description": "Exterior Window Unit (Aluminium / Timber Casement)", "quantity": casement_windows, "confidence": 0.92, "locations": ["Exterior Walls"]},
-    ]
-    if vent_windows > 0:
-        windows_list.append(
-            {"description": "Louvered Toilet / Utility Ventilator (V)", "quantity": vent_windows, "confidence": 0.92, "locations": ["Toilet Exterior Walls"]}
+    if bath_count > 0:
+        plumbing_fixtures.extend([
+            {"description": "Water Closet (European / Indian WC with Cistern)", "quantity": bath_count, "confidence": 0.90, "locations": ["Toilets"]},
+            {"description": "Wash Basin / Lavatory (Ceramic Basin with Tap)", "quantity": bath_count, "confidence": 0.88, "locations": ["Toilets"]},
+            {"description": "Shower Fitting / Bath Compartment Unit", "quantity": bath_count, "confidence": 0.88, "locations": ["Toilets"]},
+        ])
+
+    if has_kitchen:
+        plumbing_fixtures.append(
+            {"description": "Kitchen Sink (Stainless Steel Single Bowl)", "quantity": 1, "confidence": 0.90, "locations": ["Kitchen"]}
+        )
+        appliances.append(
+            {"description": "Residential Range / Cooktop (Gas / Induction)", "quantity": 1, "confidence": 0.88, "locations": ["Kitchen"]}
+        )
+        casework.append(
+            {"description": "Kitchen Granite Countertop & Under-Counter Cabinets", "quantity": 1, "unit": "LS", "confidence": 0.85, "locations": ["Kitchen"]}
         )
 
     return {
         "doors": doors_list,
         "windows": windows_list,
-        "plumbing_fixtures": [
-            {"description": "Water Closet (European / Indian WC with Cistern)", "quantity": bath_count, "confidence": 0.90, "locations": ["Toilets"]},
-            {"description": "Wash Basin / Lavatory (Ceramic Basin with Tap)", "quantity": bath_count, "confidence": 0.88, "locations": ["Toilets"]},
-            {"description": "Kitchen Sink (Stainless Steel Single Bowl)", "quantity": 1 if has_kitchen else 0, "confidence": 0.90, "locations": ["Kitchen"]},
-            {"description": "Shower Fitting / Bath Compartment Unit", "quantity": bath_count, "confidence": 0.88, "locations": ["Toilets"]},
-        ],
-        "appliances": [
-            {"description": "Residential Range / Cooktop (Gas / Induction)", "quantity": 1 if has_kitchen else 0, "confidence": 0.88, "locations": ["Kitchen"]},
-        ],
-        "casework": [
-            {"description": "Kitchen Granite Countertop & Under-Counter Cabinets", "quantity": 1 if has_kitchen else 0, "unit": "LS", "confidence": 0.85, "locations": ["Kitchen"]},
-        ],
-        "rooms": extracted_rooms or [
-            {"name": "Main Living Space", "stated_area_sqft": 450.0, "confidence": 0.80},
-            {"name": "Secondary Suite", "stated_area_sqft": 250.0, "confidence": 0.80},
-        ],
+        "plumbing_fixtures": plumbing_fixtures,
+        "appliances": appliances,
+        "casework": casework,
+        "rooms": extracted_rooms,
+        "symbol_candidates": detected_symbols,
+        "evidence_candidates": evidence_candidates,
+        "telemetry": telemetry,
     }
