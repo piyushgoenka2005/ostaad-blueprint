@@ -24,7 +24,7 @@ def test_gemini_service_offline_mode_graceful():
 
     assert parsed is None
     assert isinstance(telemetry, GeminiTelemetry)
-    assert telemetry.model_id == "gemini-3.8-flash"
+    assert telemetry.model_id == service.primary_model
     assert telemetry.total_tokens == 0
     assert telemetry.estimated_cost_usd == 0.0
 
