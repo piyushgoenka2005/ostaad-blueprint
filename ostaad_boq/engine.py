@@ -79,12 +79,13 @@ class OstaadBOQEngine:
             try:
                 import io
                 from .gemini_service import GeminiTitleBlockResponse
-                thumb = primary_sheet.image.copy()
-                thumb.thumbnail((1600, 1600))
+                w_px, h_px = primary_sheet.width_px, primary_sheet.height_px
+                # Crop title block region (top-right or bottom-right where CAD standards mandate title blocks)
+                tr_crop = primary_sheet.image.crop((int(0.55 * w_px), 0, w_px, int(0.40 * h_px)))
                 buf = io.BytesIO()
-                thumb.save(buf, format="JPEG", quality=85)
+                tr_crop.save(buf, format="JPEG", quality=90)
                 t_resp, _ = self.gemini_service.generate_structured(
-                    prompt="Extract drawing scale ratio (e.g. 1:250), sheet title, and stated total area from this title block.",
+                    prompt="Extract drawing scale ratio (e.g. 1:100, 1:250, 1:500), sheet title, and stated total area from this title block. Ignore surveyor coordinate grid lines.",
                     image_bytes=buf.getvalue(),
                     response_model=GeminiTitleBlockResponse,
                 )

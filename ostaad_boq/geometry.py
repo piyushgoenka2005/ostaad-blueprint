@@ -197,10 +197,12 @@ def extract_drawing_geometry(
                 )
             )
 
-            # Plinth structures / sheds footprints
+            # Plinth structures / sheds footprints (bounded to legitimate building footprints on site)
             struct_count = 0
             struct_len_sum = 0.0
-            for idx, c in enumerate(valid_contours[1:12]):
+            for idx, c in enumerate(valid_contours[1:15]):
+                if c is site_cnt:
+                    continue
                 c_area_px = cv2.contourArea(c)
                 c_peri_px = cv2.arcLength(c, closed=True)
                 if 1200 < c_area_px < site_area_px * 0.15:
@@ -222,6 +224,9 @@ def extract_drawing_geometry(
                     )
                     struct_count += 1
                     struct_len_sum += c_len
+                    # Site civil surveys contain at most the primary registered building footprints
+                    if struct_count >= 3:
+                        break
 
             if struct_count > 0:
                 linear_runs.append(

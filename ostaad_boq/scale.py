@@ -143,13 +143,18 @@ def validate_scale_candidates(
     # Identify authoritative candidates (title block metadata, explicit ratio, gemini perception, sheet header)
     authoritative = [
         c for c in candidates
-        if c.source in ["title_block_scale", "metric_ratio", "gemini_semantic", "sheet_header_scale"]
+        if c.source in ["title_block_scale", "metric_ratio", "metric_scale_string", "sheet_header_scale", "gemini_semantic"]
     ]
 
-    # Reference candidate for cross-comparison: prefer non-suspicious authoritative candidate
-    if authoritative:
-        non_suspicious = [c for c in authoritative if not c.is_suspicious]
-        ref = non_suspicious[0] if non_suspicious else authoritative[0]
+    # Reference candidate for cross-comparison: prefer explicit drawing text over secondary AI guesses
+    drawing_scales = [
+        c for c in authoritative if c.source in ["title_block_scale", "metric_ratio", "metric_scale_string", "sheet_header_scale"]
+    ]
+    if drawing_scales:
+        non_suspicious = [c for c in drawing_scales if not c.is_suspicious]
+        ref = non_suspicious[0] if non_suspicious else drawing_scales[0]
+    elif authoritative:
+        ref = authoritative[0]
     else:
         ref = candidates[0]
 

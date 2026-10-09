@@ -57,7 +57,10 @@ def _ingest_pdf(pdf_bytes: bytes, filename: str, target_dpi: int) -> list[Ingest
 
     try:
         import fitz  # PyMuPDF
+        from .grid_filter import suppress_pdf_grid_layers
+
         doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+        suppress_pdf_grid_layers(doc)
         for page_idx, page in enumerate(doc):
             pw = float(page.rect.width) if page.rect.width > 0 else 1.0
             ph = float(page.rect.height) if page.rect.height > 0 else 1.0

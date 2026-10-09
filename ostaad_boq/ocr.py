@@ -158,6 +158,39 @@ class OCREngine:
                                     source_type="ocr_raster",
                                 )
                             )
+
+                    # Targeted high-resolution title block crop OCR (top-right & bottom-right corners)
+                    # Catches fine-print scales (e.g. 'SCALE 1:250') on dense CAD sheets that downsampling obscures
+                    temp_meta = parse_title_block_metadata(items + raster_items)
+                    if temp_meta.get("scale_string") is None:
+                        corner_boxes = [
+                            (int(0.65 * w), 0, w, int(0.35 * h)),
+                            (int(0.60 * w), int(0.65 * h), w, h),
+                        ]
+                        for cx0, cy0, cx1, cy1 in corner_boxes:
+                            if cx1 > cx0 and cy1 > cy0:
+                                crop_np = img_np[cy0:cy1, cx0:cx1]
+                                crop_res = reader.readtext(crop_np, canvas_size=1200, batch_size=2)
+                                for c_pts, c_txt, c_conf in crop_res:
+                                    c_clean = c_txt.strip()
+                                    if not c_clean:
+                                        continue
+                                    c_xs = [pt[0] + cx0 for pt in c_pts]
+                                    c_ys = [pt[1] + cy0 for pt in c_pts]
+                                    c_norm = (
+                                        max(0.0, min(1.0, min(c_xs) / w)),
+                                        max(0.0, min(1.0, min(c_ys) / h)),
+                                        max(0.0, min(1.0, max(c_xs) / w)),
+                                        max(0.0, min(1.0, max(c_ys) / h)),
+                                    )
+                                    raster_items.append(
+                                        OCRItem(
+                                            text=c_clean,
+                                            confidence=float(c_conf),
+                                            bbox=c_norm,
+                                            source_type="ocr_raster",
+                                        )
+                                    )
                 except Exception:
                     pass
 
