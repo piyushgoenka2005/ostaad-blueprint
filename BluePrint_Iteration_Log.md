@@ -498,6 +498,46 @@ Implement Milestone 1 of the BuildBharat ERP:
 
 ---
 
+---
+## Iteration 20 — Milestone 2 Implementation: Material Decomposition, Dynamic Vendor RFQs & Manager Recommendation Gate
+
+### Last update
+
+2026-10-26 21:18:00 IST — Commit: fe3bc5 — eat(milestone-2): implement material decomposition, vendor RFQs, comparative L1 evaluation, and manager recommendation gate
+
+### Expected change and Functioning
+
+Implement Milestone 2 of the BuildBharat ERP:
+1. Indian Standard Material Decomposition (decompose_verified_boq_to_materials):
+   - Enforce gate: Verifies all project BOQ items are verified before decomposition can run.
+   - Decomposes verified concrete items (CUM) into OPC 53 cement bags, sand brass, and aggregate brass using IS 456 mix proportions.
+   - Decomposes brickwork items (CUM) into modular bricks and mortar cement/sand.
+   - Persists decomposed requirements to MaterialRequirementModel.
+2. Dynamic Vendor RFQs & Bidding Service (create_rfq_package, submit_vendor_bid):
+   - Generates RFQ package with unique code and 72-hour expiry.
+   - Generates secure anti-tamper magic token links for WhatsApp/SMS dispatch.
+   - Calculates landed unit costs: (base_rate + freight) * (1 + GST%).
+3. Automated L1 / L2 / L3 Comparative Statement (get_comparative_statement):
+   - Sorts all submitted bids strictly in ascending order of landed cost.
+4. Manager Recommendation Gate (manager_recommend_vendor):
+   - Authorizes only OPERATIONS, ADMIN, or SUPERADMIN roles to recommend vendor bids.
+   - Creates PurchaseOrderModel locked in PENDING_FINANCE_APPROVAL status with is_dispatched_to_vendor = False.
+   - Mandatory Gate: Vendor is strictly blocked from receiving the PO until Finance approves it.
+5. Automated Testing:
+   - Added 	ests/unit/test_milestone2_procurement.py with 6 unit tests covering decomposition gating, IS 456 math, RFQ dispatch, L1 ranking, and manager gating.
+   - All 51 unit tests across the repository pass 100%.
+
+### Edits made
+
+- ostaad_boq/erp_core/database/models.py: Added Vendor, RFQPackageModel, VendorBidModel, PurchaseOrderModel, RFQStatus, and FinanceApprovalStatus.
+- ostaad_boq/erp_core/database/__init__.py: Exposed new models.
+- ostaad_boq/erp_core/procurement/procurement_service.py: Implemented material decomposition, RFQ bidding, comparative statements, and manager recommendation gate.
+- 	ests/unit/test_milestone2_procurement.py: 6 comprehensive unit tests.
+- Verification: Executed pytest tests/unit/ -q confirming 51/51 tests pass.
+- Intentionally left unchanged: Core ostaad_boq geometric pipeline and scale validation logic.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries.
