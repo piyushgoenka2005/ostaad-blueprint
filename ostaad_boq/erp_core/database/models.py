@@ -209,5 +209,64 @@ class PurchaseOrderModel(Base):
     project = relationship("Project", back_populates="purchase_orders")
     rfq = relationship("RFQPackageModel", back_populates="purchase_orders")
     vendor = relationship("Vendor", back_populates="purchase_orders")
+    payments = relationship("PaymentTransactionModel", back_populates="purchase_order", cascade="all, delete-orphan")
+    goods_receipts = relationship("GoodsReceiptNoteModel", back_populates="purchase_order", cascade="all, delete-orphan")
     manager = relationship("User", foreign_keys=[manager_recommended_by_id])
     finance_approver = relationship("User", foreign_keys=[finance_approver_id])
+
+
+class PaymentStageType(str, Enum):
+    ADVANCE = "ADVANCE"
+    PART_PAYMENT_1 = "PART_PAYMENT_1"
+    PART_PAYMENT_2 = "PART_PAYMENT_2"
+    FINAL_BALANCE = "FINAL_BALANCE"
+
+class PaymentMethod(str, Enum):
+    NEFT_RTGS = "NEFT_RTGS"
+    CHEQUE = "CHEQUE"
+    UPI = "UPI"
+    CASH = "CASH"
+    NET_BANKING = "NET_BANKING"
+
+class PaymentTransactionModel(Base):
+    __tablename__ = "payment_transactions"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    purchase_order_id = Column(String(36), ForeignKey("purchase_orders.id"), nullable=False)
+    stage_type = Column(SQLEnum(PaymentStageType), nullable=False)
+    amount_inr = Column(Float, nullable=False)
+    payment_method = Column(SQLEnum(PaymentMethod), default=PaymentMethod.NEFT_RTGS, nullable=False)
+    transaction_ref = Column(String(100), nullable=False)  # Bank UTR or Cheque No
+    bank_name = Column(String(100), nullable=False)
+    paid_date = Column(DateTime, default=datetime.utcnow)
+    recorded_by_user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    purchase_order = relationship("PurchaseOrderModel", back_populates="payments")
+    recorded_by = relationship("User")
+
+class GoodsReceiptNoteModel(Base):
+    __tablename__ = "goods_receipt_notes"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    purchase_order_id = Column(String(36), ForeignKey("purchase_orders.id"), nullable=False)
+    challan_number = Column(String(100), nullable=False)
+    truck_number = Column(String(50), nullable=False)
+    received_quantity = Column(Float, nullable=False)
+    damaged_quantity = Column(Float, default=0.0)
+    challan_photo_url = Column(String(255), nullable=False)
+    storekeeper_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    received_date = Column(DateTime, default=datetime.utcnow)
+
+    purchase_order = relationship("PurchaseOrderModel", back_populates="goods_receipts")
+    storekeeper = relationship("User")
+
+class SiteInventoryModel(Base):
+    __tablename__ = "site_inventory"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    project_id = Column(String(36), ForeignKey("projects.id"), nullable=False)
+    material_name = Column(String(150), nullable=False)
+    current_stock = Column(Float, default=0.0)
+    uom = Column(String(20), nullable=False)
+    last_updated = Column(DateTime, default=datetime.utcnow)
