@@ -538,6 +538,46 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
+## Iteration 21 – Milestone 3: Finance Budget Approval Gate, Payment Scheduling & Site Store GRN Receiving
+
+### Last update
+
+2026-10-26 22:03:30 IST – Commit: d8cb36b – feat(milestone-3): implement finance approval gate, payment scheduling, manual UTR logging, and site store GRN receiving
+
+### Expected change and Functioning
+
+1. Finance Budget Approval Gate:
+   - Mandatory financial gatekeeper prevents PO transmission to vendors until the Finance Department or SuperAdmin formally approves the procurement budget.
+   - Manager's recommended vendor quote transitions to `APPROVED` or `REJECTED_BY_FINANCE`.
+   - On approval, sets `is_dispatched_to_vendor = True` and locks in payment terms (ADVANCE vs PART_BY_PART with configurable advance percentage).
+
+2. Manual Financial Transaction & UTR Logging:
+   - Track disbursements with manual entry of transaction references (Bank UTR / RTGS, Cheque Number, NEFT).
+   - Strict validation preventing cumulative payments from exceeding PO total value.
+   - Real-time recalculation of `paid_amount` and `balance_due`.
+
+3. Site Store GRN Receiving & Godown Stock Sync:
+   - Site storekeepers log physical deliveries against dispatched POs with delivery challan photo URI and vehicle number.
+   - Enforces role-based permissions (`SITE_STORE`, `OPERATIONS`, `ADMIN`, `SUPERADMIN`).
+   - Prevents unapproved or undispatched PO deliveries.
+   - Enforces a 5% maximum over-delivery threshold to protect against unauthorized excess deliveries.
+   - Automatically increments real-time warehouse inventory (`SiteInventoryModel`).
+
+4. Automated Testing:
+   - Added `tests/unit/test_milestone3_finance_stores.py` with 8 comprehensive unit tests.
+   - All 59 unit tests across the repository pass with 100% success rate.
+
+### Edits made
+
+- ostaad_boq/erp_core/database/models.py: Added `PaymentStageType`, `PaymentMethod`, `PaymentTransactionModel`, `GoodsReceiptNoteModel`, and `SiteInventoryModel`.
+- ostaad_boq/erp_core/database/__init__.py: Exported new models and enums.
+- ostaad_boq/erp_core/procurement/finance_approval_service.py: Implemented `finance_approve_po`, `finance_reject_po`, `record_po_payment`, `receive_goods_at_site`, and `get_po_financial_summary`.
+- tests/unit/test_milestone3_finance_stores.py: 8 unit tests validating role enforcement, advance/part-by-part payment validation, over-delivery tolerance, and inventory incrementation.
+- Verification: Ran `pytest tests/unit/ -q` confirming all 59 tests pass.
+- Intentionally left unchanged: Core geometric takeoff pipeline, scale validation, and open-source CAD adapters.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries.
