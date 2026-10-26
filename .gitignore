@@ -94,3 +94,7 @@ mlruns/
 Thumbs.db
 datasets/real/
 _internal/
+
+# Open Source ERP reference downloads
+opensource_erp/
+OpenSource_ERP/
