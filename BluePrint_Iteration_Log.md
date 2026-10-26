@@ -578,6 +578,46 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
+## Iteration 22 – Milestone 4: Two-Way Match Settlement Engine, PO Order Closure & Operational Reporting
+
+### Last update
+
+2026-10-26 22:21:50 IST – Commit: 2688bbd – feat(milestone-4): implement two-way match settlement engine, po order closure, and operational reporting
+
+### Expected change and Functioning
+
+1. Two-Way Match Reconciliation Engine:
+   - Automated financial verification matching PO contracted landed rates and Site Store physical accepted GRN quantities against Vendor Invoices.
+   - Enforces rate discrepancy detection: Automatically caps approved unit rates at contracted PO landed rate if vendor overbills.
+   - Enforces quantity discrepancy detection: Automatically caps payable quantities at net physical goods received (excluding damaged goods), strictly preventing payment for undelivered materials.
+   - Role enforcement: Only Finance, SuperAdmin, and Admin roles can perform reconciliation or execute final settlements.
+
+2. Final Balance Settlement & PO Closure:
+   - Calculates exact outstanding balance due after deducting prior advance and milestone tranche disbursements.
+   - Validates final payment disbursements against balance due (rejects overpayments).
+   - Records manual payment details (UTR, RTGS/NEFT, Cheque No, Bank Name).
+   - Automatically transitions PO status to `is_fully_settled = True` with timestamp `settled_at`, and updates associated invoices to `SETTLED`.
+
+3. Operational & Executive Financial Reporting:
+   - Project Procurement Status Report: Aggregates total committed PO values, delivered materials, remaining balances, and real-time site godown inventory levels.
+   - Financial Cash Outflow & Accounts Payable Report: Tracks total budget commitments, advance disbursements, milestone payments, final settlements, and outstanding liabilities.
+   - Vendor Commercial Ledger: Comprehensive vendor statement with all issued POs, physical delivery fulfillment, invoice amounts, paid transactions with UTRs, and net balances due.
+
+4. Automated Testing:
+   - Added `tests/unit/test_milestone4_settlement_reporting.py` with 8 comprehensive unit tests.
+   - All 67 unit tests across the repository pass with 100% success rate.
+
+### Edits made
+
+- ostaad_boq/erp_core/database/models.py: Added `InvoiceReconciliationStatus`, `VendorInvoiceModel`, `PurchaseOrderModel.is_fully_settled`, and `PurchaseOrderModel.settled_at`.
+- ostaad_boq/erp_core/database/__init__.py: Exported new models and enums.
+- ostaad_boq/erp_core/procurement/settlement_service.py: Implemented `reconcile_vendor_invoice`, `execute_final_po_settlement`, `generate_project_procurement_report`, `generate_financial_expenditure_report`, and `generate_vendor_ledger_report`.
+- tests/unit/test_milestone4_settlement_reporting.py: 8 unit tests validating role enforcement, invoice matching, rate capping, physical delivery capping, settlement disbursement, overpayment rejection, and reporting.
+- Verification: Executed `pytest tests/unit/ -q` confirming all 67 tests pass.
+- Intentionally left unchanged: Core blueprint geometric pipeline, scale validation, and open-source CAD adapters.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries.
