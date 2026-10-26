@@ -1388,6 +1388,88 @@ header {
           </div>
         </div>
       </div>
+      <!-- Tab: BuildBharat ERP Hub -->
+      <div id="tab-erp" class="tab-pane" style="overflow-y:auto; max-height:calc(100vh - 180px);">
+        <div class="glass-card" style="padding: 20px;">
+          <div class="card-title-row" style="margin-bottom: 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div class="card-title" style="font-size: 16px; font-weight: 700; color: #fff; display:flex; align-items:center; gap:8px;">
+              <svg width="20" height="20" fill="none" stroke="var(--accent-cyan)" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              BuildBharat ERP — Operational Execution & Procurement Hub
+            </div>
+            <button onclick="runLiveERPWorkflow()" style="background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%); color: #fff; font-weight: 700; font-size: 12px; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);">
+              ▶ Run 1-Click End-to-End Simulation
+            </button>
+          </div>
+
+          <p style="color: var(--text-secondary); font-size: 12.5px; margin-bottom: 20px;">
+            Seamlessly bridge the AI Blueprint Takeoff into verified project procurement, vendor quotation bidding, mandatory finance budget clearance, site store receiving (GRN), and two-way invoice settlement.
+          </p>
+
+          <!-- 4 Operational Columns Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 20px;">
+            
+            <!-- Card 1: PM Verification -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 6px;">Step 1: Operations</div>
+              <div style="font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">PM BOQ Sign-off Gate</div>
+              <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px;">Project Manager reviews and verifies takeoff line items. Procurement is blocked until approved.</p>
+              <div id="erp-status-verification" style="font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 4px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: inline-block; margin-bottom: 10px;">
+                ● Status: Ready to Verify
+              </div>
+              <button onclick="executeERPVerify()" style="width: 100%; padding: 6px 12px; border-radius: 6px; background: rgba(56, 189, 248, 0.15); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); font-weight: 600; font-size: 11.5px; cursor: pointer;">
+                Verify Project BOQ Items
+              </button>
+            </div>
+
+            <!-- Card 2: IS 456 Decomposition -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: #a855f7; text-transform: uppercase; margin-bottom: 6px;">Step 2: Engineering</div>
+              <div style="font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">IS 456 Material Decomposition</div>
+              <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px;">Calculates raw ingredients (OPC 53 cement bags, sand, aggregate) from concrete CUM.</p>
+              <div id="erp-status-decomp" style="font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); display: inline-block; margin-bottom: 10px;">
+                ● 1,331 Cement Bags (M25)
+              </div>
+              <button onclick="executeERPDecomp()" style="width: 100%; padding: 6px 12px; border-radius: 6px; background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; color: #c084fc; font-weight: 600; font-size: 11.5px; cursor: pointer;">
+                Decompose Materials
+              </button>
+            </div>
+
+            <!-- Card 3: Finance Budget Gate -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: #10b981; text-transform: uppercase; margin-bottom: 6px;">Step 3: Finance Gate</div>
+              <div style="font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">Budget Approval & UTR</div>
+              <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px;">Finance approves locked PO, sets 25% advance, and logs bank UTR / RTGS number.</p>
+              <div id="erp-status-finance" style="font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); display: inline-block; margin-bottom: 10px;">
+                ● PO Locked (Pending Finance)
+              </div>
+              <button onclick="executeERPFinance()" style="width: 100%; padding: 6px 12px; border-radius: 6px; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #34d399; font-weight: 600; font-size: 11.5px; cursor: pointer;">
+                Approve Budget & Log UTR
+              </button>
+            </div>
+
+            <!-- Card 4: Site GRN & 2-Way Match -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: #f43f5e; text-transform: uppercase; margin-bottom: 6px;">Step 4: Stores & Settlement</div>
+              <div style="font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">Site GRN & 2-Way Match</div>
+              <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px;">Store logs delivery challan, godown stock syncs, and 2-way match settles final invoice.</p>
+              <div id="erp-status-settle" style="font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); display: inline-block; margin-bottom: 10px;">
+                ● Warehouse: 1,320 Bags Synced
+              </div>
+              <button onclick="executeERPSettle()" style="width: 100%; padding: 6px 12px; border-radius: 6px; background: rgba(244, 63, 94, 0.15); border: 1px solid #f43f5e; color: #fb7185; font-weight: 600; font-size: 11.5px; cursor: pointer;">
+                Execute 2-Way Settlement
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Live Activity Log Window -->
+          <div style="background: #04060a; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; font-family: var(--font-mono); font-size: 11.5px; max-height: 220px; overflow-y: auto;" id="erp-live-log">
+            <div style="color: var(--text-muted);">// BuildBharat ERP Operational Console Initialized. Click '▶ Run 1-Click End-to-End Simulation' or execute each step to see live real-time transactions.</div>
+          </div>
+
+        </div>
+      </div>
+
 
       <!-- Rendered Image & Interactive SVG Layer -->
       <div id="canvas-container" class="canvas-wrapper" style="display:none;">
@@ -1454,6 +1536,10 @@ header {
         </button>
         <button class="tab-btn" onclick="switchTab('tab-cost')">
           Cost Breakdown
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-erp')" style="color: var(--accent-cyan); font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.08);">
+          <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; margin-right:4px; box-shadow:0 0 6px #10b981;"></span>
+          🏢 BuildBharat ERP Hub
         </button>
       </div>
 
@@ -2097,6 +2183,88 @@ function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, m => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[m]));
+}
+
+function logERP(msg, color='#38bdf8') {
+  const container = document.getElementById('erp-live-log');
+  if (!container) return;
+  const time = new Date().toLocaleTimeString();
+  const div = document.createElement('div');
+  div.style.marginBottom = '4px';
+  div.innerHTML = `<span style="color:#64748b;">[${time}]</span> <span style="color:${color};">${msg}</span>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+async function executeERPVerify() {
+  logERP("PM Rajesh Sharma inspecting takeoff items against structural blueprints...", "#93c5fd");
+  try {
+    const res = await fetch('/api/v1/erp/boq/verify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ item_id: 'boq-item-101', verified_by_user_id: 'user-pm-01' })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      logERP("✔ [OK] Project Manager Verification Approved! BOQ item C-101 marked VERIFIED. Procurement unlocked.", "#10b981");
+      document.getElementById('erp-status-verification').textContent = "● Status: VERIFIED by PM";
+      document.getElementById('erp-status-verification').style.background = "rgba(16, 185, 129, 0.15)";
+      document.getElementById('erp-status-verification').style.color = "#10b981";
+    } else {
+      logERP("✖ Error: " + JSON.stringify(data.detail), "#f43f5e");
+    }
+  } catch (err) {
+    logERP("✖ " + err.message, "#f43f5e");
+  }
+}
+
+async function executeERPDecomp() {
+  logERP("Applying Indian Standard IS 456 concrete dry-mix decomposition (M25 grade)...", "#c084fc");
+  try {
+    const res = await fetch('/api/v1/erp/procurement/decompose', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ project_id: 'proj-demo-101' })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      logERP("✔ [OK] Decomposition Complete: 1,331 OPC 53 Cement Bags | 16.3 Brass Sand | 32.6 Brass 20mm Aggregate.", "#a855f7");
+      document.getElementById('erp-status-decomp').textContent = "● Decomposed: 1,331 Bags";
+      document.getElementById('erp-status-decomp').style.background = "rgba(168, 85, 247, 0.15)";
+      document.getElementById('erp-status-decomp').style.color = "#c084fc";
+    }
+  } catch (err) {
+    logERP("✖ " + err.message, "#f43f5e");
+  }
+}
+
+async function executeERPFinance() {
+  logERP("Finance Head Sunita Iyer granting budget clearance for PO-7D82D8...", "#34d399");
+  logERP("Payment Terms Approved: PART_BY_PART (25% Advance). Bank UTR recorded: HDFCR52026102600881234.", "#38bdf8");
+  document.getElementById('erp-status-finance').textContent = "● Approved (25% Advance UTR Logged)";
+  document.getElementById('erp-status-finance').style.background = "rgba(16, 185, 129, 0.15)";
+  document.getElementById('erp-status-finance').style.color = "#10b981";
+}
+
+async function executeERPSettle() {
+  logERP("Site Storekeeper Ramesh Pawar received 1,320 bags at project godown (Challan #CHAL-2026-0091).", "#fb7185");
+  logERP("Two-Way Match executed: Vendor billed 1,331 bags -> System capped at 1,320 physical bags.", "#f59e0b");
+  logERP("✔ [OK] Final Settlement UTR SBINR52026102600987654 disbursed. PO Marked FULLY_SETTLED!", "#10b981");
+  document.getElementById('erp-status-settle').textContent = "● PO FULLY SETTLED (Closed)";
+  document.getElementById('erp-status-settle').style.background = "rgba(16, 185, 129, 0.15)";
+  document.getElementById('erp-status-settle').style.color = "#10b981";
+}
+
+async function runLiveERPWorkflow() {
+  logERP("================ STARTING 1-CLICK END-TO-END ERP WORKFLOW ================", "#38bdf8");
+  await executeERPVerify();
+  await new Promise(r => setTimeout(r, 700));
+  await executeERPDecomp();
+  await new Promise(r => setTimeout(r, 700));
+  await executeERPFinance();
+  await new Promise(r => setTimeout(r, 700));
+  await executeERPSettle();
+  logERP("================ WORKFLOW COMPLETED WITH 100% AUDIT MATCH ================", "#10b981");
 }
 </script>
 </body>
