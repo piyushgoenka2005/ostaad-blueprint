@@ -98,3 +98,5 @@ _internal/
 # Open Source ERP reference downloads
 opensource_erp/
 OpenSource_ERP/
+
+*.db
