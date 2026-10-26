@@ -1,5 +1,7 @@
 """
 BuildBharat ERP - Complete REST API Endpoints (FastAPI)
+Includes automatic database table initialization, pre-seeded realistic master data,
+and smart Swagger pre-filled defaults.
 """
 from typing import Dict, Any, List, Optional
 from datetime import datetime
@@ -8,6 +10,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from .database.session import get_db
+from .database.seed import init_db_and_seed
 from .database.models import (
     User, UserRole, Project, ProjectStatus, BOQItemModel, MaterialRequirementModel,
     Vendor, RFQPackageModel, VendorBidModel, PurchaseOrderModel,
@@ -31,85 +34,109 @@ from .procurement.settlement_service import (
     generate_vendor_ledger_report
 )
 
+# Automatically initialize database schema and realistic test data on import
+init_db_and_seed()
+
 erp_router = APIRouter(prefix="/api/v1/erp", tags=["BuildBharat ERP Core"])
 
-# ==================== Pydantic Schemas ====================
+# ==================== Pydantic Schemas with Realistic Defaults ====================
 
 class VerifyBOQItemRequest(BaseModel):
-    item_id: str
-    verified_by_user_id: str
+    item_id: str = Field("boq-item-101", description="BOQ item ID to verify")
+    verified_by_user_id: str = Field("user-pm-01", description="Project Manager user ID")
 
 class VerifyAllBOQRequest(BaseModel):
-    project_id: str
-    verified_by_user_id: str
+    project_id: str = Field("proj-demo-101", description="Project ID for bulk verification")
+    verified_by_user_id: str = Field("user-pm-01", description="Project Manager user ID")
 
 class DecomposeMaterialRequest(BaseModel):
-    project_id: str
+    project_id: str = Field("proj-demo-101", description="Project ID to decompose")
 
 class CreateRFQRequest(BaseModel):
-    project_id: str
-    material_name: str
-    required_quantity: float
-    uom: str
-    expires_in_hours: int = 72
+    project_id: str = Field("proj-demo-101", description="Project ID")
+    material_name: str = Field("OPC 53 Cement (C-101)", description="Material package name")
+    required_quantity: float = Field(1331.0, description="Quantity required")
+    uom: str = Field("BAG", description="Unit of measurement")
+    expires_in_hours: int = Field(72, description="RFQ validity in hours")
 
 class SubmitBidRequest(BaseModel):
-    rfq_id: str
-    vendor_id: str
-    base_unit_rate: float
-    freight_unit_rate: float = 0.0
-    gst_percentage: float = 18.0
+    rfq_id: str = Field(..., description="Target RFQ package ID")
+    vendor_id: str = Field("vendor-ultra-01", description="Bidding vendor ID")
+    base_unit_rate: float = Field(340.0, description="Base rate per unit excluding taxes")
+    freight_unit_rate: float = Field(15.0, description="Freight per unit to project site")
+    gst_percentage: float = Field(28.0, description="GST % (e.g. 28% for cement, 18% for steel)")
 
 class ManagerRecommendRequest(BaseModel):
-    rfq_id: str
-    selected_bid_id: str
-    manager_user_id: str
-    manager_notes: Optional[str] = "Recommended lowest landed quote"
+    rfq_id: str = Field(..., description="RFQ package ID")
+    selected_bid_id: str = Field(..., description="Selected winning vendor bid ID")
+    manager_user_id: str = Field("user-pm-01", description="Project Manager ID")
+    manager_notes: Optional[str] = Field("Recommended L1 lowest landed quote with confirmed 24h batch plant dispatch", description="Technical recommendation note")
 
 class FinanceApproveRequest(BaseModel):
-    po_id: str
-    finance_user_id: str
+    po_id: str = Field(..., description="Target Purchase Order ID")
+    finance_user_id: str = Field("user-fin-01", description="Finance Approver ID")
     payment_structure: str = Field("PART_BY_PART", description="ADVANCE_ONLY or PART_BY_PART")
-    advance_percentage: float = Field(20.0, description="Percentage of advance (0 - 100)")
-    notes: Optional[str] = ""
+    advance_percentage: float = Field(25.0, description="Percentage of advance (0 - 100)")
+    notes: Optional[str] = Field("Finance clearance granted for Terminal 2 footing package", description="Approval remarks")
 
 class FinanceRejectRequest(BaseModel):
-    po_id: str
-    finance_user_id: str
-    rejection_reason: str
+    po_id: str = Field(..., description="Target Purchase Order ID")
+    finance_user_id: str = Field("user-fin-01", description="Finance Approver ID")
+    rejection_reason: str = Field(..., description="Reason for audit budget rejection")
 
 class RecordPaymentRequest(BaseModel):
-    po_id: str
-    finance_user_id: str
+    po_id: str = Field(..., description="Target Purchase Order ID")
+    finance_user_id: str = Field("user-fin-01", description="Finance user ID")
     stage_type: str = Field("ADVANCE", description="ADVANCE, PART_PAYMENT_1, PART_PAYMENT_2, FINAL_BALANCE")
-    amount_inr: float
+    amount_inr: float = Field(..., description="Amount disbursed in INR")
     payment_method: str = Field("NEFT_RTGS", description="NEFT_RTGS, CHEQUE, UPI, CASH")
-    transaction_ref: str = Field(..., description="Bank UTR or Cheque Number")
-    bank_name: str
+    transaction_ref: str = Field("HDFCR52026102600881234", description="Bank UTR or Cheque Number")
+    bank_name: str = Field("HDFC Corporate Bank", description="Originating Bank Name")
 
 class SiteGRNRequest(BaseModel):
-    po_id: str
-    storekeeper_id: str
-    challan_number: str
-    truck_number: str
-    received_quantity: float
-    damaged_quantity: float = 0.0
-    challan_photo_url: str
+    po_id: str = Field(..., description="Target Purchase Order ID")
+    storekeeper_id: str = Field("user-store-01", description="Site Storekeeper user ID")
+    challan_number: str = Field("CHAL-2026-0091", description="Transporter Delivery Challan Number")
+    truck_number: str = Field("MH-04-AZ-9988", description="Commercial Truck Vehicle Registration")
+    received_quantity: float = Field(700.0, description="Gross quantity delivered")
+    damaged_quantity: float = Field(0.0, description="Quantity rejected / damaged in transit")
+    challan_photo_url: str = Field("https://s3.ap-south-1.amazonaws.com/erp-docs/chal-0091.jpg", description="Photo proof URL of physical challan")
 
 class ReconcileInvoiceRequest(BaseModel):
-    purchase_order_id: str
-    invoice_number: str
-    invoiced_quantity: float
-    invoiced_unit_rate: float
-    finance_user_id: str
+    purchase_order_id: str = Field(..., description="Target Purchase Order ID")
+    invoice_number: str = Field("UTCL-TAX-INV-88910", description="Vendor Tax Invoice Number")
+    invoiced_quantity: float = Field(700.0, description="Quantity claimed on tax invoice")
+    invoiced_unit_rate: float = Field(454.40, description="Unit rate claimed on invoice")
+    finance_user_id: str = Field("user-fin-01", description="Finance Auditor ID")
 
 class FinalSettlementRequest(BaseModel):
-    po_id: str
-    finance_user_id: str
-    amount: float
-    payment_method: str = "NEFT_RTGS"
-    transaction_ref: str
-    bank_name: str
+    po_id: str = Field(..., description="Target Purchase Order ID")
+    finance_user_id: str = Field("user-fin-01", description="Finance user ID")
+    amount: float = Field(..., description="Settlement amount in INR")
+    payment_method: str = Field("NEFT_RTGS", description="NEFT_RTGS or CHEQUE")
+    transaction_ref: str = Field("SBINR52026102600987654", description="Bank UTR / RTGS reference")
+    bank_name: str = Field("State Bank of India", description="Disbursing Bank Name")
+
+# ==================== 0. Demo Helpers ====================
+
+@erp_router.get("/demo-ids")
+def api_get_demo_ids():
+    """Returns valid seeded master IDs to copy-paste into Swagger UI."""
+    return {
+        "tenant_id": "tenant-demo-1",
+        "company_name": "Larsen & Toubro Construction Ltd",
+        "users": {
+            "project_manager": {"id": "user-pm-01", "name": "Rajesh Sharma", "role": "OPERATIONS"},
+            "head_of_finance": {"id": "user-fin-01", "name": "Sunita Iyer", "role": "FINANCE"},
+            "site_storekeeper": {"id": "user-store-01", "name": "Ramesh Pawar", "role": "SITE_STORE"}
+        },
+        "project": {"id": "proj-demo-101", "name": "Navi Mumbai International Airport - Terminal 2"},
+        "draft_boq_item": {"id": "boq-item-101", "description": "M25 RCC Footings (120 CUM)"},
+        "vendors": [
+            {"id": "vendor-ultra-01", "name": "Ultratech Cement Ltd"},
+            {"id": "vendor-ambuja-01", "name": "Ambuja Cements Ltd"}
+        ]
+    }
 
 # ==================== 1. BOQ Verification Endpoints ====================
 
@@ -118,7 +145,17 @@ def api_verify_boq_item(req: VerifyBOQItemRequest, db: Session = Depends(get_db)
     """Project Manager signs off on a specific BOQ item."""
     try:
         item = verify_boq_item(db, req.item_id, req.verified_by_user_id)
-        return {"status": "success", "item_id": item.id, "is_verified": item.is_verified}
+        return {
+            "status": "success",
+            "message": f"BOQ Item '{item.wbs_code}' verified successfully by Project Manager.",
+            "item_id": item.id,
+            "wbs_code": item.wbs_code,
+            "description": item.description,
+            "quantity": item.quantity,
+            "unit": item.unit,
+            "is_verified": item.is_verified,
+            "verified_by_user_id": item.verified_by_user_id
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -127,7 +164,7 @@ def api_verify_all_boq(req: VerifyAllBOQRequest, db: Session = Depends(get_db)):
     """Bulk signoff of all draft BOQ items in a project."""
     try:
         count = verify_all_project_items(db, req.project_id, req.verified_by_user_id)
-        return {"status": "success", "verified_items_count": count}
+        return {"status": "success", "message": f"Successfully verified {count} BOQ item(s).", "verified_items_count": count}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
