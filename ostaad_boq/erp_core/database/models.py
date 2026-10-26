@@ -204,6 +204,8 @@ class PurchaseOrderModel(Base):
     # Dispatch Lock
     is_dispatched_to_vendor = Column(Boolean, default=False)
     dispatched_at = Column(DateTime, nullable=True)
+    is_fully_settled = Column(Boolean, default=False)
+    settled_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     project = relationship("Project", back_populates="purchase_orders")
@@ -211,6 +213,7 @@ class PurchaseOrderModel(Base):
     vendor = relationship("Vendor", back_populates="purchase_orders")
     payments = relationship("PaymentTransactionModel", back_populates="purchase_order", cascade="all, delete-orphan")
     goods_receipts = relationship("GoodsReceiptNoteModel", back_populates="purchase_order", cascade="all, delete-orphan")
+    invoices = relationship("VendorInvoiceModel", back_populates="purchase_order", cascade="all, delete-orphan")
     manager = relationship("User", foreign_keys=[manager_recommended_by_id])
     finance_approver = relationship("User", foreign_keys=[finance_approver_id])
 
@@ -270,3 +273,28 @@ class SiteInventoryModel(Base):
     current_stock = Column(Float, default=0.0)
     uom = Column(String(20), nullable=False)
     last_updated = Column(DateTime, default=datetime.utcnow)
+
+
+class InvoiceReconciliationStatus(str, Enum):
+    MATCHED = "MATCHED"
+    RATE_DISCREPANCY = "RATE_DISCREPANCY"
+    QUANTITY_DISCREPANCY = "QUANTITY_DISCREPANCY"
+    SETTLED = "SETTLED"
+
+class VendorInvoiceModel(Base):
+    __tablename__ = "vendor_invoices"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    purchase_order_id = Column(String(36), ForeignKey("purchase_orders.id"), nullable=False)
+    invoice_number = Column(String(100), nullable=False)
+    invoice_date = Column(DateTime, nullable=False, default=datetime.utcnow)
+    invoiced_quantity = Column(Float, nullable=False)
+    invoiced_unit_rate = Column(Float, nullable=False)
+    total_invoiced_amount = Column(Float, nullable=False)
+    verified_payable_quantity = Column(Float, default=0.0)
+    approved_payable_amount = Column(Float, default=0.0)
+    reconciliation_status = Column(SQLEnum(InvoiceReconciliationStatus), default=InvoiceReconciliationStatus.MATCHED, nullable=False)
+    variance_notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    purchase_order = relationship("PurchaseOrderModel", back_populates="invoices")

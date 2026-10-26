@@ -1,5 +1,5 @@
 """
-BuildBharat ERP Database Package (Milestones 1, 2, 3)
+BuildBharat ERP Database Package (Milestones 1, 2, 3, 4)
 """
 from .session import Base, engine, SessionLocal, get_db
 from .models import (
@@ -7,6 +7,7 @@ from .models import (
     Vendor, RFQPackageModel, VendorBidModel, PurchaseOrderModel,
     PaymentStageType, PaymentMethod, PaymentTransactionModel,
     GoodsReceiptNoteModel, SiteInventoryModel,
+    InvoiceReconciliationStatus, VendorInvoiceModel,
     RFQStatus, FinanceApprovalStatus, PaymentStructure, GSTIN_REGEX
 )
 from .verification_service import (
