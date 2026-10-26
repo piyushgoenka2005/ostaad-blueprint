@@ -461,6 +461,43 @@ Refine the BuildBharat ERP architecture and implementation plan based on commerc
 
 ---
 
+---
+## Iteration 19 — Milestone 1 Implementation: PostgreSQL Database Models, RBAC & Engineer Verification Gate
+
+### Last update
+
+2026-10-26 20:46:00 IST — Commit: 4497218 — eat(milestone-1): implement PostgreSQL database models, RBAC, and engineer verification gate
+
+### Expected change and Functioning
+
+Implement Milestone 1 of the BuildBharat ERP:
+1. Pure PostgreSQL Relational Database Models:
+   - Configured session.py with PostgreSQL connection string and local fallback.
+   - Implemented Tenant model with Indian 15-digit GSTIN regex validation and state codes.
+   - Implemented User model with 6 distinct RBAC roles (OPERATIONS, FINANCE, SITE_STORE, LABOUR, ADMIN, SUPERADMIN).
+   - Implemented Project model with location, contract value, and lifecycle status.
+   - Implemented BOQItemModel with WBS code, civil units, quantities, and verification flags.
+   - Implemented MaterialRequirementModel for decomposed material tracking.
+2. Engineer Verification Gatekeeping Service (erification_service.py):
+   - erify_boq_item: Permits only authorized roles (OPERATIONS, ADMIN, SUPERADMIN) to digitally verify line items.
+   - erify_all_project_items: Batch verifies all project draft items.
+   - can_dispatch_procurement: Mandatory gate ensuring no purchase requisition can be triggered if unverified BOQ items exist.
+3. Automated Unit Testing:
+   - Created 	ests/unit/test_milestone1_database.py with 5 tests validating table creation, GSTIN regex enforcement, unauthorized verification blocking, and procurement clearance unlocking.
+   - All 45 unit tests across the repository pass 100%.
+
+### Edits made
+
+- ostaad_boq/erp_core/database/__init__.py: Package initialization.
+- ostaad_boq/erp_core/database/session.py: Database engine & session management.
+- ostaad_boq/erp_core/database/models.py: SQLAlchemy ORM entity models with GSTIN validation.
+- ostaad_boq/erp_core/database/verification_service.py: Verification gate service logic.
+- 	ests/unit/test_milestone1_database.py: 5 comprehensive unit tests.
+- Verification: Executed pytest tests/unit/ -q confirming 45/45 tests pass.
+- Intentionally left unchanged: Core ostaad_boq geometric algorithms and scale validation logic.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries.
