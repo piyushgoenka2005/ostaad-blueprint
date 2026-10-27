@@ -78,8 +78,8 @@ export default function SiteStoreDashboard() {
         setSelectedPO(pos[0]);
         setGrossQuantity(pos[0].pending_delivery_quantity > 0 ? pos[0].pending_delivery_quantity : pos[0].ordered_quantity);
       }
-      if (report && report.godown_stock) {
-        setGodownStock(report.godown_stock);
+      if (report && (report.godown_inventory || report.godown_stock)) {
+        setGodownStock(report.godown_inventory || report.godown_stock);
       } else {
         // Fallback default godown items
         setGodownStock([

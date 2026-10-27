@@ -940,6 +940,46 @@ ext build (compiled in 10.8s, 0 errors); executed browser subagent confirming lo
 
 ---
 
+## Iteration 32 — Step 6: Automated Integration Pilot Test Suite, Production Build & Launcher
+
+### Last update
+
+2026-10-27 22:15:00 IST — Commit: Pending — feat(step-6): create end-to-end integration test suite, verify clean production build, and add decoupled orchestrator launcher
+
+### Expected change and Functioning
+
+1. Complete Step 6 of the Decoupled ERP Architecture:
+   - Construct comprehensive automated end-to-end integration test suite in backend/tests/integration/test_e2e_pilot_lifecycle.py covering the full procurement and financial lifecycle:
+     * User registration with unique credentials, PBKDF2 hashing, tenant creation, and JWT issuance.
+     * User authentication & /auth/me token inspection.
+     * Demo accounts retrieval (/auth/demo-accounts).
+     * Project BOQ item management (add line, edit line, delete, verify all items).
+     * IS 456 material requirements decomposition.
+     * Recommendation of vendor quote and proposal dispatch to Finance (/procurement/recommend).
+     * Finance dual approval gate (/finance/approve) configuring advance payment structure.
+     * Finance advance bank disbursement transaction recording with UTR.
+     * Site Storekeeper active dispatched PO lookup, physical delivery verification (GRN) with challan photo and truck registration, deducting damaged bags, and crediting live warehouse inventory balance.
+     * Finance two-way match reconciliation against vendor tax invoice (/reconciliation/invoice).
+     * Final balance settlement disbursement (/reconciliation/settle) closing PO in is_fully_settled = True status.
+     * Corporate Admin multi-department directory audit and live procurement/inventory report retrieval.
+2. Production Build Verification:
+   - Execute npm run build in frontend/, verifying TypeScript compilation and static page generation for all 7 routes with 0 errors.
+   - Execute full unit test suite pytest tests/unit/ -q, verifying 67/67 unit tests pass (100%).
+3. Orchestration & Launcher:
+   - Create start_servers.bat at the repository root for one-click startup of both the FastAPI backend (port 8000) and Next.js frontend (port 3000).
+
+### Edits made
+
+- backend/tests/integration/test_e2e_pilot_lifecycle.py: Created full end-to-end pilot integration test suite with FastAPI TestClient.
+- backend/ostaad_boq/erp_core/api.py: Added id alongside item_id in api_create_boq_item response for uniform payload compatibility.
+- frontend/src/app/dashboard/site-store/page.tsx: Added support for both report.godown_inventory and report.godown_stock keys in live store report loading.
+- start_servers.bat: Created dual-server launcher script for Windows.
+- BluePrint_Iteration_Log.md: Documented Iteration 32 with exact IST timestamp (2026-10-27 22:15:00 IST) and preserved future update template.
+- Verification: Ran pytest tests/integration/test_e2e_pilot_lifecycle.py -v (1/1 passed in 4.43s); ran pytest tests/unit/ -q (67/67 passed in 2.64s); ran npm run build in frontend/ (compiled successfully, 0 errors in 3.5s).
+- Intentionally left unchanged: Core calculation formulas, database models, and dual approval gate verification rules.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries.

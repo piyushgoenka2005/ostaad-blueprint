@@ -493,7 +493,7 @@ def api_create_boq_item(req: CreateBOQItemRequest, db: Session = Depends(get_db)
     db.add(item)
     db.commit()
     db.refresh(item)
-    return {"status": "success", "item_id": item.id, "wbs_code": item.wbs_code}
+    return {"status": "success", "id": item.id, "item_id": item.id, "wbs_code": item.wbs_code}
 
 @erp_router.delete("/boq/item/{item_id}")
 def api_delete_boq_item(item_id: str, db: Session = Depends(get_db)):
