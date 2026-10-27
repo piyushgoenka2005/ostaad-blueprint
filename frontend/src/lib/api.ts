@@ -1,4 +1,4 @@
-﻿export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 export interface UserProfile {
   id: string;
@@ -27,6 +27,68 @@ export interface DemoAccount {
   avatar: string;
 }
 
+export interface BOQItem {
+  id: string;
+  wbs_code: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  unit_rate: number;
+  total_amount: number;
+  is_verified: boolean;
+  verified_by_user_id?: string | null;
+}
+
+export interface Vendor {
+  id: string;
+  vendor_name: string;
+  gstin: string;
+  phone: string;
+  city: string;
+  category: string;
+}
+
+export interface MaterialRequirement {
+  material_name: string;
+  quantity: number;
+  unit: string;
+  standard_code: string;
+  estimated_cost: number;
+}
+
+export interface PendingPO {
+  id: string;
+  po_number: string;
+  project_id: string;
+  total_amount: number;
+  vendor_name: string;
+  manager_notes?: string;
+  status: string;
+  created_at?: string;
+}
+
+export interface DispatchedPO {
+  id: string;
+  po_number: string;
+  project_id: string;
+  vendor_name: string;
+  total_amount: number;
+  is_dispatched: boolean;
+  is_fully_settled: boolean;
+  created_at?: string;
+}
+
+export interface NotificationItem {
+  type: string;
+  po_id: string;
+  po_number: string;
+  title: string;
+  message: string;
+  reason?: string;
+  timestamp: string;
+}
+
+// ----------------- Auth Functions -----------------
 export async function loginUser(email: string, password: string): Promise<AuthResponse> {
   const res = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
@@ -35,7 +97,7 @@ export async function loginUser(email: string, password: string): Promise<AuthRe
   });
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.detail || "Authentication failed. Please check your credentials.");
+    throw new Error(data.detail || "Authentication failed.");
   }
   return data;
 }
@@ -55,7 +117,7 @@ export async function registerUser(payload: {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.detail || "Registration failed. Please check the entered details.");
+    throw new Error(data.detail || "Registration failed.");
   }
   return data;
 }
@@ -109,3 +171,280 @@ export function clearAuthSession() {
     localStorage.removeItem("buildbharat_user");
   }
 }
+
+// ----------------- Managing Authority / BOQ & Procurement -----------------
+export async function getProjectBOQItems(projectId: string = "proj-demo-101"): Promise<BOQItem[]> {
+  const res = await fetch(`${API_BASE_URL}/erp/boq/items/${projectId}`);
+  if (!res.ok) throw new Error("Failed to load BOQ items.");
+  return await res.json();
+}
+
+export async function updateBOQItem(itemId: string, payload: Partial<BOQItem>): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/boq/item/${itemId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to update BOQ line item.");
+  return await res.json();
+}
+
+export async function addBOQItem(payload: {
+  project_id: string;
+  wbs_code: string;
+  description: string;
+  unit: string;
+  quantity: number;
+  unit_rate: number;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/boq/item`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to add BOQ item.");
+  return await res.json();
+}
+
+export async function deleteBOQItem(itemId: string): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/boq/item/${itemId}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to delete BOQ line item.");
+  return await res.json();
+}
+
+export async function verifyAllBOQItems(projectId: string = "proj-demo-101", userId: string = "user-pm-01"): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/boq/verify-all`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ project_id: projectId, verified_by_user_id: userId }),
+  });
+  if (!res.ok) throw new Error("Failed to approve project BOQ.");
+  return await res.json();
+}
+
+export async function decomposeBOQ(projectId: string = "proj-demo-101"): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/procurement/decompose`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ project_id: projectId }),
+  });
+  if (!res.ok) throw new Error("Failed to decompose materials.");
+  return await res.json();
+}
+
+export async function getVendors(): Promise<Vendor[]> {
+  const res = await fetch(`${API_BASE_URL}/erp/vendors`);
+  if (!res.ok) throw new Error("Failed to load vendor directory.");
+  return await res.json();
+}
+
+export async function getPMNotifications(projectId: string = "proj-demo-101"): Promise<NotificationItem[]> {
+  const res = await fetch(`${API_BASE_URL}/erp/notifications/pm/${projectId}`);
+  if (!res.ok) return [];
+  return await res.json();
+}
+
+export async function submitBillProposalToFinance(payload: {
+  rfq_id?: string;
+  vendor_id: string;
+  bid_id?: string;
+  manager_user_id: string;
+  justification_notes: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/procurement/recommend`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to submit bill proposal to finance.");
+  }
+  return await res.json();
+}
+
+// ----------------- Finance Department -----------------
+export async function getPendingFinancePOs(): Promise<PendingPO[]> {
+  const res = await fetch(`${API_BASE_URL}/erp/finance/pending`);
+  if (!res.ok) return [];
+  return await res.json();
+}
+
+export async function approveFinancePO(payload: {
+  po_id: string;
+  finance_user_id: string;
+  payment_structure: "PART_BY_PART" | "ADVANCE_ONLY" | "ON_DELIVERY_CREDIT";
+  advance_percentage?: number;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/finance/approve`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to approve PO.");
+  }
+  return await res.json();
+}
+
+export async function rejectFinancePO(payload: {
+  po_id: string;
+  finance_user_id: string;
+  rejection_reason: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/finance/reject`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to reject PO.");
+  }
+  return await res.json();
+}
+
+export async function recordFinancePayment(payload: {
+  po_id: string;
+  stage_type: "ADVANCE" | "MILESTONE_TRANCHE" | "FINAL_SETTLEMENT";
+  amount: number;
+  payment_method: "BANK_TRANSFER_RTGS" | "NEFT" | "CHEQUE" | "ONLINE_PORTAL";
+  transaction_ref: string;
+  bank_name?: string;
+  notes?: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/finance/payment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to log transaction.");
+  }
+  return await res.json();
+}
+
+export async function reconcileInvoice(payload: {
+  po_id: string;
+  invoice_number: string;
+  invoice_date: string;
+  billed_quantity: number;
+  billed_unit_rate: number;
+  gst_amount: number;
+  total_invoice_amount: number;
+  verified_by_user_id: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/reconciliation/invoice`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to reconcile invoice.");
+  }
+  return await res.json();
+}
+
+export async function settlePOFinalBalance(payload: {
+  po_id: string;
+  payment_method: string;
+  transaction_ref: string;
+  bank_name?: string;
+  settled_by_user_id: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/reconciliation/settle`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to settle PO.");
+  }
+  return await res.json();
+}
+
+export interface StoreDispatchedPO {
+  id: string;
+  po_number: string;
+  material_name: string;
+  ordered_quantity: number;
+  uom: string;
+  net_received_quantity: number;
+  pending_delivery_quantity: number;
+  vendor_name: string;
+  is_fully_settled: boolean;
+}
+
+export interface GodownStockItem {
+  material_name: string;
+  current_stock: number;
+  uom: string;
+  last_updated?: string;
+}
+
+// ----------------- Site Storekeeper -----------------
+export async function getStorePOs(projectId: string = "proj-demo-101"): Promise<StoreDispatchedPO[]> {
+  const res = await fetch(`${API_BASE_URL}/erp/stores/pos/${projectId}`);
+  if (!res.ok) return [];
+  return await res.json();
+}
+
+export async function receiveGoodsGRN(payload: {
+  po_id: string;
+  storekeeper_id?: string;
+  received_by_user_id?: string;
+  challan_number: string;
+  truck_number?: string;
+  vehicle_number?: string;
+  received_quantity?: number;
+  gross_quantity?: number;
+  damaged_quantity?: number;
+  challan_photo_url?: string;
+  notes?: string;
+}): Promise<any> {
+  const requestBody = {
+    po_id: payload.po_id,
+    storekeeper_id: payload.storekeeper_id || payload.received_by_user_id || "user-store-01",
+    challan_number: payload.challan_number,
+    truck_number: (payload.truck_number || payload.vehicle_number || "MH-04-AZ-9988").toUpperCase(),
+    received_quantity: payload.received_quantity ?? payload.gross_quantity ?? 0,
+    damaged_quantity: payload.damaged_quantity || 0,
+    challan_photo_url: payload.challan_photo_url || "https://s3.ap-south-1.amazonaws.com/erp-docs/chal-0091.jpg",
+  };
+
+  const res = await fetch(`${API_BASE_URL}/erp/stores/grn`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(requestBody),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || "Failed to receive goods.");
+  }
+  return await res.json();
+}
+
+export async function getProcurementReport(projectId: string = "proj-demo-101"): Promise<any> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/erp/reports/procurement/${projectId}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.report || null;
+  } catch {
+    return null;
+  }
+}
+
+// ----------------- Admin -----------------
+export async function getRegisteredUsers(): Promise<any[]> {
+  const res = await fetch(`${API_BASE_URL}/erp/users`);
+  if (!res.ok) return [];
+  return await res.json();
+}
+

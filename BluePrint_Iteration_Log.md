@@ -845,15 +845,66 @@ ext build (compiled in 10.8s, 0 errors); executed browser subagent confirming lo
 ---
 
 
+## Iteration 30 — Step 4: Decoupled Multi-Department Next.js Dashboards (Operations, Finance, Site Store, Admin)
+
+### Last update
+
+2026-10-27 18:50:00 IST — Commit: Pending — feat(step-4): build decoupled multi-department dashboards for Operations, Finance, Site Store, and Admin
+
+### Expected change and Functioning
+
+1. Complete Step 4 of the Full-Stack Decoupled Migration:
+   - Construct dedicated high-fidelity Next.js 15+ App Router dashboards for all four enterprise departments:
+     a) Operations (Managing Authority) Dashboard (/dashboard/operations):
+        - Live editable Bill of Quantities (BOQ) with inline description, quantity, and unit rate editing.
+        - Add Line Item and Delete Line Item capabilities.
+        - "Approve Final BOQ" action that locks the project baseline.
+        - IS 456 Material Decomposition Engine triggering automatic theoretical quantity calculations for Cement, Steel, Coarse Sand, and Aggregate.
+        - Categorized Vendor Directory with direct telephonic contact details, cities, and GSTIN numbers.
+        - Telephonic Vendor Quotation Log form recording base rates, freight, GST %, and landing rate calculations.
+        - "Submit Bill Proposal to Finance" workflow initiating formal approval requests.
+     b) Finance Department Approval Hub (/dashboard/finance):
+        - Pending Purchase Order approval queue displaying project manager proposals and justifications.
+        - Dual Decision Gate:
+          * Approve Gate: Configure payment structure (Part-by-Part tranches, Advance Only, Credit on Delivery), advance disbursement percentage, originating bank name, and transaction UTR.
+          * Reject Gate: Decline proposal with mandatory audit trail reason; triggers real-time notification back to Operations.
+        - Two-Way Match Reconciliation Form: Reconcile vendor tax invoices against physical GRN accepted quantities and calculate variance before issuing final settlement.
+     c) Site Storekeeper Godown Portal (/dashboard/site-store):
+        - Active Dispatched PO table tracking released orders in transit.
+        - Physical Gate Delivery Inward (GRN) verification form recording transporter delivery challan number, truck registration number, gross delivered quantity, and transit-damaged units.
+        - Automatic live stock crediting to the site warehouse godown inventory.
+        - Real-time Godown Warehouse Physical Inventory registry showing live balances (Cement, TMT Steel, Sand, Aggregate).
+     d) Corporate Administrator Dashboard (/dashboard/admin):
+        - Central multi-department enterprise users directory from GET /api/v1/erp/users.
+        - Role-based access governance and direct department portal switching.
+        - Tenant legal entity governance (Larsen & Toubro Limited, Corporate GSTIN: 27AAACL1234F1Z1).
+        - Real-time system health and connectivity monitors for FastAPI backend and SQLite database.
+2. Production Build & Integration Verification:
+   - Verify npm run build passes with zero compilation, TypeScript, or layout errors.
+   - Run end-to-end multi-role browser test logging in as each department persona, verifying data synchronization across backend REST endpoints and frontend state.
+
+### Edits made
+
+- frontend/src/lib/api.ts: Added typed interfaces StoreDispatchedPO, GodownStockItem; enhanced receiveGoodsGRN() parameter mapping; added getProcurementReport() for live godown stock queries.
+- frontend/src/app/dashboard/operations/page.tsx: Completed inline editable BOQ table, IS 456 material decomposition, vendor directory, telephonic quotation log, and proposal submission.
+- frontend/src/app/dashboard/finance/page.tsx: Completed pending proposal approval hub, advance disbursement gate, decline modal with audit trail, and two-way invoice reconciliation form.
+- frontend/src/app/dashboard/site-store/page.tsx: Built complete physical inward verification dashboard with dispatched PO selection, gate delivery challan form, and live godown inventory registry.
+- frontend/src/app/dashboard/admin/page.tsx: Built enterprise tenant governance dashboard with registered users directory, department role badges, and system health status.
+- BluePrint_Iteration_Log.md: Documented Iteration 30 with exact IST timestamp (2026-10-27 18:50:00 IST) and preserved future update template.
+- Verification: Executed npm run build in frontend/ (compiled successfully, 0 errors, all 7 routes statically optimized); executed automated browser subagent verifying cross-department login and dashboards for Rajesh Sharma, Sunita Iyer, Ramesh Pawar, and Aditya Verma.
+- Intentionally left unchanged: Core calculation formulas, database models, and dual approval gate verification rules.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries.
 
-## Iteration N â€” Short technical title
+## Iteration N — Short technical title
 
 ### Last update
 
-YYYY-MM-DD HH:MM:SS IST â€” Commit: <commit-sha> â€” <commit-message>
+YYYY-MM-DD HH:MM:SS IST — Commit: <commit-sha> — <commit-message>
 
 ### Expected change and Functioning
 
