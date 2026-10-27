@@ -73,6 +73,8 @@ class User(Base):
     email = Column(String(150), nullable=False, unique=True)
     full_name = Column(String(150), nullable=False)
     role = Column(SQLEnum(UserRole), default=UserRole.OPERATIONS, nullable=False)
+    password_hash = Column(String(255), nullable=True)
+    phone = Column(String(20), nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 

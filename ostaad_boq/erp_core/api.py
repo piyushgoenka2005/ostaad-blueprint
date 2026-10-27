@@ -575,3 +575,186 @@ def api_get_stores_dispatched_pos(project_id: str, db: Session = Depends(get_db)
             "is_fully_settled": po.is_fully_settled
         })
     return res
+
+
+
+# ==============================================================
+# ENTERPRISE AUTHENTICATION & MULTI-ROLE ACCESS CONTROL
+# ==============================================================
+from sqlalchemy import func
+from .auth import hash_password, verify_password, create_session_token, verify_session_token, ROLE_DISPLAY_MAP
+
+auth_router = APIRouter(prefix="/api/v1/auth", tags=["Enterprise Authentication"])
+
+class LoginRequest(BaseModel):
+    email: str = Field(..., example="rajesh.pm@lt.com")
+    password: str = Field(..., example="pm123456")
+
+class RegisterRequest(BaseModel):
+    full_name: str = Field(..., min_length=2, example="Rajesh Sharma")
+    email: str = Field(..., min_length=5, example="rajesh.pm@lt.com")
+    password: str = Field(..., min_length=6, example="pm123456")
+    role: str = Field(default="OPERATIONS", example="OPERATIONS")
+    phone: Optional[str] = Field(default=None, example="+91 98201 12233")
+    company_name: Optional[str] = Field(default="Larsen & Toubro Construction Ltd", example="Larsen & Toubro Construction Ltd")
+
+@auth_router.get("/demo-accounts")
+def get_demo_accounts():
+    """Returns the 4 standard enterprise demo accounts for 1-click test login."""
+    return [
+        {
+            "role": "OPERATIONS",
+            "role_title": "Managing Authority",
+            "full_name": "Rajesh Sharma",
+            "email": "rajesh.pm@lt.com",
+            "password": "pm123456",
+            "dept_badge": "Project Manager / Operations",
+            "avatar": "RS"
+        },
+        {
+            "role": "FINANCE",
+            "role_title": "Finance Department",
+            "full_name": "Sunita Iyer",
+            "email": "sunita.finance@lt.com",
+            "password": "fin123456",
+            "dept_badge": "Head of Finance / CFO",
+            "avatar": "SI"
+        },
+        {
+            "role": "SITE_STORE",
+            "role_title": "Site Storekeeper",
+            "full_name": "Ramesh Pawar",
+            "email": "ramesh.store@lt.com",
+            "password": "store123456",
+            "dept_badge": "Godown In-Charge",
+            "avatar": "RP"
+        },
+        {
+            "role": "ADMIN",
+            "role_title": "System Administrator",
+            "full_name": "Aditya Verma",
+            "email": "admin@buildbharat.in",
+            "password": "admin123456",
+            "dept_badge": "Corporate Admin",
+            "avatar": "AV"
+        }
+    ]
+
+@auth_router.post("/login")
+def auth_login(req: LoginRequest, db: Session = Depends(get_db)):
+    """Authenticates email and password, returning session token and user profile."""
+    clean_email = req.email.strip().lower()
+    user = db.query(User).filter(func.lower(User.email) == clean_email).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+    
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Account is deactivated. Please contact system administrator.")
+    
+    # Check password
+    if user.password_hash:
+        if not verify_password(req.password, user.password_hash):
+            raise HTTPException(status_code=401, detail="Invalid email or password.")
+    else:
+        user.password_hash = hash_password(req.password)
+        db.commit()
+
+    token = create_session_token(user.id, user.email, user.role.value)
+    
+    return {
+        "success": True,
+        "message": f"Welcome back, {user.full_name}!",
+        "token": token,
+        "user": {
+            "id": user.id,
+            "full_name": user.full_name,
+            "email": user.email,
+            "role": user.role.value,
+            "role_display": ROLE_DISPLAY_MAP.get(user.role.value, user.role.value),
+            "phone": user.phone,
+            "tenant_id": user.tenant_id
+        }
+    }
+
+@auth_router.post("/register")
+def auth_register(req: RegisterRequest, db: Session = Depends(get_db)):
+    """Registers a new corporate user with basic details, email, password, and enterprise role."""
+    clean_email = req.email.strip().lower()
+    existing = db.query(User).filter(func.lower(User.email) == clean_email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="An account with this email address already exists.")
+    
+    role_str = req.role.upper().strip()
+    valid_roles = ["OPERATIONS", "FINANCE", "SITE_STORE", "ADMIN"]
+    if role_str not in valid_roles:
+        raise HTTPException(status_code=400, detail=f"Invalid role '{req.role}'. Must be one of {valid_roles}")
+    
+    tenant = db.query(Tenant).filter_by(id="tenant-demo-1").first()
+    if not tenant:
+        tenant = Tenant(
+            id="tenant-demo-1",
+            company_name=req.company_name or "Larsen & Toubro Construction Ltd",
+            gstin="27AAACL1234F1Z1",
+            state_code="27"
+        )
+        db.add(tenant)
+        db.commit()
+
+    import uuid
+    new_user = User(
+        id=f"user-{uuid.uuid4().hex[:8]}",
+        tenant_id=tenant.id,
+        email=clean_email,
+        full_name=req.full_name.strip(),
+        role=UserRole(role_str),
+        password_hash=hash_password(req.password),
+        phone=req.phone.strip() if req.phone else None,
+        is_active=True
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    token = create_session_token(new_user.id, new_user.email, new_user.role.value)
+
+    return {
+        "success": True,
+        "message": f"Account created successfully for {new_user.full_name}!",
+        "token": token,
+        "user": {
+            "id": new_user.id,
+            "full_name": new_user.full_name,
+            "email": new_user.email,
+            "role": new_user.role.value,
+            "role_display": ROLE_DISPLAY_MAP.get(new_user.role.value, new_user.role.value),
+            "phone": new_user.phone,
+            "tenant_id": new_user.tenant_id
+        }
+    }
+
+@auth_router.get("/me")
+def auth_get_current_user(token: Optional[str] = None, db: Session = Depends(get_db)):
+    """Validates session token and returns current user details."""
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing authentication token.")
+    
+    payload = verify_session_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Session expired or invalid token. Please log in again.")
+    
+    user = db.query(User).filter_by(id=payload.get("sub")).first()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=401, detail="User account not found or deactivated.")
+    
+    return {
+        "authenticated": True,
+        "user": {
+            "id": user.id,
+            "full_name": user.full_name,
+            "email": user.email,
+            "role": user.role.value,
+            "role_display": ROLE_DISPLAY_MAP.get(user.role.value, user.role.value),
+            "phone": user.phone,
+            "tenant_id": user.tenant_id
+        }
+    }
