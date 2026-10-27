@@ -734,6 +734,42 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
+---
+
+## Iteration 27 — Decoupled Monorepo Reorganization: Explicit frontend/ and backend/ Folders & CORS Plan
+
+### Last update
+
+2026-10-27 16:11:00 IST — Commit: Pending — docs: update implementation plan with explicit frontend/ and backend/ decoupled topology
+
+### Expected change and Functioning
+
+1. Clean Decoupled Repository Topology:
+   - Establish two distinct top-level directories in the repository:
+     - `backend/`: Dedicated Python FastAPI service, SQLAlchemy ORM schema, business logic engines, database migration/seeding, and pytest test suite.
+     - `frontend/`: Dedicated Next.js 14+ application (TypeScript, React, Modern CSS/Tailwind, Lucide React).
+2. Headless HTTP & CORS Communication:
+   - Configure FastAPI `CORSMiddleware` in `backend/ostaad_boq/app.py` allowing origins `http://localhost:3000` and `http://127.0.0.1:3000`.
+   - Implement typed HTTP client in `frontend/src/lib/api.ts` with automatic Bearer JWT header injection.
+3. Single Unified Authentication Gateway:
+   - Construct a single auth page (`/login`) with Sign In and Sign Up tabs for all entities (Managing Authority / Operations, Finance Dept, Site Storekeeper, and Admin).
+   - Sign up collects basic details (Full Name, Email, Password, Department/Role, Phone, Company).
+   - Dynamic post-login routing automatically navigates users to their respective department dashboards.
+4. Preserved Business Workflows:
+   - Maintain 100% functionality of verified backend services: BOQ review/editing, IS 456 decomposition, vendor phone directory and quotations, dual approval gates, site store GRN, and two-way invoice reconciliation.
+   - Maintain strict scope boundary: NO QA/QC lab testing and NO JMR theft engine.
+5. Update Implementation Plan Artifact:
+   - Update `IMPLEMENTATION_PLAN_DECOUPLED_AUTH.md` to reflect the 2-folder structure and sequential execution roadmap.
+
+### Edits made
+
+- `IMPLEMENTATION_PLAN_DECOUPLED_AUTH.md`: Updated architecture diagram, folder tree, CORS setup, and step-by-step milestones.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 27 with exact IST timestamp.
+- Verification: Validated file integrity and confirmed template formatting compliance.
+- Intentionally left unchanged: Core calculation routines and database schema.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries.
