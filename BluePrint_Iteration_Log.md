@@ -770,6 +770,38 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
+---
+
+## Iteration 28 — Monorepo Decoupling: backend/ Service Extraction, CORS Configuration & Test Suite Verification
+
+### Last update
+
+2026-10-27 16:28:00 IST — Commit: Pending — feat: decouple repository into backend/ and frontend/ folders with CORS configuration
+
+### Expected change and Functioning
+
+1. Execute Step 1 of Decoupled Architecture Implementation Plan:
+   - Establish dedicated `backend/` and `frontend/` folders in the repository root.
+   - Migrate all Python application modules (`ostaad_boq/`), unit test suite (`tests/`), dependencies (`requirements.txt`, `pyproject.toml`), Docker specifications, and database seed scripts into `backend/` using `git mv` to preserve 100% commit history.
+2. Backend Server Launcher & CORS Verification:
+   - Implement `backend/run_server.py` as the top-level backend entrypoint launching FastAPI with Uvicorn on `http://127.0.0.1:8000`.
+   - Verify `CORSMiddleware` in `backend/ostaad_boq/app.py` allowing origins `http://localhost:3000` and `http://127.0.0.1:3000` with full methods, headers, and credentials support.
+3. Automated Test Suite Validation:
+   - Run the complete unit test suite inside `backend/` via pytest to verify zero import breakages, database connection integrity, and business logic preservation.
+   - All 67 unit tests pass with 100% success rate.
+4. Prepare `frontend/` directory for Next.js initialization.
+
+### Edits made
+
+- `backend/`: Created directory and relocated 88 files/modules from root into `backend/` via `git mv`.
+- `backend/run_server.py`: Created top-level launcher script for Uvicorn daemon.
+- `frontend/`: Created empty workspace ready for Next.js application scaffolding.
+- `BluePrint_Iteration_Log.md`: Recorded Iteration 28 with exact IST timestamp.
+- Verification: Ran `pytest tests/unit/ -q` from inside `backend/`, verifying 67/67 tests passing (100%); launched backend server verifying startup and `/docs` availability.
+- Intentionally left unchanged: Core calculation formulas, database models, and dual approval gate verification rules.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries.
