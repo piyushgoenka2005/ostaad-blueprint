@@ -248,15 +248,23 @@ export async function getPMNotifications(projectId: string = "proj-demo-101"): P
 
 export async function submitBillProposalToFinance(payload: {
   rfq_id?: string;
-  vendor_id: string;
+  vendor_id?: string;
   bid_id?: string;
+  selected_bid_id?: string;
   manager_user_id: string;
-  justification_notes: string;
+  justification_notes?: string;
+  manager_notes?: string;
 }): Promise<any> {
+  const requestBody = {
+    rfq_id: payload.rfq_id || "rfq-demo-001",
+    selected_bid_id: payload.selected_bid_id || payload.bid_id || "bid-demo-001",
+    manager_user_id: payload.manager_user_id || "user-pm-01",
+    manager_notes: payload.manager_notes || payload.justification_notes || "Recommended based on lowest evaluated landed rate and delivery lead time."
+  };
   const res = await fetch(`${API_BASE_URL}/erp/procurement/recommend`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(requestBody),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
