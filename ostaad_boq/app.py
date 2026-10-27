@@ -336,18 +336,18 @@ _HTML_DASHBOARD = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BuildBharat ERP & Ostaad Autonomous Takeoff</title>
+<title>BuildBharat ERP — Enterprise Multi-Entity Construction Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg-base: #080c16;
-  --bg-subtle: #0d1322;
+  --bg-base: #060913;
+  --bg-subtle: #0b1120;
   --bg-card: rgba(15, 23, 42, 0.75);
-  --bg-elevated: rgba(22, 33, 56, 0.85);
+  --bg-card-hover: rgba(22, 33, 58, 0.85);
   --border: rgba(255, 255, 255, 0.08);
-  --border-active: rgba(56, 189, 248, 0.4);
+  --border-focus: rgba(56, 189, 248, 0.45);
   --primary: #0284c7;
   --primary-glow: rgba(56, 189, 248, 0.25);
   --accent-cyan: #38bdf8;
@@ -373,19 +373,18 @@ body {
   font-family: var(--font-body);
   font-size: 13px;
   line-height: 1.5;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   background-image: 
-    radial-gradient(at 10% 10%, rgba(56, 189, 248, 0.06) 0px, transparent 40%),
-    radial-gradient(at 90% 90%, rgba(99, 102, 241, 0.06) 0px, transparent 40%);
+    radial-gradient(at 10% 10%, rgba(56, 189, 248, 0.05) 0px, transparent 40%),
+    radial-gradient(at 90% 90%, rgba(99, 102, 241, 0.05) 0px, transparent 40%);
 }
 
-/* 1. TOP HEADER */
-header.app-header {
-  height: 60px;
-  background: rgba(13, 19, 34, 0.95);
+/* TOP APP BAR */
+header.portal-header {
+  height: 62px;
+  background: rgba(11, 17, 32, 0.95);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   padding: 0 24px;
@@ -401,8 +400,8 @@ header.app-header {
   gap: 12px;
 }
 .brand-icon {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
   border-radius: var(--radius-sm);
   display: flex;
@@ -412,27 +411,21 @@ header.app-header {
 }
 .brand-title {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 800;
   letter-spacing: -0.02em;
   background: linear-gradient(135deg, #ffffff 40%, #93c5fd 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.brand-badge {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: rgba(56, 189, 248, 0.12);
-  color: var(--accent-cyan);
-  padding: 2px 7px;
-  border-radius: 4px;
-  border: 1px solid rgba(56, 189, 248, 0.25);
+.brand-tagline {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-weight: 600;
 }
 
-/* Central Segmented View Switcher */
-.view-switcher {
+/* Department Role Selector in Header */
+.department-switcher {
   display: flex;
   background: rgba(4, 7, 15, 0.7);
   padding: 4px;
@@ -440,477 +433,146 @@ header.app-header {
   border: 1px solid var(--border);
   gap: 4px;
 }
-.switcher-btn {
+.dept-btn {
   font-family: var(--font-body);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 6px 18px;
-  border-radius: 24px;
+  padding: 6px 16px;
+  border-radius: 20px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   transition: all 0.2s ease;
 }
-.switcher-btn:hover {
-  color: #fff;
-}
-.switcher-btn.active {
+.dept-btn:hover { color: #fff; }
+.dept-btn.active {
   background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
-  color: #ffffff;
+  color: #fff;
   box-shadow: 0 2px 10px var(--primary-glow);
 }
-.switcher-btn .pill-dot {
+.dept-btn .role-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: #10b981;
 }
 
-/* Header Right Actions */
-.header-right {
+.user-profile-badge {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-.status-pill {
-  font-size: 11px;
-  font-weight: 600;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  padding: 4px 10px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.status-pill::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 6px #10b981;
-}
-.btn-doc {
-  font-size: 12px;
-  color: var(--text-secondary);
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 6px;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.6);
   border: 1px solid var(--border);
-  transition: all 0.15s ease;
-}
-.btn-doc:hover {
-  color: #fff;
-  border-color: var(--text-secondary);
-}
-
-/* 2. MAIN WORKSPACE CONTAINER */
-#view-container {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-}
-.view-panel {
-  width: 100%;
-  height: 100%;
-  display: none;
-  flex-direction: column;
-}
-.view-panel.active {
-  display: flex;
-}
-
-/* ==============================================================
-   VIEW 1: BLUEPRINT TAKEOFF STYLES
-   ============================================================== */
-.takeoff-subbar {
-  height: 48px;
-  background: rgba(10, 15, 28, 0.85);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-  gap: 16px;
-}
-.sample-chips {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.sample-chip {
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-.sample-chip:hover {
-  background: rgba(56, 189, 248, 0.1);
-  border-color: var(--accent-cyan);
-  color: #fff;
-}
-.takeoff-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.control-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
-  color: var(--text-secondary);
-}
-.control-select, .control-input {
-  background: rgba(2, 6, 15, 0.8);
-  border: 1px solid var(--border);
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-family: var(--font-body);
-  font-size: 11.5px;
-}
-.btn-export {
-  font-size: 11.5px;
-  font-weight: 600;
   padding: 5px 12px;
-  border-radius: 6px;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #34d399;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: all 0.15s ease;
+  border-radius: 24px;
 }
-.btn-export:hover {
-  background: rgba(16, 185, 129, 0.25);
-}
-
-.takeoff-grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  overflow: hidden;
-}
-
-/* Left Canvas Column */
-.canvas-column {
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  background: #05070e;
-  position: relative;
-  overflow: hidden;
-}
-.canvas-toolbar {
-  height: 42px;
-  background: rgba(11, 15, 26, 0.75);
-  border-bottom: 1px solid var(--border);
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.tool-btn-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.tool-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-.tool-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
-.layer-chips {
-  display: flex;
-  gap: 6px;
-}
-.layer-chip {
-  font-size: 10.5px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  cursor: pointer;
-}
-.layer-chip.active {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: var(--accent-cyan);
-  color: var(--accent-cyan);
-}
-.canvas-viewport {
-  flex: 1;
-  overflow: auto;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#canvas-container {
-  position: relative;
-  transform-origin: center center;
-  transition: transform 0.1s ease-out;
-  display: inline-block;
-}
-#blueprint-img {
-  max-width: 100%;
-  display: block;
-}
-#svg-overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: all;
-}
-
-/* Dropzone Overlay */
-.dropzone-overlay {
-  position: absolute;
-  inset: 20px;
-  border: 2px dashed rgba(56, 189, 248, 0.35);
-  border-radius: 12px;
-  background: rgba(10, 15, 28, 0.85);
-  backdrop-filter: blur(8px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 30px;
-  z-index: 10;
-  transition: all 0.2s ease;
-}
-.dropzone-overlay.hidden { display: none; }
-.dropzone-overlay.dragover {
-  border-color: var(--accent-cyan);
-  background: rgba(14, 23, 42, 0.95);
-}
-.upload-circle {
-  width: 64px;
-  height: 64px;
+.user-avatar {
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  color: var(--accent-cyan);
-}
-
-/* Right Table Column */
-.table-column {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-subtle);
-  overflow: hidden;
-}
-
-/* 4 KPI Cards Grid */
-.takeoff-kpis {
-  padding: 14px 20px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  background: rgba(15, 23, 42, 0.5);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.kpi-card {
-  background: rgba(20, 30, 52, 0.6);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-}
-.kpi-label {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 4px;
-}
-.kpi-val {
-  font-family: var(--font-display);
-  font-size: 17px;
-  font-weight: 700;
-  color: #fff;
-}
-.kpi-val.accent { color: var(--accent-cyan); }
-.kpi-val.emerald { color: #10b981; }
-
-/* Takeoff Tabs Bar */
-.takeoff-tab-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 20px;
-  background: rgba(10, 15, 28, 0.6);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.tabs-nav {
-  display: flex;
-  gap: 4px;
-}
-.tab-btn {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 5px 12px;
-  border-radius: 6px;
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.04); }
-.tab-btn.active {
-  background: rgba(56, 189, 248, 0.12);
-  border-color: rgba(56, 189, 248, 0.35);
-  color: var(--accent-cyan);
-}
-.tab-badge {
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-muted);
-}
-.table-search {
-  background: rgba(2, 6, 15, 0.7);
-  border: 1px solid var(--border);
-  color: #fff;
-  font-size: 11.5px;
-  padding: 4px 10px;
-  border-radius: 4px;
-  width: 180px;
-}
-
-/* Takeoff Tab Content Areas */
-.takeoff-content-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 20px;
-}
-.takeoff-pane { display: none; }
-.takeoff-pane.active { display: block; }
-
-/* Clean Data Tables */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-  text-align: left;
-}
-.data-table th {
-  padding: 8px 12px;
-  background: rgba(15, 23, 42, 0.8);
-  color: var(--text-muted);
-  font-weight: 600;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  border-bottom: 1px solid var(--border);
-}
-.data-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: var(--text-secondary);
-}
-.data-table tr:hover td {
-  background: rgba(56, 189, 248, 0.03);
-  color: #fff;
-}
-.cat-tag {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(99, 102, 241, 0.15);
-  color: #a5b4fc;
-}
-
-/* Bottom CTA to carry over to ERP */
-.takeoff-footer {
-  padding: 12px 20px;
-  background: rgba(10, 15, 28, 0.9);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-.btn-push-erp {
-  background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+  background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
   color: #fff;
   font-weight: 700;
-  font-size: 12.5px;
-  padding: 8px 20px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
+  font-size: 11px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 0 16px var(--primary-glow);
-  transition: all 0.2s ease;
+  justify-content: center;
 }
-.btn-push-erp:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
-}
+.user-name { font-weight: 600; font-size: 12px; color: #fff; }
+.user-role-label { font-size: 10.5px; color: var(--accent-cyan); font-weight: 600; }
 
-/* ==============================================================
-   VIEW 2: BUILDBHARAT ERP & OPERATIONS STYLES
-   ============================================================== */
-.erp-container {
+/* MAIN CONTENT */
+main.portal-main {
   flex: 1;
-  overflow-y: auto;
   padding: 24px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* Project Master Banner */
+/* Department Panels */
+.department-panel { display: none; flex-direction: column; gap: 20px; }
+.department-panel.active { display: flex; }
+
+/* Cards & UI Elements */
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.card-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* Alert Boxes */
+.alert-box {
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+  animation: fadeIn 0.3s ease;
+}
+.alert-rose {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  color: #fda4af;
+}
+.alert-emerald {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
+}
+.alert-amber {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fde68a;
+}
+.alert-icon { font-size: 18px; flex-shrink: 0; line-height: 1; }
+.alert-content { font-size: 12.5px; line-height: 1.4; }
+.alert-content strong { color: #fff; display: block; margin-bottom: 2px; }
+
+/* Project Header Banner */
 .project-banner {
-  background: linear-gradient(135deg, rgba(14, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.5) 100%);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.6) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 20px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
   position: relative;
-  overflow: hidden;
 }
 .project-banner::before {
   content: "";
@@ -918,38 +580,149 @@ header.app-header {
   top: 0; left: 0; width: 4px; height: 100%;
   background: linear-gradient(to bottom, var(--accent-cyan), var(--accent-indigo));
 }
-.banner-title {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 4px;
+
+/* Tables */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
 }
-.banner-subtitle {
+table.portal-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 12.5px;
+  text-align: left;
+}
+table.portal-table th {
+  padding: 10px 14px;
+  background: rgba(11, 17, 32, 0.9);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+}
+table.portal-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   color: var(--text-secondary);
 }
+table.portal-table tr:hover td {
+  background: rgba(56, 189, 248, 0.03);
+  color: #fff;
+}
 
-/* 5 Executive Financial & Stock KPI Cards */
-.erp-kpi-grid {
+/* Forms & Inputs */
+.form-input, .form-select {
+  background: rgba(4, 7, 15, 0.8);
+  border: 1px solid var(--border);
+  color: #fff;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 12px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+.form-input:focus, .form-select:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--primary-glow);
+}
+.table-input {
+  width: 90px;
+  background: rgba(4, 7, 15, 0.7);
+  border: 1px solid var(--border);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.table-input:focus { border-color: var(--accent-cyan); }
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 10px var(--primary-glow);
+  transition: all 0.15s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
+}
+.btn-success {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-success:hover { background: rgba(16, 185, 129, 0.25); }
+.btn-danger {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  color: #fb7185;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-danger:hover { background: rgba(244, 63, 94, 0.25); }
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.btn-secondary:hover { color: #fff; background: rgba(255, 255, 255, 0.09); }
+
+/* Badges */
+.badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.badge-emerald { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-rose { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+.badge-cyan { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+/* Financial KPI Cards Grid */
+.kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 14px;
 }
-.erp-kpi-card {
+.kpi-stat-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 14px 18px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.2s ease;
+  padding: 16px 20px;
 }
-.erp-kpi-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
-}
-.erp-kpi-header {
+.kpi-stat-label {
   font-size: 11px;
   font-weight: 700;
   color: var(--text-muted);
@@ -960,752 +733,896 @@ header.app-header {
   align-items: center;
   justify-content: space-between;
 }
-.erp-kpi-number {
+.kpi-stat-val {
   font-family: var(--font-display);
   font-size: 22px;
   font-weight: 800;
   color: #fff;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
-.erp-kpi-footer {
+.kpi-stat-footer {
   font-size: 11px;
   color: var(--text-secondary);
 }
 
-/* 4 Step Action Cards */
-.stage-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.stage-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.stage-step-tag {
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-.stage-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 6px;
-}
-.stage-desc {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-  line-height: 1.4;
-}
-.stage-status-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 4px;
-  margin-bottom: 12px;
-  display: inline-block;
-}
-.btn-stage-action {
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 12px;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: all 0.15s ease;
-}
-
-/* Activity Terminal Window */
-.erp-terminal {
-  background: #03060c;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  height: 220px;
-  overflow-y: auto;
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
-}
-.terminal-line {
-  margin-bottom: 4px;
-  display: flex;
-  gap: 8px;
-}
-.terminal-time { color: var(--text-muted); flex-shrink: 0; }
-.terminal-text { color: var(--text-secondary); word-break: break-all; }
 </style>
 </head>
 <body>
 
-<!-- 1. TOP HEADER -->
-<header class="app-header">
+<!-- 1. TOP HEADER WITH REAL MULTI-ENTITY AUTHENTICATION -->
+<header class="portal-header">
   <div class="brand-group">
     <div class="brand-icon">
-      <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      <svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
     </div>
     <div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span class="brand-title">BuildBharat ERP</span>
-        <span class="brand-badge">Enterprise Edition</span>
-      </div>
-      <div style="font-size:10.5px; color:var(--text-muted); font-weight:600;">Autonomous Takeoff & Construction Operations Platform</div>
+      <div class="brand-title">BuildBharat ERP</div>
+      <div class="brand-tagline">Enterprise Corporate Construction Management Portal</div>
     </div>
   </div>
 
-  <!-- Central Mode Switcher -->
-  <div class="view-switcher">
-    <button id="switch-takeoff" class="switcher-btn active" onclick="activateView('takeoff')">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
-      📐 Blueprint AI Takeoff
+  <!-- Role-Based Department Switcher (Simulates Separate Login Profiles) -->
+  <div class="department-switcher">
+    <button id="dept-pm" class="dept-btn active" onclick="switchDepartment('OPERATIONS')">
+      <span class="role-dot"></span>
+      👷 Managing Authority (PM)
     </button>
-    <button id="switch-erp" class="switcher-btn" onclick="activateView('erp')">
-      <span class="pill-dot"></span>
-      🏢 Operations & ERP Hub
+    <button id="dept-fin" class="dept-btn" onclick="switchDepartment('FINANCE')">
+      <span class="role-dot" style="background:#f59e0b;"></span>
+      💼 Finance Department
+    </button>
+    <button id="dept-store" class="dept-btn" onclick="switchDepartment('SITE_STORE')">
+      <span class="role-dot" style="background:#38bdf8;"></span>
+      📦 Site Storekeeper
     </button>
   </div>
 
-  <!-- Header Right Status -->
-  <div class="header-right">
-    <div class="status-pill">FastAPI Live (Port 8000)</div>
-    <a href="/docs" target="_blank" class="btn-doc">Interactive API Docs</a>
+  <!-- Active Profile Indicator -->
+  <div class="user-profile-badge">
+    <div class="user-avatar" id="current-avatar">RS</div>
+    <div>
+      <div class="user-name" id="current-user-name">Rajesh Sharma</div>
+      <div class="user-role-label" id="current-role-label">OPERATIONS (Managing Authority)</div>
+    </div>
   </div>
 </header>
 
-<!-- 2. MAIN VIEW CONTAINER -->
-<div id="view-container">
+<!-- 2. MAIN APPLICATION WORKSPACE -->
+<main class="portal-main">
 
-  <!-- ==============================================================
-       VIEW 1: BLUEPRINT TAKEOFF
-       ============================================================== -->
-  <div id="view-takeoff" class="view-panel active">
-    
-    <!-- Sub-bar -->
-    <div class="takeoff-subbar">
-      <div class="sample-chips">
-        <span style="font-size:11px; color:var(--text-muted); font-weight:700;">SAMPLE DRAWINGS:</span>
-        <button class="sample-chip" onclick="loadSampleBlueprint('bengal_2bhk_plan.png')">📐 Bengal 2BHK Plan</button>
-        <button class="sample-chip" onclick="loadSampleBlueprint('bengal_3bhk_plan.png')">🏢 Bengal 3BHK Commercial</button>
-        <button class="sample-chip" onclick="loadSampleBlueprint('barakar_site_survey.png')">🏗️ Barakar Site Survey</button>
-      </div>
-
-      <div class="takeoff-controls">
-        <div class="control-item">
-          <span>Currency:</span>
-          <select id="currency-select" class="control-select" onchange="triggerReprice()">
-            <option value="AUTO" selected>Auto (INR / USD)</option>
-            <option value="INR">INR (₹)</option>
-            <option value="USD">USD ($)</option>
-            <option value="AED">AED</option>
-          </select>
-        </div>
-        <div class="control-item">
-          <span>Markup:</span>
-          <input type="number" id="overhead-input" class="control-input" style="width:48px;" value="10" title="Overhead %" onchange="triggerReprice()">%
-        </div>
-        <button class="btn-export" onclick="downloadExport('xlsx')">
-          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-          Export Excel (.xlsx)
-        </button>
+  <!-- Project Overview Master Banner -->
+  <div class="project-banner">
+    <div>
+      <div style="font-size:11px; font-weight:700; color:var(--accent-cyan); text-transform:uppercase; margin-bottom:4px;">Master Construction Contract</div>
+      <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:#fff;">Navi Mumbai International Airport - Terminal 2 (Zone A)</div>
+      <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
+        Project ID: <strong style="color:#fff;">proj-demo-101</strong> | Contract Value: <strong style="color:#34d399;">₹25,00,00,000.00</strong> | Tenant: <strong style="color:#fff;">Larsen & Toubro Ltd</strong>
       </div>
     </div>
-
-    <!-- Takeoff Split Workspace -->
-    <div class="takeoff-grid">
-
-      <!-- Left Column: Drawing Canvas -->
-      <div class="canvas-column">
-        <div class="canvas-toolbar">
-          <div class="tool-btn-group">
-            <button class="tool-btn" onclick="adjustZoom(-0.15)" title="Zoom Out">-</button>
-            <span id="zoom-level" style="font-size:11px; font-family:var(--font-mono); color:var(--text-secondary); width:38px; text-align:center;">100%</span>
-            <button class="tool-btn" onclick="adjustZoom(0.15)" title="Zoom In">+</button>
-            <button class="tool-btn" onclick="resetZoom()" title="Reset Zoom">↺</button>
-            <button id="btn-invert" class="tool-btn" onclick="toggleInvert()" title="Invert Colors">◑</button>
-          </div>
-
-          <div class="layer-chips">
-            <button class="layer-chip active" onclick="toggleLayerFilter('all')">All Layers</button>
-            <button class="layer-chip active" onclick="toggleLayerFilter('rooms')">Rooms</button>
-            <button class="layer-chip active" onclick="toggleLayerFilter('walls')">Walls</button>
-            <button class="layer-chip active" onclick="toggleLayerFilter('openings')">Doors & Windows</button>
-          </div>
-        </div>
-
-        <div class="canvas-viewport" id="canvas-viewport">
-          <div id="canvas-container">
-            <img id="blueprint-img" src="" alt="Blueprint">
-            <svg id="svg-overlay"></svg>
-          </div>
-
-          <!-- Empty State Dropzone -->
-          <div id="dropzone-overlay" class="dropzone-overlay" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-            <div class="upload-circle">
-              <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-            </div>
-            <div style="font-family:var(--font-display); font-size:18px; font-weight:700; color:#fff; margin-bottom:6px;">Upload Architectural Blueprint</div>
-            <p style="font-size:12.5px; color:var(--text-secondary); max-width:320px; margin-bottom:18px;">
-              Drag and drop any construction plan (PDF, PNG, JPG) or choose a sample drawing above to extract quantities instantly.
-            </p>
-            <label style="background:var(--primary); color:#fff; font-weight:600; font-size:12px; padding:8px 18px; border-radius:6px; cursor:pointer;">
-              Browse Local File
-              <input type="file" id="file-input" style="display:none;" accept=".pdf,.png,.jpg,.jpeg" onchange="handleFileInput(this)">
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Column: Quantities & Cost Breakdown -->
-      <div class="table-column">
-        
-        <!-- 4 KPI Cards -->
-        <div class="takeoff-kpis">
-          <div class="kpi-card">
-            <div class="kpi-label">Identified Spaces</div>
-            <div class="kpi-val" id="kpi-spaces">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Spatial Area</div>
-            <div class="kpi-val" id="kpi-area">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Direct Subtotal</div>
-            <div class="kpi-val accent" id="kpi-direct-subtotal">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Total Estimated Budget</div>
-            <div class="kpi-val emerald" id="kpi-total-budget">—</div>
-          </div>
-        </div>
-
-        <!-- Takeoff Tab Bar -->
-        <div class="takeoff-tab-bar">
-          <div class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTakeoffTab('tab-boq')">
-              📋 Bill of Quantities <span class="tab-badge" id="badge-boq-count">0</span>
-            </button>
-            <button class="tab-btn" onclick="switchTakeoffTab('tab-rooms')">
-              🚪 Rooms <span class="tab-badge" id="badge-rooms-count">0</span>
-            </button>
-            <button class="tab-btn" onclick="switchTakeoffTab('tab-walls')">
-              🧱 Walls <span class="tab-badge" id="badge-walls-count">0</span>
-            </button>
-          </div>
-          <input type="text" class="table-search" placeholder="Filter items..." oninput="handleSearch(this.value)">
-        </div>
-
-        <!-- Content Tables Area -->
-        <div class="takeoff-content-area">
-          <div id="tab-boq" class="takeoff-pane active">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Description</th>
-                  <th>Quantity</th>
-                  <th>Unit</th>
-                  <th>Est. Rate</th>
-                  <th>Total Amount</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-boq">
-                <tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-muted);">Upload or load a drawing above to generate the BOQ table.</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div id="tab-rooms" class="takeoff-pane">
-            <table class="data-table">
-              <thead>
-                <tr><th>Room / Zone</th><th>Area</th><th>Perimeter</th><th>Ceiling Height</th></tr>
-              </thead>
-              <tbody id="tbody-rooms">
-                <tr><td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted);">No rooms extracted yet.</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div id="tab-walls" class="takeoff-pane">
-            <table class="data-table">
-              <thead>
-                <tr><th>Wall ID</th><th>Length</th><th>Thickness</th><th>Calculated Area</th></tr>
-              </thead>
-              <tbody id="tbody-walls">
-                <tr><td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted);">No wall boundaries extracted yet.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Footer Action -->
-        <div class="takeoff-footer">
-          <span style="font-size:11.5px; color:var(--text-muted);">All line items extracted with mathematical geometric precision.</span>
-          <button class="btn-push-erp" onclick="transferBOQToERP()">
-            <span>Transfer to BuildBharat ERP Hub</span>
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-          </button>
-        </div>
-
-      </div>
-
+    <div style="display:flex; align-items:center; gap:10px;">
+      <a href="/docs" target="_blank" style="font-size:12px; color:var(--text-secondary); text-decoration:none; padding:6px 12px; border-radius:6px; border:1px solid var(--border);">Open Swagger API Docs</a>
+      <button class="btn-primary" onclick="triggerFullSimulation()">
+        ▶ Run Full Pilot Simulation
+      </button>
     </div>
   </div>
 
   <!-- ==============================================================
-       VIEW 2: BUILDBHARAT ERP & OPERATIONS HUB
+       PANEL 1: MANAGING AUTHORITY (OPERATIONS / PROJECT MANAGER)
        ============================================================== -->
-  <div id="view-erp" class="view-panel">
-    <div class="erp-container">
+  <div id="panel-operations" class="department-panel active">
 
-      <!-- Project Master Banner -->
-      <div class="project-banner">
+    <!-- Rejection Alert Notice Container (Populated if Finance rejected a proposal) -->
+    <div id="pm-rejection-alert" style="display:none;"></div>
+
+    <!-- 1. BOQ Review & Inline Editing Card -->
+    <div class="glass-card">
+      <div class="card-header-row">
         <div>
-          <div style="font-size:11px; font-weight:700; color:var(--accent-cyan); text-transform:uppercase; margin-bottom:4px;">Live Project Procurement Master</div>
-          <div class="banner-title">Navi Mumbai International Airport - Terminal 2 (Zone A)</div>
-          <div class="banner-subtitle">
-            Authority: <strong>CIDCO / Adani Airports</strong> | Contract Value: <strong style="color:#fff;">₹25,00,00,000.00</strong> | Master Tenant: <strong>Larsen & Toubro Ltd (GSTIN: 27AAACL1234F1Z1)</strong>
+          <div class="card-title">
+            <svg width="18" height="18" fill="none" stroke="var(--accent-cyan)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            Bill of Quantities (BOQ) — Review & Accuracy Correction
+          </div>
+          <div class="card-subtitle">
+            Project Manager inspects extracted quantities. If accuracy needs adjustment, edit directly below before approving.
           </div>
         </div>
         <div style="display:flex; gap:10px;">
-          <button onclick="runLiveERPWorkflow()" style="background:linear-gradient(135deg, #0284c7 0%, #6366f1 100%); color:#fff; font-weight:700; font-size:12.5px; padding:10px 20px; border-radius:8px; border:none; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 0 16px var(--primary-glow);">
-            <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            Run 1-Click End-to-End Simulation
+          <button class="btn-secondary" onclick="addCustomBOQLine()">+ Add Custom Line</button>
+          <button class="btn-success" id="btn-approve-boq" onclick="approveProjectBOQ()">✔ Approve Final BOQ</button>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="portal-table">
+          <thead>
+            <tr>
+              <th>WBS Code</th>
+              <th>Item Description</th>
+              <th>Quantity</th>
+              <th>Unit</th>
+              <th>Estimated Rate (₹)</th>
+              <th>Total Amount (₹)</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-pm-boq">
+            <tr><td colspan="8" style="text-align:center; padding:30px;">Loading project BOQ items...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2. IS 456 Material Decomposition Card -->
+    <div class="glass-card">
+      <div class="card-header-row">
+        <div>
+          <div class="card-title">
+            <svg width="18" height="18" fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            Indian Standard IS 456 Material Decomposition
+          </div>
+          <div class="card-subtitle">Decomposes civil concrete and brickwork items into raw commercial procurement packages.</div>
+        </div>
+        <button class="btn-primary" onclick="runIS456Decomp()">Decompose Materials</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="portal-table">
+          <thead>
+            <tr><th>Package Name</th><th>Material Required</th><th>Quantity</th><th>Unit of Measure</th><th>Status</th></tr>
+          </thead>
+          <tbody id="tbody-decomp-materials">
+            <tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">Click 'Decompose Materials' to calculate raw ingredients (Cement, Sand, Aggregates, Steel).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. Vendor Phone Directory & Telephonic Quotation Entry Form -->
+    <div class="glass-card">
+      <div class="card-header-row">
+        <div>
+          <div class="card-title">
+            <svg width="18" height="18" fill="none" stroke="var(--accent-amber)" stroke-width="2" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            Vendor Phone Directory & Telephonic Quotation Log
+          </div>
+          <div class="card-subtitle">
+            Junior engineers or interns call vendors from the directory below, note down their quoted prices, and record caller notes.
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="portal-table">
+          <thead>
+            <tr>
+              <th>Material Category</th>
+              <th>Vendor Company</th>
+              <th>Phone Number</th>
+              <th>City / Hub</th>
+              <th>Quoted Base (₹)</th>
+              <th>Freight / Unit (₹)</th>
+              <th>GST %</th>
+              <th>Call Notes</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-vendor-directory">
+            <tr><td colspan="9" style="text-align:center; padding:30px;">Loading vendor phone directory...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Comparative Statement & Submit Proposal Section -->
+      <div id="comparative-ranking-section" style="margin-top:20px; display:none; border-top:1px solid var(--border); padding-top:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div>
+            <div style="font-weight:700; font-size:14px; color:#fff;">Dynamic L1/L2 Comparative Statement</div>
+            <div style="font-size:11.5px; color:var(--text-muted);">True landed unit cost calculated = (Base + Freight) × (1 + GST)</div>
+          </div>
+          <button class="btn-primary" onclick="submitBillProposalToFinance()">
+            📤 Submit Bill Proposal to Finance Department
           </button>
         </div>
+
+        <div id="comparative-cards" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px;"></div>
       </div>
-
-      <!-- 5 Financial & Stock KPI Cards -->
-      <div class="erp-kpi-grid">
-        <div class="erp-kpi-card">
-          <div class="erp-kpi-header">Committed PO Value <span>💼</span></div>
-          <div class="erp-kpi-number" id="erp-kpi-committed">₹6,04,806.40</div>
-          <div class="erp-kpi-footer">Landed rate contracted with L1</div>
-        </div>
-        <div class="erp-kpi-card">
-          <div class="erp-kpi-header">Actual Cash Outflow <span>💳</span></div>
-          <div class="erp-kpi-number" style="color:#38bdf8;" id="erp-kpi-outflow">₹5,99,808.00</div>
-          <div class="erp-kpi-footer">100% UTR & Bank Verified</div>
-        </div>
-        <div class="erp-kpi-card">
-          <div class="erp-kpi-header">Godown Stock <span>📦</span></div>
-          <div class="erp-kpi-number" style="color:#10b981;" id="erp-kpi-stock">1,320 Bags</div>
-          <div class="erp-kpi-footer">OPC 53 Cement in Site Warehouse</div>
-        </div>
-        <div class="erp-kpi-card">
-          <div class="erp-kpi-header">Outstanding Liability <span>⚖️</span></div>
-          <div class="erp-kpi-number" style="color:#f59e0b;" id="erp-kpi-liability">₹4,998.40</div>
-          <div class="erp-kpi-footer">Damaged transit bags deducted</div>
-        </div>
-        <div class="erp-kpi-card">
-          <div class="erp-kpi-header">PO Order Status <span>🔒</span></div>
-          <div class="erp-kpi-number" style="color:#34d399;" id="erp-kpi-status">FULLY SETTLED</div>
-          <div class="erp-kpi-footer">PO Closed & Final UTR Disbursed</div>
-        </div>
-      </div>
-
-      <!-- 4 Operational Step Cards -->
-      <div class="stage-grid">
-        
-        <!-- Step 1 -->
-        <div class="stage-card">
-          <div>
-            <div class="stage-step-tag" style="color:var(--accent-cyan);">Step 1: Operations</div>
-            <div class="stage-title">PM Sign-off Gate</div>
-            <p class="stage-desc">Project Manager verifies blueprint takeoff line items. Procurement is blocked until approved.</p>
-          </div>
-          <div>
-            <div class="stage-status-badge" id="badge-step1" style="background:rgba(16, 185, 129, 0.15); color:#10b981;">
-              ● Status: VERIFIED by PM
-            </div>
-            <button class="btn-stage-action" style="background:rgba(56, 189, 248, 0.15); border-color:var(--accent-cyan); color:var(--accent-cyan);" onclick="executeERPVerify()">
-              Verify Project Items
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="stage-card">
-          <div>
-            <div class="stage-step-tag" style="color:#c084fc;">Step 2: Engineering</div>
-            <div class="stage-title">IS 456 Decomposition</div>
-            <p class="stage-desc">Breaks concrete volume into 1,331 OPC 53 cement bags, sand, and coarse aggregates.</p>
-          </div>
-          <div>
-            <div class="stage-status-badge" id="badge-step2" style="background:rgba(168, 85, 247, 0.15); color:#c084fc;">
-              ● 1,331 Bags (OPC 53 Cement)
-            </div>
-            <button class="btn-stage-action" style="background:rgba(168, 85, 247, 0.15); border-color:#a855f7; color:#c084fc;" onclick="executeERPDecomp()">
-              Decompose Materials
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="stage-card">
-          <div>
-            <div class="stage-step-tag" style="color:#10b981;">Step 3: Finance Clearance</div>
-            <div class="stage-title">Budget Approval & UTR</div>
-            <p class="stage-desc">Finance Head approves locked PO, sets 25% advance, and logs bank UTR reference.</p>
-          </div>
-          <div>
-            <div class="stage-status-badge" id="badge-step3" style="background:rgba(16, 185, 129, 0.15); color:#10b981;">
-              ● Approved (25% Advance UTR)
-            </div>
-            <button class="btn-stage-action" style="background:rgba(16, 185, 129, 0.15); border-color:#10b981; color:#34d399;" onclick="executeERPFinance()">
-              Approve Budget & Log UTR
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 4 -->
-        <div class="stage-card">
-          <div>
-            <div class="stage-step-tag" style="color:#f43f5e;">Step 4: Stores & Settle</div>
-            <div class="stage-title">Site GRN & 2-Way Match</div>
-            <p class="stage-desc">Storekeeper logs physical truck receipt (challan photo), warehouse stock updates, and 2-way match settles invoice.</p>
-          </div>
-          <div>
-            <div class="stage-status-badge" id="badge-step4" style="background:rgba(16, 185, 129, 0.15); color:#10b981;">
-              ● 1,320 Bags Received (PO Closed)
-            </div>
-            <button class="btn-stage-action" style="background:rgba(244, 63, 94, 0.15); border-color:#f43f5e; color:#fb7185;" onclick="executeERPSettle()">
-              Execute 2-Way Settlement
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Live Terminal Log -->
-      <div class="erp-terminal" id="erp-live-log">
-        <div class="terminal-line">
-          <span class="terminal-time">[SYSTEM]</span>
-          <span class="terminal-text" style="color:#38bdf8;">BuildBharat Enterprise Operational Console Initialized. Ready for workflow execution.</span>
-        </div>
-      </div>
-
     </div>
+
   </div>
 
-</div>
+  <!-- ==============================================================
+       PANEL 2: FINANCE DEPARTMENT (APPROVAL / REJECTION & UTR LOGGING)
+       ============================================================== -->
+  <div id="panel-finance" class="department-panel">
 
-<!-- SCRIPT SECTION -->
+    <!-- Executive Financial KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-stat-card">
+        <div class="kpi-stat-label">Committed PO Budget <span>💼</span></div>
+        <div class="kpi-stat-val" id="fin-kpi-committed">₹6,04,806.40</div>
+        <div class="kpi-stat-footer">Contracted Landed Order Value</div>
+      </div>
+      <div class="kpi-stat-card">
+        <div class="kpi-stat-label">Disbursed Cash Outflow <span>💳</span></div>
+        <div class="kpi-stat-val" style="color:var(--accent-cyan);" id="fin-kpi-outflow">₹5,99,808.00</div>
+        <div class="kpi-stat-footer">100% Verified with Bank UTR</div>
+      </div>
+      <div class="kpi-stat-card">
+        <div class="kpi-stat-label">Pending PO Clearance <span>⚠️</span></div>
+        <div class="kpi-stat-val" style="color:var(--accent-amber);" id="fin-kpi-pending-count">1</div>
+        <div class="kpi-stat-footer">Requires Finance Approval</div>
+      </div>
+      <div class="kpi-stat-card">
+        <div class="kpi-stat-label">Outstanding Payables <span>⚖️</span></div>
+        <div class="kpi-stat-val" style="color:#f43f5e;" id="fin-kpi-payables">₹4,998.40</div>
+        <div class="kpi-stat-footer">Damage variance deducted</div>
+      </div>
+    </div>
+
+    <!-- Pending PO Approval Notice Hub -->
+    <div class="glass-card">
+      <div class="card-header-row">
+        <div>
+          <div class="card-title">
+            <svg width="18" height="18" fill="none" stroke="var(--accent-amber)" stroke-width="2" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            Pending Bill Proposals & Slip Approval Notices
+          </div>
+          <div class="card-subtitle">
+            Review proposed vendor quotes submitted by Managing Authority. Purchase Orders remain LOCKED until Finance grants budget clearance.
+          </div>
+        </div>
+      </div>
+
+      <div id="finance-pending-list" style="display:flex; flex-direction:column; gap:14px;">
+        <div style="text-align:center; padding:30px; color:var(--text-muted);">No proposals pending approval right now.</div>
+      </div>
+    </div>
+
+    <!-- Two-Way Match Invoice Reconciliation & PO Closure Card -->
+    <div class="glass-card">
+      <div class="card-header-row">
+        <div>
+          <div class="card-title">
+            <svg width="18" height="18" fill="none" stroke="var(--accent-emerald)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Two-Way Match Reconciliation & PO Closure
+          </div>
+          <div class="card-subtitle">
+            Audits vendor tax invoice against physical net accepted goods at site store (caps rate and quantity). Disburses final settlement UTR.
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+        <div style="background:rgba(4, 7, 15, 0.6); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border);">
+          <div style="font-weight:700; color:#fff; margin-bottom:10px;">Step 1: Reconcile Vendor Tax Invoice</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="font-size:11px; color:var(--text-muted);">Invoice Number</label>
+            <input type="text" id="recon-inv-num" class="form-input" value="UTCL-TAX-INV-88910">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div>
+                <label style="font-size:11px; color:var(--text-muted);">Claimed Qty (Bags)</label>
+                <input type="number" id="recon-inv-qty" class="form-input" value="1331.0">
+              </div>
+              <div>
+                <label style="font-size:11px; color:var(--text-muted);">Claimed Rate (₹)</label>
+                <input type="number" id="recon-inv-rate" class="form-input" value="454.40">
+              </div>
+            </div>
+            <button class="btn-primary" style="margin-top:6px;" onclick="runReconciliation()">Reconcile with Store GRN</button>
+          </div>
+        </div>
+
+        <div style="background:rgba(4, 7, 15, 0.6); padding:16px; border-radius:var(--radius-md); border:1px solid var(--border);">
+          <div style="font-weight:700; color:#fff; margin-bottom:10px;">Step 2: Disburse Final Settlement & Close PO</div>
+          <div id="recon-status-box" style="font-size:11.5px; color:var(--text-secondary); margin-bottom:12px; line-height:1.4;">
+            Click 'Reconcile with Store GRN' on the left to verify delivery fulfillment.
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="font-size:11px; color:var(--text-muted);">Bank UTR Reference Number</label>
+            <input type="text" id="final-settle-utr" class="form-input" value="SBINR52026102600987654">
+            <button class="btn-success" id="btn-final-settle" onclick="executeFinalSettlement()" disabled>Disburse Final Balance & Close PO</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==============================================================
+       PANEL 3: SITE STOREKEEPER (DELIVERY CHALLAN & GODOWN STOCK)
+       ============================================================== -->
+  <div id="panel-store" class="department-panel">
+
+    <div class="glass-card">
+      <div class="card-header-row">
+        <div>
+          <div class="card-title">
+            <svg width="18" height="18" fill="none" stroke="var(--accent-cyan)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            Site Store Gate Delivery Inward (Goods Receipt Note)
+          </div>
+          <div class="card-subtitle">
+            Log incoming trucks at project godown against dispatched POs. Record delivery challan, deduct damaged goods, and update warehouse stock.
+          </div>
+        </div>
+        <div style="font-family:var(--font-display); font-size:18px; font-weight:700; color:#34d399;" id="store-godown-counter">
+          Warehouse Stock: 1,320 Bags
+        </div>
+      </div>
+
+      <!-- Inward Form -->
+      <div style="background:rgba(4, 7, 15, 0.6); padding:18px; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:20px;">
+        <div style="font-weight:700; color:#fff; margin-bottom:12px;">Log Inward Delivery Challan</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
+          <div>
+            <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Challan Number</label>
+            <input type="text" id="grn-challan" class="form-input" value="CHAL-2026-0091" style="width:100%;">
+          </div>
+          <div>
+            <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Truck / Vehicle Reg.</label>
+            <input type="text" id="grn-truck" class="form-input" value="MH-04-AZ-9988" style="width:100%;">
+          </div>
+          <div>
+            <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Gross Received Qty</label>
+            <input type="number" id="grn-qty" class="form-input" value="700" style="width:100%;">
+          </div>
+          <div>
+            <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Damaged / Burst Qty</label>
+            <input type="number" id="grn-damaged" class="form-input" value="0" style="width:100%;">
+          </div>
+        </div>
+        <div style="margin-top:12px; display:flex; justify-content:flex-end;">
+          <button class="btn-primary" onclick="submitSiteGRN()">📥 Receive Goods & Increment Godown Stock</button>
+        </div>
+      </div>
+
+      <!-- Dispatched POs waiting delivery table -->
+      <div style="font-weight:700; color:#fff; margin-bottom:10px;">Active Dispatched Purchase Orders at Site</div>
+      <div class="table-wrapper">
+        <table class="portal-table">
+          <thead>
+            <tr><th>PO Number</th><th>Material</th><th>Ordered Qty</th><th>Net Delivered</th><th>Pending Delivery</th><th>Vendor</th><th>Status</th></tr>
+          </thead>
+          <tbody id="tbody-store-pos">
+            <tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">Loading dispatched purchase orders...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- JAVASCRIPT LOGIC -->
 <script>
-let currentReport = null;
-let currentZoom = 1.0;
-let isInverted = false;
-let activeFilters = { all: true, rooms: true, openings: true, walls: true, flags: true };
+// State
+let currentRole = "OPERATIONS";
+let activeProjectID = "proj-demo-101";
+let projectBOQItems = [];
+let allVendors = [];
+let activePOProposal = null;
 
-// Mode View Switcher
-function activateView(viewName) {
-  document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.switcher-btn').forEach(el => el.classList.remove('active'));
+// Initialization
+document.addEventListener("DOMContentLoaded", () => {
+  // Check if role is specified in URL hash (e.g. #role=FINANCE) for multi-browser testing
+  const hash = window.location.hash.replace('#', '');
+  if (hash.includes('role=')) {
+    const r = hash.split('role=')[1];
+    switchDepartment(r);
+  } else {
+    loadDepartmentData(currentRole);
+  }
+});
 
-  const target = document.getElementById(`view-${viewName}`);
-  const btn = document.getElementById(`switch-${viewName}`);
-  if (target) target.classList.add('active');
-  if (btn) btn.classList.add('active');
+// Switch Department Role (Multi-Entity Authentication)
+function switchDepartment(role) {
+  currentRole = role;
+  window.location.hash = `role=${role}`;
+
+  document.querySelectorAll('.dept-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.department-panel').forEach(p => p.classList.remove('active'));
+
+  if (role === 'OPERATIONS') {
+    document.getElementById('dept-pm').classList.add('active');
+    document.getElementById('panel-operations').classList.add('active');
+    document.getElementById('current-avatar').textContent = "RS";
+    document.getElementById('current-user-name').textContent = "Rajesh Sharma";
+    document.getElementById('current-role-label').textContent = "OPERATIONS (Managing Authority)";
+  } else if (role === 'FINANCE') {
+    document.getElementById('dept-fin').classList.add('active');
+    document.getElementById('panel-finance').classList.add('active');
+    document.getElementById('current-avatar').textContent = "SI";
+    document.getElementById('current-user-name').textContent = "Sunita Iyer";
+    document.getElementById('current-role-label').textContent = "FINANCE (Head of Finance)";
+  } else if (role === 'SITE_STORE') {
+    document.getElementById('dept-store').classList.add('active');
+    document.getElementById('panel-store').classList.add('active');
+    document.getElementById('current-avatar').textContent = "RP";
+    document.getElementById('current-user-name').textContent = "Ramesh Pawar";
+    document.getElementById('current-role-label').textContent = "SITE_STORE (Storekeeper)";
+  }
+
+  loadDepartmentData(role);
 }
 
-function transferBOQToERP() {
-  activateView('erp');
-  logERP("Transferred verified Takeoff items into BuildBharat ERP Project Master.", "#38bdf8");
-}
-
-// Takeoff Tabs
-function switchTakeoffTab(tabId) {
-  document.querySelectorAll('.takeoff-pane').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
-  const target = document.getElementById(tabId);
-  if (target) target.classList.add('active');
-
-  const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId));
-  if (btn) btn.classList.add('active');
-}
-
-// Zoom controls
-function adjustZoom(delta) {
-  currentZoom = Math.max(0.3, Math.min(3.5, currentZoom + delta));
-  const el = document.getElementById('canvas-container');
-  el.style.transform = `scale(${currentZoom})`;
-  document.getElementById('zoom-level').textContent = `${Math.round(currentZoom * 100)}%`;
-}
-
-function resetZoom() {
-  currentZoom = 1.0;
-  const el = document.getElementById('canvas-container');
-  el.style.transform = `scale(1.0)`;
-  document.getElementById('zoom-level').textContent = `100%`;
-}
-
-function toggleInvert() {
-  isInverted = !isInverted;
-  const img = document.getElementById('blueprint-img');
-  img.classList.toggle('inverted', isInverted);
-  document.getElementById('btn-invert').classList.toggle('active', isInverted);
-}
-
-// Drag & drop handlers
-function handleDragOver(e) {
-  e.preventDefault();
-  document.getElementById('dropzone-overlay').classList.add('dragover');
-}
-
-function handleDragLeave(e) {
-  e.preventDefault();
-  document.getElementById('dropzone-overlay').classList.remove('dragover');
-}
-
-function handleDrop(e) {
-  e.preventDefault();
-  document.getElementById('dropzone-overlay').classList.remove('dragover');
-  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-    processFile(e.dataTransfer.files[0]);
+function loadDepartmentData(role) {
+  if (role === 'OPERATIONS') {
+    loadBOQItems();
+    loadVendorDirectory();
+    checkPMNotifications();
+  } else if (role === 'FINANCE') {
+    loadFinancePending();
+  } else if (role === 'SITE_STORE') {
+    loadStorePOs();
   }
 }
 
-function handleFileInput(input) {
-  if (input.files && input.files[0]) {
-    processFile(input.files[0]);
-  }
-}
+// ==============================================================
+// 1. MANAGING AUTHORITY FUNCTIONS
+// ==============================================================
 
-async function loadSampleBlueprint(sampleName) {
+async function loadBOQItems() {
   try {
-    const res = await fetch(`/api/v1/takeoff/sample/${sampleName}`);
-    if (!res.ok) throw new Error("Sample file not found");
-    const blob = await res.blob();
-    const file = new File([blob], sampleName, { type: blob.type });
-    processFile(file);
+    const res = await fetch(`/api/v1/erp/boq/items/${activeProjectID}`);
+    const items = await res.json();
+    projectBOQItems = items;
+    renderBOQTable(items);
   } catch (err) {
-    alert("Error loading sample: " + err.message);
+    console.error(err);
   }
 }
 
-async function processFile(file) {
-  document.getElementById('dropzone-overlay').classList.add('hidden');
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const cur = document.getElementById('currency-select').value;
-  const oh = document.getElementById('overhead-input').value;
-
-  try {
-    const res = await fetch(`/api/v1/takeoff/process?currency=${cur}&overhead_pct=${oh}&profit_pct=10.0&contingency_pct=5.0`, {
-      method: 'POST',
-      body: formData
-    });
-    if (!res.ok) throw new Error("Processing failed");
-    const report = await res.json();
-    currentReport = report;
-
-    // Display image on canvas
-    if (report.raster_image_base64) {
-      document.getElementById('blueprint-img').src = `data:image/png;base64,${report.raster_image_base64}`;
-    }
-
-    renderTakeoffDashboard(report);
-  } catch (err) {
-    alert("Error: " + err.message);
-    document.getElementById('dropzone-overlay').classList.remove('hidden');
-  }
-}
-
-function renderTakeoffDashboard(report) {
-  const cs = report.cost_summary || {};
-  const sym = cs.currency_symbol || '₹';
-
-  document.getElementById('kpi-spaces').textContent = `${report.rooms ? report.rooms.length : 0} Zones`;
-  document.getElementById('badge-rooms-count').textContent = report.rooms ? report.rooms.length : 0;
-  
-  const totalArea = report.metadata.total_premises_area_sqm ? `${Math.round(report.metadata.total_premises_area_sqm * 10.764)} SQFT` : '1,250 SQFT';
-  document.getElementById('kpi-area').textContent = totalArea;
-
-  document.getElementById('kpi-direct-subtotal').textContent = cs.direct_cost_subtotal != null ? `${sym}${cs.direct_cost_subtotal.toLocaleString()}` : '₹7,80,000';
-  document.getElementById('kpi-total-budget').textContent = cs.total_estimated_budget != null ? `${sym}${cs.total_estimated_budget.toLocaleString()}` : '₹9,75,000';
-
-  // Render BOQ Table
-  const tbody = document.getElementById('tbody-boq');
+function renderBOQTable(items) {
+  const tbody = document.getElementById('tbody-pm-boq');
   tbody.innerHTML = '';
-  const lines = report.lines || [];
-  document.getElementById('badge-boq-count').textContent = lines.length;
+  if (!items || items.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px;">No BOQ items found. Click "+ Add Custom Line" above.</td></tr>';
+    return;
+  }
 
-  lines.forEach((line, idx) => {
+  let allVerified = true;
+  items.forEach(item => {
+    if (!item.is_verified) allVerified = false;
     const tr = document.createElement('tr');
-    tr.setAttribute('data-desc', line.description.toLowerCase());
     tr.innerHTML = `
-      <td style="font-family:var(--font-mono); font-weight:700; color:var(--accent-cyan);">${line.csi_code || 'C-' + (101 + idx)}</td>
-      <td style="font-weight:600; color:#fff;">${line.description}</td>
-      <td style="font-family:var(--font-mono); font-weight:700;">${line.quantity}</td>
-      <td><span class="cat-tag">${line.unit}</span></td>
-      <td style="font-family:var(--font-mono);">${sym}${line.unit_rate != null ? line.unit_rate.toLocaleString() : '—'}</td>
-      <td style="font-family:var(--font-mono); font-weight:700; color:#fff;">${sym}${line.total_cost != null ? line.total_cost.toLocaleString() : '—'}</td>
+      <td style="font-family:var(--font-mono); font-weight:700; color:var(--accent-cyan);">${item.wbs_code}</td>
+      <td>
+        <input type="text" class="form-input" style="width:100%; min-width:240px;" value="${escapeHtml(item.description)}" onchange="updateBOQField('${item.id}', 'description', this.value)">
+      </td>
+      <td>
+        <input type="number" class="table-input" value="${item.quantity}" step="0.1" onchange="updateBOQField('${item.id}', 'quantity', parseFloat(this.value))">
+      </td>
+      <td><span class="badge badge-cyan">${item.unit}</span></td>
+      <td>
+        <input type="number" class="table-input" value="${item.unit_rate}" step="10" onchange="updateBOQField('${item.id}', 'unit_rate', parseFloat(this.value))">
+      </td>
+      <td style="font-family:var(--font-mono); font-weight:700; color:#fff;">₹${(item.total_amount || 0).toLocaleString()}</td>
+      <td>
+        <span class="badge ${item.is_verified ? 'badge-emerald' : 'badge-amber'}">
+          ${item.is_verified ? '✔ VERIFIED' : '● PENDING'}
+        </span>
+      </td>
+      <td>
+        <button onclick="deleteBOQLine('${item.id}')" style="background:transparent; border:none; color:var(--accent-rose); cursor:pointer;" title="Delete line">✕</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
 
-  // Render Rooms
-  const tbodyRooms = document.getElementById('tbody-rooms');
-  tbodyRooms.innerHTML = '';
-  (report.rooms || []).forEach(rm => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="font-weight:600; color:#fff;">${rm.name || 'Room'}</td>
-      <td style="font-family:var(--font-mono);">${rm.area ? rm.area.toFixed(1) + ' ' + (rm.unit || 'SF') : '—'}</td>
-      <td style="font-family:var(--font-mono);">${rm.perimeter ? rm.perimeter.toFixed(1) + ' ' + (rm.unit || 'LF') : '—'}</td>
-      <td style="font-family:var(--font-mono);">${rm.height || '10.0 FT'}</td>
-    `;
-    tbodyRooms.appendChild(tr);
-  });
+  const btnApprove = document.getElementById('btn-approve-boq');
+  if (btnApprove) {
+    btnApprove.textContent = allVerified ? "✔ All BOQ Items Approved" : "✔ Approve Final BOQ";
+    btnApprove.disabled = allVerified;
+  }
 }
 
-function handleSearch(query) {
-  const q = query.trim().toLowerCase();
-  const rows = document.querySelectorAll('#tbody-boq tr');
-  rows.forEach(r => {
-    const text = r.getAttribute('data-desc') || r.textContent.toLowerCase();
-    r.style.display = text.includes(q) ? '' : 'none';
-  });
-}
-
-async function triggerReprice() {
-  if (!currentReport) return;
-  const cur = document.getElementById('currency-select').value;
-  const oh = parseFloat(document.getElementById('overhead-input').value) || 10.0;
+async function updateBOQField(itemId, field, val) {
+  const payload = {};
+  payload[field] = val;
   try {
-    const res = await fetch(`/api/v1/takeoff/reprice?currency=${cur}&overhead_pct=${oh}&profit_pct=10.0&contingency_pct=5.0`, {
-      method: 'POST',
+    await fetch(`/api/v1/erp/boq/item/${itemId}`, {
+      method: 'PUT',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(currentReport)
+      body: JSON.stringify(payload)
     });
-    if (res.ok) {
-      const updated = await res.json();
-      currentReport = updated;
-      renderTakeoffDashboard(updated);
-    }
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-async function downloadExport(format) {
-  if (!currentReport) {
-    alert("Please load or upload a blueprint first to export.");
-    return;
-  }
-  const url = `/api/v1/takeoff/export/${format}`;
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(currentReport),
-    });
-    if (!res.ok) throw new Error('Export download failed');
-    const blob = await res.blob();
-    const a = document.createElement('a');
-    a.href = window.URL.createObjectURL(blob);
-    a.download = `BuildBharat_Takeoff_${currentReport.sheet_name || 'Export'}.${format}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    loadBOQItems();
   } catch (err) {
-    alert(err.message);
+    alert("Error updating item: " + err.message);
   }
 }
 
-function toggleLayerFilter(layer) {
-  document.querySelectorAll('.layer-chip').forEach(c => c.classList.remove('active'));
-  event.target.classList.add('active');
-}
+async function addCustomBOQLine() {
+  const desc = prompt("Enter Description for new BOQ line item:", "Structural Fe 550D TMT Steel Rebars");
+  if (!desc) return;
+  const qty = parseFloat(prompt("Enter Quantity:", "15.0")) || 1.0;
+  const unit = prompt("Enter Unit (e.g. CUM, MT, BAG, NOS):", "MT") || "NOS";
+  const rate = parseFloat(prompt("Enter Estimated Unit Rate (₹):", "68000")) || 0.0;
 
-// ==============================================================
-// ERP WORKFLOW SCRIPTS
-// ==============================================================
-function logERP(msg, color='#38bdf8') {
-  const container = document.getElementById('erp-live-log');
-  if (!container) return;
-  const time = new Date().toLocaleTimeString();
-  const div = document.createElement('div');
-  div.className = 'terminal-line';
-  div.innerHTML = `<span class="terminal-time">[${time}]</span> <span class="terminal-text" style="color:${color};">${msg}</span>`;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
-
-async function executeERPVerify() {
-  logERP("Project Manager Rajesh Sharma reviewing structural BOQ line items...", "#93c5fd");
   try {
-    const res = await fetch('/api/v1/erp/boq/verify', {
+    await fetch('/api/v1/erp/boq/item', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ item_id: 'boq-item-101', verified_by_user_id: 'user-pm-01' })
+      body: JSON.stringify({
+        project_id: activeProjectID,
+        wbs_code: "GEN-" + Math.floor(100 + Math.random() * 900),
+        description: desc,
+        quantity: qty,
+        unit: unit,
+        unit_rate: rate
+      })
+    });
+    loadBOQItems();
+  } catch (err) {
+    alert("Error adding item: " + err.message);
+  }
+}
+
+async function deleteBOQLine(itemId) {
+  if (!confirm("Are you sure you want to delete this line item?")) return;
+  try {
+    await fetch(`/api/v1/erp/boq/item/${itemId}`, { method: 'DELETE' });
+    loadBOQItems();
+  } catch (err) {
+    alert("Error deleting item: " + err.message);
+  }
+}
+
+async function approveProjectBOQ() {
+  try {
+    const res = await fetch('/api/v1/erp/boq/verify-all', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ project_id: activeProjectID, verified_by_user_id: 'user-pm-01' })
     });
     const data = await res.json();
-    if (res.ok) {
-      logERP("✔ [OK] Project Manager Verification Completed! BOQ item C-101 signed off. Procurement unlocked.", "#10b981");
-      document.getElementById('badge-step1').textContent = "● Status: VERIFIED by PM";
-    } else {
-      logERP("✖ Error: " + JSON.stringify(data.detail), "#f43f5e");
-    }
+    alert(`✔ Success! ${data.verified_items_count} BOQ items verified by Project Manager. Procurement is now unlocked!`);
+    loadBOQItems();
   } catch (err) {
-    logERP("✖ " + err.message, "#f43f5e");
+    alert("Error approving BOQ: " + err.message);
   }
 }
 
-async function executeERPDecomp() {
-  logERP("Executing Indian Standard IS 456 material decomposition (M25 Concrete)...", "#c084fc");
+async function runIS456Decomp() {
   try {
     const res = await fetch('/api/v1/erp/procurement/decompose', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ project_id: 'proj-demo-101' })
+      body: JSON.stringify({ project_id: activeProjectID })
     });
     const data = await res.json();
-    if (res.ok) {
-      logERP("✔ [OK] IS 456 Decomposition: 1,331 OPC 53 Cement Bags | 16.3 Brass Sand | 32.6 Brass Aggregates.", "#a855f7");
-      document.getElementById('badge-step2').textContent = "● Decomposed: 1,331 Bags";
-    }
+    if (!res.ok) throw new Error(data.detail);
+
+    const tbody = document.getElementById('tbody-decomp-materials');
+    tbody.innerHTML = '';
+    (data.decomposed_materials || []).forEach(m => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-weight:700; color:#fff;">Package: ${m.material_name}</td>
+        <td>${m.material_name}</td>
+        <td style="font-family:var(--font-mono); font-weight:700; color:var(--accent-cyan);">${m.quantity}</td>
+        <td><span class="badge badge-cyan">${m.uom}</span></td>
+        <td><span class="badge badge-emerald">Ready for RFQ</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+    alert(`✔ IS 456 Material Decomposition Completed! Packages generated for Cement, Sand, and Aggregates.`);
   } catch (err) {
-    logERP("✖ " + err.message, "#f43f5e");
+    alert("Decomposition Error: " + err.message);
   }
 }
 
-async function executeERPFinance() {
-  logERP("Finance Head Sunita Iyer granting budget approval for PO-7D82D8...", "#34d399");
-  logERP("Payment Terms: PART_BY_PART (25% Advance). Disbursed: ₹1,51,201.60. Bank UTR: HDFCR52026102600881234.", "#38bdf8");
-  document.getElementById('badge-step3').textContent = "● Approved (25% Advance UTR Logged)";
-  document.getElementById('erp-kpi-outflow').textContent = "₹1,51,201.60";
+// 2. Vendor Phone Directory & Quotation Log
+async function loadVendorDirectory() {
+  try {
+    const res = await fetch('/api/v1/erp/vendors');
+    const vendors = await res.json();
+    allVendors = vendors;
+    renderVendorDirectory(vendors);
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-async function executeERPSettle() {
-  logERP("Storekeeper Ramesh Pawar logged physical delivery: 1,320 bags accepted (Challan #CHAL-2026-0091, Truck MH-04-AZ-9988).", "#fb7185");
-  logERP("Two-Way Match executed: Vendor billed 1,331 bags -> System capped at 1,320 physical bags.", "#f59e0b");
-  logERP("✔ [OK] Final Settlement UTR SBINR52026102600987654 disbursed. PO Marked FULLY_SETTLED!", "#10b981");
-  document.getElementById('badge-step4').textContent = "● 1,320 Bags Received (PO Closed)";
-  document.getElementById('erp-kpi-outflow').textContent = "₹5,99,808.00";
-  document.getElementById('erp-kpi-status').textContent = "FULLY SETTLED";
+function renderVendorDirectory(vendors) {
+  const tbody = document.getElementById('tbody-vendor-directory');
+  tbody.innerHTML = '';
+  if (!vendors || vendors.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px;">No vendors found.</td></tr>';
+    return;
+  }
+
+  vendors.forEach(v => {
+    const tr = document.createElement('tr');
+    tr.id = `row-vendor-${v.id}`;
+    tr.innerHTML = `
+      <td><span class="badge badge-cyan">${v.category}</span></td>
+      <td style="font-weight:700; color:#fff;">${v.name}</td>
+      <td style="font-family:var(--font-mono); color:#38bdf8;">📞 ${v.phone}</td>
+      <td>${v.city}</td>
+      <td><input type="number" id="base-${v.id}" class="table-input" value="340" step="5"></td>
+      <td><input type="number" id="freight-${v.id}" class="table-input" value="15" step="1"></td>
+      <td><input type="number" id="gst-${v.id}" class="table-input" value="28" style="width:55px;">%</td>
+      <td><input type="text" id="notes-${v.id}" class="form-input" placeholder="e.g. Sales Head Manoj called" style="width:160px;"></td>
+      <td>
+        <button class="btn-primary" style="padding:4px 10px; font-size:11px;" onclick="saveVendorPhoneQuote('${v.id}')">💾 Save Quote</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
-async function runLiveERPWorkflow() {
-  logERP("================ STARTING 1-CLICK END-TO-END ERP WORKFLOW ================", "#38bdf8");
-  await executeERPVerify();
-  await new Promise(r => setTimeout(r, 700));
-  await executeERPDecomp();
-  await new Promise(r => setTimeout(r, 700));
-  await executeERPFinance();
-  await new Promise(r => setTimeout(r, 700));
-  await executeERPSettle();
-  logERP("================ WORKFLOW COMPLETED WITH 100% AUDIT MATCH ================", "#10b981");
+async function saveVendorPhoneQuote(vendorId) {
+  const base = parseFloat(document.getElementById(`base-${vendorId}`).value) || 340.0;
+  const freight = parseFloat(document.getElementById(`freight-${vendorId}`).value) || 15.0;
+  const gst = parseFloat(document.getElementById(`gst-${vendorId}`).value) || 28.0;
+  const notes = document.getElementById(`notes-${vendorId}`).value || "Telephonic quotation noted by PM intern";
+
+  const landedRate = Math.round(((base + freight) * (1 + gst / 100)) * 100) / 100;
+  alert(`✔ Quotation Saved for Vendor!\nBase: ₹${base} + Freight: ₹${freight} + GST: ${gst}%\nCalculated Landed Unit Cost: ₹${landedRate}`);
+
+  // Display comparative ranking section
+  document.getElementById('comparative-ranking-section').style.display = 'block';
+  const cardsContainer = document.getElementById('comparative-cards');
+  cardsContainer.innerHTML = `
+    <div style="background:rgba(2, 6, 15, 0.7); border:1px solid rgba(16, 185, 129, 0.4); border-radius:8px; padding:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span class="badge badge-emerald">RANK L1 (Lowest Landed)</span>
+        <span style="font-family:var(--font-mono); font-weight:700; color:#34d399;">₹454.40 / Bag</span>
+      </div>
+      <div style="font-weight:700; color:#fff; font-size:14px;">Ultratech Cement Ltd</div>
+      <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;">
+        Base: ₹340.00 | Freight: ₹15.00 | GST: 28%<br>
+        Total Landed Cost: <strong>₹6,04,806.40</strong> for 1,331 Bags<br>
+        <em style="color:var(--text-muted); font-size:11px;">"24-hour batch plant delivery confirmed by sales team."</em>
+      </div>
+    </div>
+    <div style="background:rgba(2, 6, 15, 0.7); border:1px solid var(--border); border-radius:8px; padding:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span class="badge" style="background:rgba(255,255,255,0.08); color:var(--text-muted);">RANK L2</span>
+        <span style="font-family:var(--font-mono); font-weight:700; color:#fff;">₹467.20 / Bag</span>
+      </div>
+      <div style="font-weight:700; color:#fff; font-size:14px;">Ambuja Cements Ltd</div>
+      <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;">
+        Base: ₹355.00 | Freight: ₹10.00 | GST: 28%<br>
+        Total Landed Cost: <strong>₹6,21,843.20</strong> for 1,331 Bags
+      </div>
+    </div>
+  `;
+}
+
+async function submitBillProposalToFinance() {
+  alert(`📤 Bill Proposal Submitted!\n\nProposal Details:\n- PO Number: PO-7D82D8-0001\n- Vendor: Ultratech Cement Ltd (Rank L1)\n- Material: 1,331 Bags OPC 53 Cement\n- Total Landed Amount: ₹6,04,806.40\n- Status: PENDING_FINANCE_APPROVAL (LOCKED)\n\nThe proposal has now appeared in the Finance Department portal for budget approval!`);
+  
+  // Switch to Finance Department view automatically or let user click
+  if (confirm("Would you like to open the Finance Department Portal now to approve this slip?")) {
+    switchDepartment('FINANCE');
+  }
+}
+
+// 3. PM Notification Check (Rejections from Finance)
+async function checkPMNotifications() {
+  try {
+    const res = await fetch(`/api/v1/erp/notifications/pm/${activeProjectID}`);
+    const notes = await res.json();
+    const alertDiv = document.getElementById('pm-rejection-alert');
+    if (!alertDiv) return;
+
+    const rejections = notes.filter(n => n.type === 'REJECTED_BY_FINANCE');
+    if (rejections.length > 0) {
+      alertDiv.style.display = 'block';
+      const last = rejections[rejections.length - 1];
+      alertDiv.innerHTML = `
+        <div class="alert-box alert-rose">
+          <div class="alert-icon">❌</div>
+          <div class="alert-content">
+            <strong>${last.title}</strong>
+            ${last.message}<br>
+            <span style="font-size:11px; color:#fda4af; opacity:0.8;">Action required: Re-negotiate pricing with vendor or select alternative quote above.</span>
+          </div>
+        </div>
+      `;
+    } else {
+      alertDiv.style.display = 'none';
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// ==============================================================
+// 2. FINANCE DEPARTMENT FUNCTIONS
+// ==============================================================
+
+async function loadFinancePending() {
+  try {
+    const res = await fetch('/api/v1/erp/finance/pending');
+    const pos = await res.json();
+    document.getElementById('fin-kpi-pending-count').textContent = pos.length || "1";
+    renderFinancePendingList(pos);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function renderFinancePendingList(pos) {
+  const container = document.getElementById('finance-pending-list');
+  container.innerHTML = `
+    <div style="background:rgba(4, 7, 15, 0.8); border:1px solid rgba(245, 158, 11, 0.4); border-radius:var(--radius-md); padding:18px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <span class="badge badge-amber">⚠️ PENDING FINANCE CLEARANCE</span>
+          <span style="font-size:11px; color:var(--text-muted); margin-left:8px;">Slip ID: PO-7D82D8-0001</span>
+          <div style="font-size:16px; font-weight:800; color:#fff; margin-top:4px;">OPC 53 Cement — 1,331 Bags for Substructure Footings</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
+            Recommended Vendor: <strong style="color:#fff;">Ultratech Cement Ltd (L1 Bidder)</strong> | Unit Rate: <strong>₹454.40 / Bag</strong>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px; color:var(--text-muted);">Proposed Budget Allocation</div>
+          <div style="font-family:var(--font-display); font-size:22px; font-weight:800; color:#34d399;">₹6,04,806.40</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255, 255, 255, 0.03); border-radius:6px; padding:10px 14px; margin-bottom:14px; font-size:12px; color:var(--text-secondary);">
+        <strong>PM Rajesh Sharma's Notes:</strong> "L1 quote verified against regional price indexes. Ultratech has committed batch plant dispatch within 24 hours of advance UTR."
+      </div>
+
+      <!-- Action Row -->
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; border-top:1px solid var(--border); padding-top:14px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div>
+            <label style="font-size:11px; color:var(--text-muted); display:block;">Payment Structure</label>
+            <select id="fin-payment-structure" class="form-select">
+              <option value="PART_BY_PART" selected>Part-by-Part (25% Advance)</option>
+              <option value="ADVANCE_ONLY">100% Advance Payment</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px; color:var(--text-muted); display:block;">Advance Bank UTR / RTGS</label>
+            <input type="text" id="fin-advance-utr" class="form-input" value="HDFCR52026102600881234" style="width:200px;">
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="btn-danger" onclick="financeRejectPO('PO-7D82D8-0001')">❌ Deny / Reject Proposal</button>
+          <button class="btn-success" onclick="financeApprovePO('PO-7D82D8-0001')">✔ Approve Budget & Dispatch PO</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function financeApprovePO(poNumber) {
+  const utr = document.getElementById('fin-advance-utr').value;
+  alert(`✔ BUDGET APPROVED & PO DISPATCHED!\n\n1. Purchase Order #${poNumber} status updated to APPROVED.\n2. Mock Vendor Notification: PO dispatched to Ultratech Cement Ltd via WhatsApp & Official Email.\n3. Advance Payment Logged: ₹1,51,201.60 disbursed via NEFT/RTGS.\n4. Bank Reference: UTR ${utr}.\n\nThe PO is now UNLOCKED and will appear in the Site Storekeeper portal for goods inward delivery!`);
+  
+  document.getElementById('fin-kpi-pending-count').textContent = "0";
+  document.getElementById('finance-pending-list').innerHTML = `
+    <div class="alert-box alert-emerald">
+      <div class="alert-icon">✔</div>
+      <div class="alert-content">
+        <strong>PO #${poNumber} Approved and Dispatched to Vendor!</strong>
+        Advance payment UTR ${utr} recorded. The Site Storekeeper can now receive materials at the project godown.
+      </div>
+    </div>
+  `;
+  document.getElementById('btn-final-settle').disabled = false;
+}
+
+async function financeRejectPO(poNumber) {
+  const reason = prompt("Enter Audit Rejection Reason to notify Managing Authority:", "Exceeds Q3 site budget ceiling by 8%; renegotiate freight discount with vendor.");
+  if (!reason) return;
+
+  alert(`❌ Bill Proposal #${poNumber} Declined!\n\nA notification alert with reason: "${reason}" has been dispatched back to Project Manager Rajesh Sharma's portal.`);
+  
+  document.getElementById('fin-kpi-pending-count').textContent = "0";
+  document.getElementById('finance-pending-list').innerHTML = `
+    <div class="alert-box alert-rose">
+      <div class="alert-icon">❌</div>
+      <div class="alert-content">
+        <strong>Proposal #${poNumber} Declined</strong>
+        Reason: "${reason}". Notification alert sent to Project Manager.
+      </div>
+    </div>
+  `;
+}
+
+function runReconciliation() {
+  const qty = parseFloat(document.getElementById('recon-inv-qty').value) || 1331.0;
+  const rate = parseFloat(document.getElementById('recon-inv-rate').value) || 454.40;
+
+  document.getElementById('recon-status-box').innerHTML = `
+    <div class="alert-box alert-amber" style="padding:10px 14px; margin-bottom:8px;">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-content">
+        <strong>Quantity Discrepancy Flagged</strong>
+        Vendor Claimed: <strong>1,331 Bags</strong> (₹6,04,806.40)<br>
+        Physical Net Received at Site Store: <strong>1,320 Bags</strong> (11 burst during transit)<br>
+        <span style="color:#34d399;">System Approved Payable: 1,320 Bags @ ₹454.40 = <strong>₹5,99,808.00</strong></span>
+      </div>
+    </div>
+    <div style="font-size:11.5px; color:#fff;">
+      Advance Already Paid: ₹1,51,201.60<br>
+      Net Balance Due for Final Settlement: <strong style="color:#38bdf8; font-size:14px;">₹4,48,606.40</strong>
+    </div>
+  `;
+  document.getElementById('btn-final-settle').disabled = false;
+}
+
+function executeFinalSettlement() {
+  const utr = document.getElementById('final-settle-utr').value;
+  alert(`✔ FINAL SETTLEMENT DISBURSED!\n\nDisbursed Amount: ₹4,48,606.40\nPayment Method: NEFT_RTGS\nBank UTR Reference: ${utr}\n\nPurchase Order #PO-7D82D8-0001 is now marked FULLY_SETTLED and officially CLOSED!`);
+
+  document.getElementById('recon-status-box').innerHTML = `
+    <div class="alert-box alert-emerald" style="padding:10px 14px;">
+      <div class="alert-icon">✔</div>
+      <div class="alert-content">
+        <strong>Purchase Order FULLY SETTLED</strong>
+        Final balance ₹4,48,606.40 disbursed under UTR ${utr}. Order closed with 100% financial audit compliance.
+      </div>
+    </div>
+  `;
+  document.getElementById('btn-final-settle').disabled = true;
+}
+
+// ==============================================================
+// 3. SITE STOREKEEPER FUNCTIONS
+// ==============================================================
+
+async function loadStorePOs() {
+  const tbody = document.getElementById('tbody-store-pos');
+  tbody.innerHTML = `
+    <tr>
+      <td style="font-family:var(--font-mono); font-weight:700; color:var(--accent-cyan);">PO-7D82D8-0001</td>
+      <td style="font-weight:700; color:#fff;">OPC 53 Cement</td>
+      <td style="font-family:var(--font-mono);">1,331 Bags</td>
+      <td style="font-family:var(--font-mono); color:#34d399; font-weight:700;">1,320 Bags</td>
+      <td style="font-family:var(--font-mono); color:var(--accent-amber);">11 Bags (Transit Damaged)</td>
+      <td>Ultratech Cement Ltd</td>
+      <td><span class="badge badge-emerald">Dispatched to Site</span></td>
+    </tr>
+  `;
+}
+
+function submitSiteGRN() {
+  const chal = document.getElementById('grn-challan').value;
+  const truck = document.getElementById('grn-truck').value;
+  const qty = parseFloat(document.getElementById('grn-qty').value) || 700;
+  const dmg = parseFloat(document.getElementById('grn-damaged').value) || 0;
+
+  const net = qty - dmg;
+  alert(`✔ GOODS RECEIPT NOTE (GRN) CREATED!\n\n- Challan Number: ${chal}\n- Truck Vehicle: ${truck}\n- Received Gross: ${qty} Bags\n- Damaged / Burst: ${dmg} Bags\n- Net Accepted: ${net} Bags\n\nWarehouse Inventory Incremented! Real-time Godown Stock: 1,320 Bags.`);
+  document.getElementById('store-godown-counter').textContent = "Warehouse Stock: 1,320 Bags";
+}
+
+// ==============================================================
+// 4. 1-CLICK PILOT SIMULATION
+// ==============================================================
+function triggerFullSimulation() {
+  alert(`▶ Starting Full End-to-End Pilot Simulation!\n\nWatch how the portal connects Managing Authority, Finance Clearance, and Site Store receiving...`);
+  switchDepartment('OPERATIONS');
+  setTimeout(() => {
+    approveProjectBOQ();
+    setTimeout(() => {
+      saveVendorPhoneQuote('vendor-ultra-01');
+      setTimeout(() => {
+        submitBillProposalToFinance();
+      }, 1000);
+    }, 1000);
+  }, 1000);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[m]));
 }
 </script>
 </body>

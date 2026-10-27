@@ -37,6 +37,21 @@ from .procurement.settlement_service import (
 # Automatically initialize database schema and realistic test data on import
 init_db_and_seed()
 
+
+class UpdateBOQItemRequest(BaseModel):
+    description: Optional[str] = None
+    quantity: Optional[float] = None
+    unit: Optional[str] = None
+    unit_rate: Optional[float] = None
+
+class CreateBOQItemRequest(BaseModel):
+    project_id: str = "proj-demo-101"
+    wbs_code: str = "GEN-001"
+    description: str
+    unit: str = "NOS"
+    quantity: float = 1.0
+    unit_rate: float = 0.0
+
 erp_router = APIRouter(prefix="/api/v1/erp", tags=["BuildBharat ERP Core"])
 
 # ==================== Pydantic Schemas with Realistic Defaults ====================
@@ -378,3 +393,185 @@ def api_report_vendor_ledger(vendor_id: str, db: Session = Depends(get_db)):
         return {"status": "success", "report": res}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+# ==================== Portal & Multi-Entity Endpoints ====================
+
+@erp_router.get("/users")
+def api_list_users(db: Session = Depends(get_db)):
+    """List all entity users and roles for department login and profile switching."""
+    users = db.query(User).all()
+    return [{
+        "id": u.id,
+        "email": u.email,
+        "full_name": u.full_name,
+        "role": u.role.value
+    } for u in users]
+
+@erp_router.get("/boq/items/{project_id}")
+def api_get_project_boq_items(project_id: str, db: Session = Depends(get_db)):
+    """Fetch all BOQ items for the Project Manager to review, inspect, and edit."""
+    items = db.query(BOQItemModel).filter(BOQItemModel.project_id == project_id).all()
+    return [{
+        "id": item.id,
+        "wbs_code": item.wbs_code,
+        "description": item.description,
+        "quantity": item.quantity,
+        "unit": item.unit,
+        "unit_rate": item.unit_rate,
+        "total_amount": round(item.quantity * (item.unit_rate or 0.0), 2),
+        "is_verified": item.is_verified,
+        "verified_by_user_id": item.verified_by_user_id
+    } for item in items]
+
+@erp_router.put("/boq/item/{item_id}")
+def api_update_boq_item(item_id: str, req: UpdateBOQItemRequest, db: Session = Depends(get_db)):
+    """Project Manager edits a BOQ item line (quantity, rate, or description) if takeoff needs correction."""
+    item = db.query(BOQItemModel).filter(BOQItemModel.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="BOQ item not found")
+    if req.description is not None:
+        item.description = req.description
+    if req.quantity is not None:
+        item.quantity = req.quantity
+    if req.unit is not None:
+        item.unit = req.unit
+    if req.unit_rate is not None:
+        item.unit_rate = req.unit_rate
+    db.commit()
+    db.refresh(item)
+    return {
+        "status": "success",
+        "message": f"BOQ item '{item.wbs_code}' updated successfully",
+        "item": {
+            "id": item.id,
+            "wbs_code": item.wbs_code,
+            "description": item.description,
+            "quantity": item.quantity,
+            "unit": item.unit,
+            "unit_rate": item.unit_rate,
+            "total_amount": round(item.quantity * item.unit_rate, 2),
+            "is_verified": item.is_verified
+        }
+    }
+
+@erp_router.post("/boq/item")
+def api_create_boq_item(req: CreateBOQItemRequest, db: Session = Depends(get_db)):
+    """Project Manager adds a manual BOQ line item to the project."""
+    import uuid
+    item = BOQItemModel(
+        id=f"boq-{uuid.uuid4().hex[:8]}",
+        project_id=req.project_id,
+        wbs_code=req.wbs_code,
+        description=req.description,
+        unit=req.unit,
+        quantity=req.quantity,
+        unit_rate=req.unit_rate,
+        is_verified=False
+    )
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    return {"status": "success", "item_id": item.id, "wbs_code": item.wbs_code}
+
+@erp_router.delete("/boq/item/{item_id}")
+def api_delete_boq_item(item_id: str, db: Session = Depends(get_db)):
+    """Project Manager deletes an erroneous BOQ line item."""
+    item = db.query(BOQItemModel).filter(BOQItemModel.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="BOQ item not found")
+    db.delete(item)
+    db.commit()
+    return {"status": "success", "deleted_item_id": item_id}
+
+@erp_router.get("/vendors")
+def api_get_vendors_directory(category: Optional[str] = None, db: Session = Depends(get_db)):
+    """Returns vendor phone directory with phone numbers, cities, and categories for interns/PMs to call."""
+    query = db.query(Vendor)
+    if category:
+        query = query.filter(Vendor.category.ilike(f"%{category}%"))
+    vendors = query.all()
+    return [{
+        "id": v.id,
+        "name": v.vendor_name,
+        "category": v.category,
+        "phone": v.phone,
+        "city": v.city,
+        "gstin": v.gstin
+    } for v in vendors]
+
+@erp_router.get("/finance/pending")
+def api_get_finance_pending_pos(db: Session = Depends(get_db)):
+    """Returns all Purchase Orders awaiting Finance Department budget clearance."""
+    pos = db.query(PurchaseOrderModel).filter(
+        PurchaseOrderModel.finance_approval_status == FinanceApprovalStatus.PENDING_FINANCE_APPROVAL
+    ).all()
+    return [{
+        "id": po.id,
+        "po_number": po.po_number,
+        "material_name": po.material_name,
+        "quantity": po.quantity,
+        "uom": po.uom,
+        "unit_rate": po.landed_unit_rate,
+        "total_amount": po.total_landed_amount_inr,
+        "vendor_name": po.vendor.vendor_name if po.vendor else "Unknown Vendor",
+        "manager_notes": po.manager_notes,
+        "status": po.finance_approval_status.value,
+        "created_at": po.created_at.isoformat() if po.created_at else None
+    } for po in pos]
+
+@erp_router.get("/notifications/pm/{project_id}")
+def api_get_pm_notifications(project_id: str, db: Session = Depends(get_db)):
+    """Returns rejection notices or approval alerts for the Project Manager."""
+    rejected_pos = db.query(PurchaseOrderModel).filter(
+        PurchaseOrderModel.project_id == project_id,
+        PurchaseOrderModel.finance_approval_status == FinanceApprovalStatus.REJECTED
+    ).all()
+    approved_pos = db.query(PurchaseOrderModel).filter(
+        PurchaseOrderModel.project_id == project_id,
+        PurchaseOrderModel.finance_approval_status == FinanceApprovalStatus.APPROVED
+    ).all()
+
+    notifications = []
+    for po in rejected_pos:
+        notifications.append({
+            "type": "REJECTED_BY_FINANCE",
+            "po_id": po.id,
+            "po_number": po.po_number,
+            "title": f"Bill Proposal #{po.po_number} Declined by Finance",
+            "message": f"Finance rejected PO for {po.material_name} (₹{po.total_landed_amount_inr:,.2f}). Reason: {po.finance_rejection_reason or 'Budget constraint'}",
+            "created_at": po.created_at.isoformat() if po.created_at else None
+        })
+    for po in approved_pos:
+        notifications.append({
+            "type": "APPROVED_BY_FINANCE",
+            "po_id": po.id,
+            "po_number": po.po_number,
+            "title": f"PO #{po.po_number} Approved & Dispatched",
+            "message": f"Finance approved budget for {po.material_name}. Advance {po.advance_percentage}%. PO dispatched to vendor.",
+            "created_at": po.dispatched_at.isoformat() if po.dispatched_at else None
+        })
+    return notifications
+
+@erp_router.get("/stores/pos/{project_id}")
+def api_get_stores_dispatched_pos(project_id: str, db: Session = Depends(get_db)):
+    """Returns all dispatched POs available for Site Storekeeper physical receiving."""
+    pos = db.query(PurchaseOrderModel).filter(
+        PurchaseOrderModel.project_id == project_id,
+        PurchaseOrderModel.is_dispatched_to_vendor == True
+    ).all()
+    res = []
+    for po in pos:
+        net_grn = sum((grn.received_quantity - (grn.damaged_quantity or 0.0)) for grn in po.goods_receipts)
+        res.append({
+            "id": po.id,
+            "po_number": po.po_number,
+            "material_name": po.material_name,
+            "ordered_quantity": po.quantity,
+            "uom": po.uom,
+            "net_received_quantity": net_grn,
+            "pending_delivery_quantity": max(0.0, round(po.quantity - net_grn, 3)),
+            "vendor_name": po.vendor.vendor_name if po.vendor else "Unknown Vendor",
+            "is_fully_settled": po.is_fully_settled
+        })
+    return res
