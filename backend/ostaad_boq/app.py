@@ -47,8 +47,9 @@ app.add_middleware(
 engine = OstaadBOQEngine()
 
 # Register BuildBharat ERP Core Routers
-from .erp_core.api import erp_router
+from .erp_core.api import erp_router, auth_router
 app.include_router(erp_router)
+app.include_router(auth_router)
 
 # In-memory deterministic LRU-style cache for rapid repeat takeoff queries & edge benchmarks
 _TAKEOFF_CACHE: dict[str, tuple[float, BOQReport, str | None]] = {}

@@ -1,14 +1,14 @@
-# BluePrint Iteration Log
+﻿# BluePrint Iteration Log
 
 This log records every technical iteration, user prompt request, architectural evolution, algorithmic implementation, and audit conducted throughout the project's development. Each entry details the motivation, expected functioning, modified files, verification results, and intentional design choices, regardless of git commit status.
 
 ---
 
-## Iteration 1 — Initial Project Scaffolding & Baseline Takeoff Service
+## Iteration 1 â€” Initial Project Scaffolding & Baseline Takeoff Service
 
 ### Last update
 
-`2026-10-05` — Commit: `9f4066a` — `first commit`
+`2026-10-05` â€” Commit: `9f4066a` â€” `first commit`
 
 ### Expected change and Functioning
 
@@ -34,11 +34,11 @@ Initialize the core Ostaad BOQ repository structure, including the FastAPI appli
 
 ---
 
-## Iteration 2 — Hybrid Architecture Design: Gemini Perception + OpenCV Deterministic Takeoff
+## Iteration 2 â€” Hybrid Architecture Design: Gemini Perception + OpenCV Deterministic Takeoff
 
 ### Last update
 
-`2026-10-05` — Commit: `e1cbeda` (branch) — `Hybrid architecture design: Gemini perception + OpenCV math`
+`2026-10-05` â€” Commit: `e1cbeda` (branch) â€” `Hybrid architecture design: Gemini perception + OpenCV math`
 
 ### Expected change and Functioning
 
@@ -54,11 +54,11 @@ Transition the engine from a single monolithic pipeline to a hybrid architecture
 
 ---
 
-## Iteration 3 — Gemini API Integration & Secure Environment Configuration
+## Iteration 3 â€” Gemini API Integration & Secure Environment Configuration
 
 ### Last update
 
-`2026-10-06` — Commit: `e1cbeda` — `Gemini API key configuration and client setup`
+`2026-10-06` â€” Commit: `e1cbeda` â€” `Gemini API key configuration and client setup`
 
 ### Expected change and Functioning
 
@@ -74,11 +74,11 @@ Integrate the user's Google Gemini API key securely into `.env`, configure the c
 
 ---
 
-## Iteration 4 — Accuracy Audit of Barakar Takeoff Spreadsheet & Discrepancy Analysis
+## Iteration 4 â€” Accuracy Audit of Barakar Takeoff Spreadsheet & Discrepancy Analysis
 
 ### Last update
 
-`2026-10-06` — Commit: `e1cbeda` — `Audit Barakar takeoff output spreadsheet and evaluate error sources`
+`2026-10-06` â€” Commit: `e1cbeda` â€” `Audit Barakar takeoff output spreadsheet and evaluate error sources`
 
 ### Expected change and Functioning
 
@@ -88,21 +88,21 @@ Perform an exhaustive numerical and mathematical audit of `@Ostaad_BOQ_Takeoff_b
 
 - Evaluated generated Excel sheets against CAD ground truth for Barakar blueprint (`barakar 01.11.2025.pdf`).
 - Identified severe boundary perimeter inflation: the engine had calculated a total site perimeter over 1,400 M instead of the expected ~251.95 M.
-- Root Cause Identified: Uncorroborated OCR picked a high millimeter coordinate number (131.89 px/m) rather than the authoritative title block ratio (`SCALE 1:250` = 23.62 px/m). Because the scale was 5.58× off, area was skewed by over 31×.
+- Root Cause Identified: Uncorroborated OCR picked a high millimeter coordinate number (131.89 px/m) rather than the authoritative title block ratio (`SCALE 1:250` = 23.62 px/m). Because the scale was 5.58Ã— off, area was skewed by over 31Ã—.
 - Verification: Documented exact numerical discrepancy and specified the requirement for a multi-source Scale Validation Layer before running geometry calculations.
 - Intentionally left unchanged: Core calculation formulas were kept; fix was isolated to the scale estimation stage.
 
 ---
 
-## Iteration 5 — Implementation of Scale Validation Layer & Anti-Hallucination Corroboration Engine
+## Iteration 5 â€” Implementation of Scale Validation Layer & Anti-Hallucination Corroboration Engine
 
 ### Last update
 
-`2026-10-06` — Commit: `e1cbeda` — `feat(scale): add Scale Validation Layer, anti-hallucination engine, Gemini perception, and verified Barakar takeoff`
+`2026-10-06` â€” Commit: `e1cbeda` â€” `feat(scale): add Scale Validation Layer, anti-hallucination engine, Gemini perception, and verified Barakar takeoff`
 
 ### Expected change and Functioning
 
-Implement a multi-source Scale Validation Layer before any geometry calculations. If OCR detects an ambiguous or corrupted scale (e.g., reading 1.250 or 131.89 px/m), compare with PDF metadata, title block OCR, and stated dimension callouts. If one source diverges wildly, discard it. For Barakar: OCR (131.89 px/m) rejected, title scale (23.62 px/m) accepted, resulting in verified boundary perimeter ≈ 251.95 M.
+Implement a multi-source Scale Validation Layer before any geometry calculations. If OCR detects an ambiguous or corrupted scale (e.g., reading 1.250 or 131.89 px/m), compare with PDF metadata, title block OCR, and stated dimension callouts. If one source diverges wildly, discard it. For Barakar: OCR (131.89 px/m) rejected, title scale (23.62 px/m) accepted, resulting in verified boundary perimeter â‰ˆ 251.95 M.
 
 ### Edits made
 
@@ -117,11 +117,11 @@ Implement a multi-source Scale Validation Layer before any geometry calculations
 
 ---
 
-## Iteration 6 — Dual Blueprint Comparison (Grid vs Without Grid) & Status Flag Root Cause Audit
+## Iteration 6 â€” Dual Blueprint Comparison (Grid vs Without Grid) & Status Flag Root Cause Audit
 
 ### Last update
 
-`2026-10-07` — Commit: `c3aa6a3` (branch audit) — `Analyze input blueprints and output spreadsheets with/without grid`
+`2026-10-07` â€” Commit: `c3aa6a3` (branch audit) â€” `Analyze input blueprints and output spreadsheets with/without grid`
 
 ### Expected change and Functioning
 
@@ -138,11 +138,11 @@ Conduct comparative audit between `barakar 01.11.2025.pdf` (containing surveyor 
 
 ---
 
-## Iteration 7 — Repository Cleanup, Dead Code Removal & Single Master Architecture Guide
+## Iteration 7 â€” Repository Cleanup, Dead Code Removal & Single Master Architecture Guide
 
 ### Last update
 
-`2026-10-07` — Commit: `c3aa6a3` — `remove blueprint documentation and output files and add unit tests for gemini service`
+`2026-10-07` â€” Commit: `c3aa6a3` â€” `remove blueprint documentation and output files and add unit tests for gemini service`
 
 ### Expected change and Functioning
 
@@ -166,11 +166,11 @@ Eliminate clutter across the repository by removing obsolete `.md` planning file
 
 ---
 
-## Iteration 8 — Algorithmic Strategy Design for Surveyor Grid Line Removal
+## Iteration 8 â€” Algorithmic Strategy Design for Surveyor Grid Line Removal
 
 ### Last update
 
-`2026-10-08` — Commit: `fe3dd90` (design phase) — `Algorithm design for CAD layer and raster surveyor grid removal`
+`2026-10-08` â€” Commit: `fe3dd90` (design phase) â€” `Algorithm design for CAD layer and raster surveyor grid removal`
 
 ### Expected change and Functioning
 
@@ -192,11 +192,11 @@ Formulate a robust, multi-tiered engineering strategy to eliminate surveyor grid
 
 ---
 
-## Iteration 9 — Implementation of Grid Filter Module & Barakar Blueprint Verification
+## Iteration 9 â€” Implementation of Grid Filter Module & Barakar Blueprint Verification
 
 ### Last update
 
-`2026-10-09` — Commit: `fe3dd90` — `feat: add ingestion, OCR, scaling, grid filtering, geometry, and engine modules for blueprint BOQ generation`
+`2026-10-09` â€” Commit: `fe3dd90` â€” `feat: add ingestion, OCR, scaling, grid filtering, geometry, and engine modules for blueprint BOQ generation`
 
 ### Expected change and Functioning
 
@@ -219,11 +219,11 @@ Implement the complete `ostaad_boq/grid_filter.py` module, wire it directly into
 
 ---
 
-## Iteration 10 — Machine Learning Model Audit & Dataset Training Rationale
+## Iteration 10 â€” Machine Learning Model Audit & Dataset Training Rationale
 
 ### Last update
 
-`2026-10-09` — Commit: `fe3dd90` (audit documentation) — `Technical explanation of model usage, datasets, and why custom models were not trained`
+`2026-10-09` â€” Commit: `fe3dd90` (audit documentation) â€” `Technical explanation of model usage, datasets, and why custom models were not trained`
 
 ### Expected change and Functioning
 
@@ -245,11 +245,11 @@ Provide a rigorous, unbiased, and practical technical audit detailing exactly wh
 
 ---
 
-## Iteration 11 — Feature Analysis of 3 Open-Source Construction ERP Repositories
+## Iteration 11 â€” Feature Analysis of 3 Open-Source Construction ERP Repositories
 
 ### Last update
 
-`2026-10-11` — Commit: `Uncommitted` — `Analyze 3 open-source ERP README files and extract features`
+`2026-10-11` â€” Commit: `Uncommitted` â€” `Analyze 3 open-source ERP README files and extract features`
 
 ### Expected change and Functioning
 
@@ -276,11 +276,11 @@ Extract all capabilities into clean, simple English bullet points suitable for c
 
 ---
 
-## Iteration 12 — Next-Gen Construction ERP Specification Document Generation
+## Iteration 12 â€” Next-Gen Construction ERP Specification Document Generation
 
 ### Last update
 
-`2026-10-11` — Commit: `Uncommitted` — `Create comprehensive ERP feature specification README for sharing`
+`2026-10-11` â€” Commit: `Uncommitted` â€” `Create comprehensive ERP feature specification README for sharing`
 
 ### Expected change and Functioning
 
@@ -303,11 +303,11 @@ Generate a comprehensive, professional, and ready-to-share markdown specificatio
 
 ---
 
-## Iteration 13 — Standardized Project Iteration Log Setup & Maintenance
+## Iteration 13 â€” Standardized Project Iteration Log Setup & Maintenance
 
 ### Last update
 
-`2026-10-11` — Commit: `Uncommitted` — `Initialize and populate detailed prompt-wise iteration log`
+`2026-10-11` â€” Commit: `Uncommitted` â€” `Initialize and populate detailed prompt-wise iteration log`
 
 ### Expected change and Functioning
 
@@ -323,11 +323,11 @@ Initialize and maintain a comprehensive chronological changelog in `BluePrint_It
 ---
 
 ---
-## Iteration 14 — Indian Construction ERP Architecture & Tailored Specification
+## Iteration 14 â€” Indian Construction ERP Architecture & Tailored Specification
 
 ### Last update
 
-2026-10-26 — Commit: Uncommitted — docs: specify Indian Construction ERP architecture, vendor RFQ workflows, and departmental portals
+2026-10-26 â€” Commit: Uncommitted â€” docs: specify Indian Construction ERP architecture, vendor RFQ workflows, and departmental portals
 
 ### Expected change and Functioning
 
@@ -349,11 +349,11 @@ Re-architect the construction ERP product specification specifically for the Ind
 ---
 
 ---
-## Iteration 15 — Integration of QA/QC Lab, QS Billing & Material Reconciliation, and Pilot Testing Roadmap
+## Iteration 15 â€” Integration of QA/QC Lab, QS Billing & Material Reconciliation, and Pilot Testing Roadmap
 
 ### Last update
 
-2026-10-26 — Commit: Uncommitted — docs: integrate QA/QC lab and QS billing departments and establish pilot testing roadmap
+2026-10-26 â€” Commit: Uncommitted â€” docs: integrate QA/QC lab and QS billing departments and establish pilot testing roadmap
 
 ### Expected change and Functioning
 
@@ -375,11 +375,11 @@ Incorporate two mission-critical departments unique to the Indian civil construc
 ---
 
 ---
-## Iteration 16 — Corporate Implementation Plan, Open-Source Feature Reuse, and Validation Controls
+## Iteration 16 â€” Corporate Implementation Plan, Open-Source Feature Reuse, and Validation Controls
 
 ### Last update
 
-2026-10-26 — Commit: Uncommitted — docs: establish corporate implementation plan, open-source reuse mapping, and validation checks
+2026-10-26 â€” Commit: Uncommitted â€” docs: establish corporate implementation plan, open-source reuse mapping, and validation checks
 
 ### Expected change and Functioning
 
@@ -399,11 +399,11 @@ Create a comprehensive, step-by-step pilot implementation plan based on README_B
 ---
 
 ---
-## Iteration 17 — Scope Streamlining: Finance Approval Gate, Payment Scheduling, and QA/JMR Removal
+## Iteration 17 â€” Scope Streamlining: Finance Approval Gate, Payment Scheduling, and QA/JMR Removal
 
 ### Last update
 
-2026-10-26 — Commit: Uncommitted — docs: streamline scope by removing QA/QC lab and JMR theft, adding finance approval gate and payment options
+2026-10-26 â€” Commit: Uncommitted â€” docs: streamline scope by removing QA/QC lab and JMR theft, adding finance approval gate and payment options
 
 ### Expected change and Functioning
 
@@ -424,11 +424,11 @@ Refine the BuildBharat ERP architecture and implementation plan based on commerc
 ---
 
 ---
-## Iteration 18 — Open-Source ERP Feature Extraction, Micro-Step Implementation Plan & IST Timestamping
+## Iteration 18 â€” Open-Source ERP Feature Extraction, Micro-Step Implementation Plan & IST Timestamping
 
 ### Last update
 
-2026-10-26 20:26:00 IST — Commit: Staged / Local Commit — eat: extract open-source ERP modules into erp_core, remove client view, add unit tests and granular micro-step plan
+2026-10-26 20:26:00 IST â€” Commit: Staged / Local Commit â€” eat: extract open-source ERP modules into erp_core, remove client view, add unit tests and granular micro-step plan
 
 ### Expected change and Functioning
 
@@ -462,11 +462,11 @@ Refine the BuildBharat ERP architecture and implementation plan based on commerc
 ---
 
 ---
-## Iteration 19 — Milestone 1 Implementation: PostgreSQL Database Models, RBAC & Engineer Verification Gate
+## Iteration 19 â€” Milestone 1 Implementation: PostgreSQL Database Models, RBAC & Engineer Verification Gate
 
 ### Last update
 
-2026-10-26 20:46:00 IST — Commit: 4497218 — eat(milestone-1): implement PostgreSQL database models, RBAC, and engineer verification gate
+2026-10-26 20:46:00 IST â€” Commit: 4497218 â€” eat(milestone-1): implement PostgreSQL database models, RBAC, and engineer verification gate
 
 ### Expected change and Functioning
 
@@ -499,11 +499,11 @@ Implement Milestone 1 of the BuildBharat ERP:
 ---
 
 ---
-## Iteration 20 — Milestone 2 Implementation: Material Decomposition, Dynamic Vendor RFQs & Manager Recommendation Gate
+## Iteration 20 â€” Milestone 2 Implementation: Material Decomposition, Dynamic Vendor RFQs & Manager Recommendation Gate
 
 ### Last update
 
-2026-10-26 21:18:00 IST — Commit: fe3bc5 — eat(milestone-2): implement material decomposition, vendor RFQs, comparative L1 evaluation, and manager recommendation gate
+2026-10-26 21:18:00 IST â€” Commit: fe3bc5 â€” eat(milestone-2): implement material decomposition, vendor RFQs, comparative L1 evaluation, and manager recommendation gate
 
 ### Expected change and Functioning
 
@@ -538,11 +538,11 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
-## Iteration 21 – Milestone 3: Finance Budget Approval Gate, Payment Scheduling & Site Store GRN Receiving
+## Iteration 21 â€“ Milestone 3: Finance Budget Approval Gate, Payment Scheduling & Site Store GRN Receiving
 
 ### Last update
 
-2026-10-26 22:03:30 IST – Commit: d8cb36b – feat(milestone-3): implement finance approval gate, payment scheduling, manual UTR logging, and site store GRN receiving
+2026-10-26 22:03:30 IST â€“ Commit: d8cb36b â€“ feat(milestone-3): implement finance approval gate, payment scheduling, manual UTR logging, and site store GRN receiving
 
 ### Expected change and Functioning
 
@@ -578,11 +578,11 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
-## Iteration 22 – Milestone 4: Two-Way Match Settlement Engine, PO Order Closure & Operational Reporting
+## Iteration 22 â€“ Milestone 4: Two-Way Match Settlement Engine, PO Order Closure & Operational Reporting
 
 ### Last update
 
-2026-10-26 22:21:50 IST – Commit: 2688bbd – feat(milestone-4): implement two-way match settlement engine, po order closure, and operational reporting
+2026-10-26 22:21:50 IST â€“ Commit: 2688bbd â€“ feat(milestone-4): implement two-way match settlement engine, po order closure, and operational reporting
 
 ### Expected change and Functioning
 
@@ -620,11 +620,11 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
-## Iteration 23 — REST API Endpoints Exposure, End-to-End Pilot Simulation & Open-Source Cleanup
+## Iteration 23 â€” REST API Endpoints Exposure, End-to-End Pilot Simulation & Open-Source Cleanup
 
 ### Last update
 
-2026-10-26 23:01:59 IST — Commit: da0dd77 — feat(api-pilot): expose FastAPI REST endpoints, add full pilot simulation, consolidate single README, and clean open source ERP
+2026-10-26 23:01:59 IST â€” Commit: da0dd77 â€” feat(api-pilot): expose FastAPI REST endpoints, add full pilot simulation, consolidate single README, and clean open source ERP
 
 ### Expected change and Functioning
 
@@ -648,11 +648,11 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
-## Iteration 24 — Enterprise UI Redesign, Auto-Seeding & Departmental View Switcher
+## Iteration 24 â€” Enterprise UI Redesign, Auto-Seeding & Departmental View Switcher
 
 ### Last update
 
-2026-10-27 00:19:25 IST — Commit: a448b17 — feat(ui): complete corporate redesign with dedicated view switcher, spacious layout, and clean UX
+2026-10-27 00:19:25 IST â€” Commit: a448b17 â€” feat(ui): complete corporate redesign with dedicated view switcher, spacious layout, and clean UX
 
 ### Expected change and Functioning
 
@@ -675,18 +675,18 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
-## Iteration 25 — Blueprint Takeoff Engine Archival & Multi-Entity Portal Workflow
+## Iteration 25 â€” Blueprint Takeoff Engine Archival & Multi-Entity Portal Workflow
 
 ### Last update
 
-2026-10-27 11:38:22 IST — Commit: 438f218 — feat: implement BuildBharat multi-entity corporate portal and backup takeoff engine
+2026-10-27 11:38:22 IST â€” Commit: 438f218 â€” feat: implement BuildBharat multi-entity corporate portal and backup takeoff engine
 
 ### Expected change and Functioning
 
 1. Blueprint Takeoff Engine Archival:
    - Archive all 19 blueprint AI takeoff modules into `blueprint_takeoff_backup.zip` (65.3 KB) in the root workspace as requested, removing takeoff viewer components from active UI.
 2. Multi-Entity Corporate Portal Implementation:
-   - **Managing Authority / Project Manager (`OPERATIONS`)**: Project baseline details, inline editable BOQ line items (edit descriptions, quantities, unit rates; add/delete rows), final BOQ approval button (`✔ Approve Final BOQ`), IS 456 material decomposition, categorized vendor phone directory with calling log form, L1/L2/L3 landed cost ranking, bill proposal submission to Finance, and decline alert banner.
+   - **Managing Authority / Project Manager (`OPERATIONS`)**: Project baseline details, inline editable BOQ line items (edit descriptions, quantities, unit rates; add/delete rows), final BOQ approval button (`âœ” Approve Final BOQ`), IS 456 material decomposition, categorized vendor phone directory with calling log form, L1/L2/L3 landed cost ranking, bill proposal submission to Finance, and decline alert banner.
    - **Finance Department (`FINANCE`)**: Pending PO slip approval notice hub, landed cost audit, dual decision gate (Approve with payment structure & advance UTR vs Reject with mandatory decline reason and instant PM notification alert), two-way match invoice reconciliation against net physical GRN goods, and final settlement UTR disbursement.
    - **Site Storekeeper (`SITE_STORE`)**: Dispatched PO list, gate delivery inward receipt (transporter delivery challan number, truck registration, gross vs damaged quantities), and real-time godown warehouse stock counter.
 3. Multi-Browser Cross-Department Session Isolation:
@@ -703,11 +703,11 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
-## Iteration 26 — Full-Stack Decoupled Architecture & Unified Multi-Role Authentication System Implementation Planning
+## Iteration 26 â€” Full-Stack Decoupled Architecture & Unified Multi-Role Authentication System Implementation Planning
 
 ### Last update
 
-2026-10-27 15:26:34 IST — Commit: 1832742 — docs: add decoupled architecture implementation plan and iteration log 23
+2026-10-27 15:26:34 IST â€” Commit: 1832742 â€” docs: add decoupled architecture implementation plan and iteration log 23
 
 ### Expected change and Functioning
 
@@ -736,11 +736,11 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
-## Iteration 27 — Decoupled Monorepo Reorganization: Explicit frontend/ and backend/ Folders & CORS Plan
+## Iteration 27 â€” Decoupled Monorepo Reorganization: Explicit frontend/ and backend/ Folders & CORS Plan
 
 ### Last update
 
-2026-10-27 16:11:00 IST — Commit: Pending — docs: update implementation plan with explicit frontend/ and backend/ decoupled topology
+2026-10-27 16:11:00 IST â€” Commit: Pending â€” docs: update implementation plan with explicit frontend/ and backend/ decoupled topology
 
 ### Expected change and Functioning
 
@@ -772,11 +772,11 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
-## Iteration 28 — Monorepo Decoupling: backend/ Service Extraction, CORS Configuration & Test Suite Verification
+## Iteration 28 â€” Monorepo Decoupling: backend/ Service Extraction, CORS Configuration & Test Suite Verification
 
 ### Last update
 
-2026-10-27 16:28:00 IST — Commit: Pending — feat: decouple repository into backend/ and frontend/ folders with CORS configuration
+2026-10-27 16:28:00 IST â€” Commit: Pending â€” feat: decouple repository into backend/ and frontend/ folders with CORS configuration
 
 ### Expected change and Functioning
 
@@ -802,15 +802,58 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ---
 
+## Iteration 29 — Step 2 & 3: Next.js Frontend Scaffolding, Backend Auth Integration & Single Unified Gateway
+
+### Last update
+
+2026-10-27 18:00:00 IST — Commit: Pending — feat(step-2-3): implement Next.js frontend scaffolding, backend auth APIs, and single unified auth gateway
+
+### Expected change and Functioning
+
+1. Root Workspace Cleanup:
+   - Remove redundant files from root (uildbharat_erp.db, uildbharat_pilot.db, .dockerignore, worker.js, wrangler.jsonc, wrangler.toml) that were already relocated into ackend/.
+2. Backend Authentication APIs:
+   - Mount uth_router in ackend/ostaad_boq/app.py under /api/v1/auth.
+   - Implement POST /api/v1/auth/login (email & password authentication with constant-time password verification).
+   - Implement POST /api/v1/auth/register (creates Tenant and User with PBKDF2-HMAC-SHA256 password hash, returns JWT session token).
+   - Implement GET /api/v1/auth/me (decodes signed token and returns current user profile).
+   - Implement GET /api/v1/auth/demo-accounts (returns the 4 standard enterprise demo accounts for quick testing).
+3. Next.js 15+ Frontend Scaffolding:
+   - Initialize Next.js 15 App Router project in rontend/ with TypeScript, Tailwind CSS, and Lucide React icons.
+4. Single Unified Authentication Gateway (rontend/src/app/login/page.tsx):
+   - Single entrypoint for all departments with smooth Sign In and Sign Up tabs.
+   - 1-Click Department Demo Logins cards for instant cross-department testing (Rajesh Sharma, Sunita Iyer, Ramesh Pawar, Aditya Verma).
+   - Dynamic role-based redirection to respective department dashboards (/dashboard/operations, /dashboard/finance, /dashboard/site-store, /dashboard/admin).
+   - Clean dark-mode enterprise UI with glassmorphism, responsive forms, and live feedback toasts.
+5. End-to-End Verification:
+   - Verified backend on port 8000 and Next.js frontend on port 3000.
+   - Verified live browser login flow and automatic redirection to /dashboard/operations.
+
+### Edits made
+
+- ackend/ostaad_boq/app.py: Mounted uth_router with CORS enabled.
+- ackend/ostaad_boq/erp_core/api.py: Added Tenant import and verified auth endpoints.
+- rontend/src/lib/api.ts: Created typed API client with CORS and JWT session helpers.
+- rontend/src/app/login/page.tsx: Built single unified authentication page.
+- rontend/src/app/dashboard/*: Created department dashboard shells for Operations, Finance, Site Store, and Admin.
+- rontend/src/app/page.tsx: Set up automatic root redirect to /login.
+- BluePrint_Iteration_Log.md: Recorded Iteration 29 with exact IST timestamp.
+- Verification: Tested /auth/login, /auth/register, /auth/me; ran 
+ext build (compiled in 10.8s, 0 errors); executed browser subagent confirming login and redirection to Operations Dashboard.
+- Intentionally left unchanged: Core calculation formulas, database models, and dual approval gate verification rules.
+
+---
+
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries.
 
-## Iteration N — Short technical title
+## Iteration N â€” Short technical title
 
 ### Last update
 
-YYYY-MM-DD HH:MM:SS IST — Commit: <commit-sha> — <commit-message>
+YYYY-MM-DD HH:MM:SS IST â€” Commit: <commit-sha> â€” <commit-message>
 
 ### Expected change and Functioning
 

@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from .database.session import get_db
 from .database.seed import init_db_and_seed
 from .database.models import (
-    User, UserRole, Project, ProjectStatus, BOQItemModel, MaterialRequirementModel,
+    Tenant, User, UserRole, Project, ProjectStatus, BOQItemModel, MaterialRequirementModel,
     Vendor, RFQPackageModel, VendorBidModel, PurchaseOrderModel,
     PaymentStageType, PaymentMethod, PaymentTransactionModel,
     GoodsReceiptNoteModel, SiteInventoryModel,
