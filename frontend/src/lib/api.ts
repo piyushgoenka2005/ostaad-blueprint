@@ -1,4 +1,16 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+const getApiBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    return "http://127.0.0.1:8000/api/v1";
+  }
+
+  return "/api/v1";
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export interface UserProfile {
   id: string;
@@ -49,21 +61,71 @@ export interface Vendor {
 }
 
 export interface MaterialRequirement {
+  id?: string;
   material_name: string;
   quantity: number;
   unit: string;
+  uom?: string;
   standard_code: string;
   estimated_cost: number;
+}
+
+export interface TakeoffLine {
+  id: string;
+  item_description: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  confidence: number;
+  validation_status: string;
+  needs_review: boolean;
+  unit_cost: number;
+  total_cost: number;
+}
+
+export interface TakeoffResponse {
+  success: boolean;
+  report: {
+    project_name: string;
+    sheet_name: string;
+    classification: { drawing_type: string; confidence: number };
+    lines: TakeoffLine[];
+    reconciliation_flags: Array<{ message?: string; severity?: string }>;
+    cost_summary: { currency_symbol: string; total_estimated_budget: number };
+  };
+  blueprint_data_url?: string | null;
+  processing_time_sec?: number;
+}
+
+export interface VendorBidComparison {
+  rank: string;
+  bid_id: string;
+  vendor_id: string;
+  vendor_name: string;
+  city: string;
+  base_rate: number;
+  freight: number;
+  gst_pct: number;
+  landed_rate: number;
+  total_order_value_inr: number;
 }
 
 export interface PendingPO {
   id: string;
   po_number: string;
   project_id: string;
+  material_name?: string;
+  quantity?: number;
+  uom?: string;
+  unit_rate?: number;
   total_amount: number;
   vendor_name: string;
   manager_notes?: string;
   status: string;
+  rejection_reason?: string | null;
+  clarification_reason?: string | null;
+  clarification_at?: string | null;
+  is_dispatched?: boolean;
   created_at?: string;
 }
 
@@ -179,6 +241,35 @@ export async function getProjectBOQItems(projectId: string = "proj-demo-101"): P
   return await res.json();
 }
 
+export async function uploadBlueprint(file: File): Promise<TakeoffResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("currency", "INR");
+  const res = await fetch(`${API_BASE_URL}/takeoff/process`, {
+    method: "POST",
+    body: formData,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Failed to process blueprint.");
+  return data;
+}
+
+export async function importTakeoffAsProject(payload: {
+  project_name: string;
+  district?: string;
+  state?: string;
+  lines: TakeoffLine[];
+}): Promise<{ project_id: string; project_name: string; boq_line_count: number }> {
+  const res = await fetch(`${API_BASE_URL}/erp/projects/from-takeoff`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Failed to create project from blueprint.");
+  return data;
+}
+
 export async function updateBOQItem(itemId: string, payload: Partial<BOQItem>): Promise<any> {
   const res = await fetch(`${API_BASE_URL}/erp/boq/item/${itemId}`, {
     method: "PUT",
@@ -240,6 +331,61 @@ export async function getVendors(): Promise<Vendor[]> {
   return await res.json();
 }
 
+export async function createVendor(payload: Omit<Vendor, "id">): Promise<Vendor> {
+  const res = await fetch(`${API_BASE_URL}/erp/vendors`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Failed to create vendor.");
+  return data;
+}
+
+export async function createMaterialRFQ(payload: {
+  project_id: string;
+  material_name: string;
+  required_quantity: number;
+  uom: string;
+}): Promise<{ rfq_id: string; material_name: string; quantity: number; uom: string }> {
+  const res = await fetch(`${API_BASE_URL}/erp/procurement/rfq`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Failed to create material RFQ.");
+  return data;
+}
+
+export async function submitMaterialBid(payload: {
+  rfq_id: string;
+  vendor_id: string;
+  final_unit_rate: number;
+}): Promise<{ bid_id: string; landed_cost_per_unit: number }> {
+  const res = await fetch(`${API_BASE_URL}/erp/procurement/bids`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      rfq_id: payload.rfq_id,
+      vendor_id: payload.vendor_id,
+      base_unit_rate: payload.final_unit_rate,
+      freight_unit_rate: 0,
+      gst_percentage: 0,
+    }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Failed to record vendor quote.");
+  return data;
+}
+
+export async function getMaterialComparison(rfqId: string): Promise<VendorBidComparison[]> {
+  const res = await fetch(`${API_BASE_URL}/erp/procurement/comparative/${rfqId}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Failed to load vendor comparison.");
+  return data.comparative_ranking || [];
+}
+
 export async function getPMNotifications(projectId: string = "proj-demo-101"): Promise<NotificationItem[]> {
   const res = await fetch(`${API_BASE_URL}/erp/notifications/pm/${projectId}`);
   if (!res.ok) return [];
@@ -280,6 +426,12 @@ export async function getPendingFinancePOs(): Promise<PendingPO[]> {
   return await res.json();
 }
 
+export async function getFinanceOrders(): Promise<PendingPO[]> {
+  const res = await fetch(`${API_BASE_URL}/erp/finance/orders`);
+  if (!res.ok) throw new Error("Failed to load Finance purchase orders.");
+  return await res.json();
+}
+
 export async function approveFinancePO(payload: {
   po_id: string;
   finance_user_id: string;
@@ -315,11 +467,27 @@ export async function rejectFinancePO(payload: {
   return await res.json();
 }
 
+export async function requestFinanceClarification(payload: {
+  po_id: string;
+  finance_user_id: string;
+  clarification_reason: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/erp/finance/clarification`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || "Failed to request clarification.");
+  return data;
+}
+
 export async function recordFinancePayment(payload: {
   po_id: string;
+  finance_user_id: string;
   stage_type: "ADVANCE" | "MILESTONE_TRANCHE" | "FINAL_SETTLEMENT";
   amount: number;
-  payment_method: "BANK_TRANSFER_RTGS" | "NEFT" | "CHEQUE" | "ONLINE_PORTAL";
+  payment_method: "NEFT_RTGS" | "NEFT" | "CHEQUE" | "UPI" | "CASH";
   transaction_ref: string;
   bank_name?: string;
   notes?: string;
@@ -327,7 +495,15 @@ export async function recordFinancePayment(payload: {
   const res = await fetch(`${API_BASE_URL}/erp/finance/payment`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      po_id: payload.po_id,
+      finance_user_id: payload.finance_user_id,
+      stage_type: payload.stage_type,
+      amount_inr: payload.amount,
+      payment_method: payload.payment_method,
+      transaction_ref: payload.transaction_ref,
+      bank_name: payload.bank_name || "",
+    }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));

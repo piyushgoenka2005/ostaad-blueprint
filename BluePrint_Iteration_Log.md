@@ -980,9 +980,28 @@ ext build (compiled in 10.8s, 0 errors); executed browser subagent confirming lo
 
 ---
 
+## Iteration 33 — Fix Operations Dashboard Hydration Locale Mismatch
+
+### Last update
+
+2026-10-28 11:18:30 IST — Commit: Pending — fix(frontend): make operations dashboard number formatting deterministic
+
+### Expected change and Functioning
+
+Resolve the React hydration error on `/dashboard/operations` caused by server-side and browser-side locale differences when formatting monetary and quantity values. Render the same Indian-number-formatted output during SSR and client hydration while preserving the existing dashboard layout and currency presentation.
+
+### Edits made
+
+- `frontend/src/app/dashboard/operations/page.tsx`: Added an explicit `en-IN` locale to all three render-time `toLocaleString()` calls for BOQ totals, decomposed material quantities, and the total purchase order value.
+- `BluePrint_Iteration_Log.md`: Recorded this hydration fix and its acceptance criteria.
+- Verification: `npm run build` in `frontend/` passed successfully; Next.js compiled, typechecked, and generated all 9 routes. `npm run lint` reached the frontend project but reports unrelated pre-existing errors in other dashboard pages; no operations dashboard error was reported.
+- Intentionally left unchanged: Backend APIs, calculation logic, dashboard layout, and existing Indian currency formatting.
+
+---
+
 ## Future update template
 
-Copy this block and append it below the latest iteration. Do not rewrite previous entries.
+Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.
 
 ## Iteration N — Short technical title
 
@@ -1000,3 +1019,193 @@ Describe the requested behavior, layout goal, interaction model, and acceptance 
 - Describe structural, visual, interaction, responsive, accessibility, and data changes.
 - Include verification performed.
 - Record anything intentionally left unchanged.
+
+## Iteration 34 — Operations Blueprint-to-Procurement Workflow
+
+### Last update
+
+2026-10-28 11:49:06 IST — Commit: Pending — feat(frontend): connect blueprint takeoff to material-wise vendor selection
+
+### Expected change and Functioning
+
+Complete the Managing Authority workflow from blueprint upload through BOQ review, material-wise vendor quotation collection, one-vendor-per-material selection, and Finance submission. Use the existing blueprint takeoff, ERP vendor, RFQ, bid comparison, recommendation, and Finance approval services without introducing dummy vendor or purchase-order data. Preserve role-based access and make each step visibly status-driven.
+
+### Edits made
+
+- `frontend/src/lib/api.ts`: Added typed clients for blueprint upload, material RFQ creation, vendor bid recording, and comparative vendor ranking using existing backend endpoints.
+- `frontend/src/app/dashboard/operations/page.tsx`: Added blueprint upload and generated BOQ preview; made final BOQ approval automatically load the existing material decomposition; added material-wise vendor groups from database categories, phone links, quote entry, persisted RFQs/bids, ranked price comparisons, exactly-one vendor selection per material, and consolidated Finance submission that creates separate locked POs through the existing recommendation endpoint.
+- `BluePrint_Iteration_Log.md`: Recorded this workflow implementation and validation.
+- Verification: `npm run build` in `frontend/` passed after the final BOQ-to-material transition change, with TypeScript compilation and all 9 routes generated. `pytest tests/integration/test_e2e_pilot_lifecycle.py -q` in `backend/` passed (`1 passed`).
+- Intentionally left unchanged: Backend schemas and approval services, Finance dashboard approval controls, Site Store receiving workflow, and Admin role governance.
+
+---
+
+## Iteration 35 — Clean Start From Blueprint Upload
+
+### Last update
+
+2026-10-28 13:30:18 IST — Commit: Pending — feat: remove seeded business data and persist uploaded takeoffs as BOQs
+
+### Expected change and Functioning
+
+Start new work without the former Navi Mumbai International Airport demo project, seeded BOQ, vendor directory, inventory, or Finance proposal fallbacks. Preserve authentication accounts, require the Managing Authority to upload a blueprint first, create a real project and draft BOQ from the uploaded takeoff, and use that project for subsequent BOQ approval and procurement.
+
+### Edits made
+
+- `backend/ostaad_boq/erp_core/database/seed.py`: Removed automatic business-data seeding; retained only tenant and role-account bootstrap.
+- `backend/ostaad_boq/erp_core/api.py`: Added an endpoint to persist uploaded takeoff lines as a new project and editable draft BOQ.
+- `frontend/src/lib/api.ts`: Added the project-from-takeoff API client.
+- `frontend/src/app/dashboard/operations/page.tsx`: Made the Operations dashboard upload-first, removed demo project labels, and switched BOQ/material operations to the newly imported project.
+- `frontend/src/app/dashboard/finance/page.tsx`: Removed the fallback demo Purchase Order.
+- `frontend/src/app/dashboard/site-store/page.tsx`: Removed fallback inventory and switched project loading to the imported project.
+- `backend/tests/unit/test_project_takeoff_import.py`: Added focused coverage proving takeoff lines persist as a project BOQ.
+- Database reset: Removed existing local projects, BOQ lines, vendors, material requirements, RFQs, bids, purchase orders, payments, receipts, invoices, and inventory. Authentication users were preserved.
+- Verification: `npm run build` passed for all 9 frontend routes. `pytest tests/unit/test_project_takeoff_import.py -q` passed (`1 passed`). The previous demo lifecycle test is no longer applicable because it explicitly requires the deleted seeded project and now fails at its old seeded-BOQ assertion.
+- Intentionally left unchanged: Authentication accounts, role-based access, blueprint takeoff engine, Finance approval rules, and database schema.
+
+---
+
+## Iteration 36 — Finance Purchase Order Approval Board
+
+### Last update
+
+2026-10-28 14:49:59 IST — Commit: Pending — feat(frontend): add independent Finance PO approval status board
+
+### Expected change and Functioning
+
+Make Finance approval work independently for each Purchase Order and keep the full approval history visible. Display three simultaneous sections: Approval Pending, Approved / Released, and Denied / Returned. Allow Finance to approve or deny any pending order directly from its own card, retain denial reasons, and avoid requiring one order to be processed before another.
+
+### Edits made
+
+- `backend/ostaad_boq/erp_core/api.py`: Added an all-status Finance orders endpoint returning pending, approved, and rejected Purchase Orders with material, vendor, dispatch, and rejection details.
+- `frontend/src/lib/api.ts`: Added the Finance orders client, expanded PO status fields, and corrected the Finance payment payload to match the backend schema.
+- `frontend/src/app/dashboard/finance/page.tsx`: Replaced the single selected-PO queue with three persistent status subsections and independent per-PO Approve/Deny actions. Approval now succeeds before optional advance recording, and approved/denied history remains visible.
+- `BluePrint_Iteration_Log.md`: Recorded this Finance workflow update and validation.
+- Verification: `npm run build` in `frontend/` passed with all 9 routes generated. `pytest tests/unit/test_milestone3_finance_stores.py -q` passed (`8 passed`).
+- Intentionally left unchanged: Operations blueprint/BOQ workflow, Site Store receiving rules, Admin governance, and Finance service approval rules.
+
+---
+
+## Iteration 37 — Light Finance Procurement Approval Workspace
+
+### Last update
+
+2026-10-28 16:12:33 IST — Commit: Pending — feat(frontend): redesign Finance procurement approval workflow
+
+### Expected change and Functioning
+
+Redesign the Finance Department as a light construction-ERP control screen. Finance Managers must be able to scan pending, approved, and rejected requests; open a request to verify project, BOQ, vendor, quantity, pricing, tax, delivery, and total commitment information; see explicit missing-data states; and approve, reject, or request clarification without creating or releasing purchase orders before approval.
+
+### Edits made
+
+- `frontend/src/app/dashboard/finance/page.tsx`: Replaced the dark Finance page with a light approval workspace containing sidebar navigation, search, summary cards, request table, persistent status queues, approval detail view, source-aware validation checklist, supporting-document empty state, confirmation dialog, rejection reason dialog, clarification dialog, and post-approval status.
+- `frontend/src/lib/api.ts`: Added Finance clarification request client and fields for clarification history.
+- `backend/ostaad_boq/erp_core/database/models.py`: Added persisted clarification reason and timestamp fields to Purchase Orders.
+- `backend/ostaad_boq/erp_core/database/seed.py`: Added lightweight SQLite migration for the clarification fields.
+- `backend/ostaad_boq/erp_core/api.py`: Added `POST /api/v1/erp/finance/clarification` and exposed clarification details in the all-status Finance orders response.
+- `BluePrint_Iteration_Log.md`: Recorded the Finance redesign and validation.
+- Verification: `npm run build` in `frontend/` passed with all 9 routes generated. `pytest tests/unit/test_milestone3_finance_stores.py -q` passed (`8 passed`).
+- Intentionally left unchanged: Existing approval, rejection, payment, reconciliation, Operations, Site Store, and Admin workflows.
+
+---
+
+## Iteration 38 — Finance Sidebar Placement and Navigation Fix
+
+### Last update
+
+2026-10-28 16:33:43 IST — Commit: Pending — fix(frontend): correct Finance sidebar layout and navigation controls
+
+### Expected change and Functioning
+
+Remove the large vertical placement mismatch visible in the Finance dashboard and make all sidebar controls usable. The sidebar must remain a full-height fixed rail beside the page content, while Finance Dashboard, Pending Approvals, Approval History, and Purchase Orders filter and scroll to their respective views. Budgets and Reports must provide an explicit unavailable-data message instead of behaving like dead controls.
+
+### Edits made
+
+- `frontend/src/app/dashboard/finance/page.tsx`: Changed the sidebar to a fixed full-height rail so it no longer pushes the content below it. Converted static sidebar labels into interactive buttons, added request-view filtering and smooth scrolling, preserved global summary counts, and added explicit feedback for unavailable Budgets and Reports data.
+- `BluePrint_Iteration_Log.md`: Recorded the layout and navigation fix.
+- Verification: `npm run build` in `frontend/` passed with all 9 routes generated.
+- Intentionally left unchanged: Finance approval API behavior, approval history data, Operations workflow, Site Store workflow, and Admin governance.
+
+---
+
+## Iteration 39 — Project Operations Dashboard Redesign
+
+### Last update
+
+2026-10-28 16:42:07 IST — Commit: Pending — feat(frontend): redesign Operations project management dashboard
+
+### Expected change and Functioning
+
+Create a premium light construction-ERP Operations workspace for the Managing Authority. The screen must provide an immediate portfolio overview, project status visibility, workflow progression from blueprint through vendor dispatch, a prominent Blueprint to BOQ action, and access to the existing BOQ, material, vendor quotation, and Finance submission workflow. Use realistic construction terminology and explicit unavailable-data states instead of fabricated project information.
+
+### Edits made
+
+- `frontend/src/app/dashboard/operations/page.tsx`: Replaced the previous dark takeoff workspace with a light project-operations dashboard containing fixed navigation, compact search/profile top bar, project summary metrics, project table, workflow tracker, Blueprint to BOQ shortcut, BOQ management table, project preview, pending actions, material decomposition, vendor quotations, and Finance submission.
+- `frontend/src/app/dashboard/operations/page.tsx`: Preserved the real backend workflow for blueprint upload, project/BOQ persistence, BOQ editing and finalisation, material decomposition, vendor quote recording, vendor selection, and Finance submission.
+- `BluePrint_Iteration_Log.md`: Recorded the Operations redesign and validation.
+- Verification: `npm run build` in `frontend/` passed with TypeScript compilation and all 9 routes generated.
+- Intentionally left unchanged: Backend takeoff, BOQ, vendor, procurement, Finance approval, Site Store, and Admin services.
+
+---
+
+## Iteration 40 — Administration and Audit Dashboard Redesign
+
+### Last update
+
+2026-10-28 17:21:43 IST — Commit: Pending — feat(frontend): redesign Administration and Audit workspace
+
+### Expected change and Functioning
+
+Create a light, production-oriented System Administrator dashboard focused on authorised users, vendor directory visibility, role boundaries, workflow protection, and traceability. Keep financial approval controls outside ordinary Admin actions and do not fabricate projects, access requests, security events, audit records, contact persons, or verification states that the current backend does not expose.
+
+### Edits made
+
+- `frontend/src/app/dashboard/admin/page.tsx`: Replaced the previous dark Admin page with a light Administration & Audit workspace containing fixed navigation, search/profile top bar, summary cards, live user management table, live vendor directory, role and permission matrix, audit-log availability state, protected workflow settings, and explicit unsupported-data messaging.
+- `frontend/src/app/dashboard/admin/page.tsx`: Added safe navigation to Finance and section-level controls without adding actions that bypass BOQ verification or Finance approval gates.
+- `BluePrint_Iteration_Log.md`: Recorded the Administration dashboard redesign and validation.
+- Verification: `npm run build` in `frontend/` passed with TypeScript compilation and all 9 routes generated.
+- Intentionally left unchanged: Existing user/vendor APIs, authentication, Finance approval enforcement, Operations workflow, Site Store workflow, and backend audit/settings boundaries.
+
+---
+
+## Iteration 41 — End-to-End Construction Procurement Data Flow Verification
+
+### Last update
+
+2026-10-28 18:24:56 IST — Commit: Pending — test: verify blueprint to BOQ to Finance to Site Store lifecycle
+
+### Expected change and Functioning
+
+Verify the real business flow from blueprint upload through project BOQ persistence, BOQ finalisation, material decomposition, manual vendor quotation capture, vendor selection, Finance approval, locked Purchase Order creation, Site Store goods receipt, and project inventory reporting. Confirm that vendor dispatch is not performed and that Admin and Site Store dashboards can observe and update their supported data.
+
+### Edits made
+
+- `backend/ostaad_boq/erp_core/api.py`: Corrected vendor directory responses to include the frontend contract field `vendor_name` and added controlled vendor creation for clean-start databases.
+- `frontend/src/lib/api.ts`: Added the Admin vendor creation client.
+- `frontend/src/app/dashboard/admin/page.tsx`: Connected Add Vendor to the backend so Admin can create real vendor records used by Operations quotations.
+- `backend/tests/integration/test_current_lifecycle.py`: Added an end-to-end test covering vendor creation, blueprint-derived project BOQ, BOQ finalisation, material decomposition, two manual vendor bids, comparative selection, pending locked PO, Finance approval, Site Store GRN, and procurement inventory reporting.
+- Verification: `pytest tests/integration/test_current_lifecycle.py -q` passed (`1 passed`). `pytest tests/unit/test_milestone3_finance_stores.py tests/unit/test_project_takeoff_import.py -q` passed (`9 passed`). `npm run build` in `frontend/` passed with all 9 routes generated.
+- Confirmed behavior: Before Finance approval, the PO remains `PENDING_FINANCE_APPROVAL` and `is_dispatched_to_vendor=False`. After Finance approval, it becomes available to Site Store; GRN updates accepted inventory through the procurement report. No vendor-send operation is invoked.
+- Intentionally left unchanged: Vendor dispatch/send integrations, audit-log APIs, project CRUD APIs, and unsupported Admin settings/access-request reporting.
+
+---
+
+## Iteration 42 — Repository Cleanup, Deployment Finalisation, and GitHub Publication
+
+### Last update
+
+2026-10-28 19:30:00 IST — Commit: Pending — chore(repo): remove obsolete archive and launcher, retain iteration log, and publish final clean working tree
+
+### Expected change and Functioning
+
+Clean the repository for deployment and publication while preserving the project record. Remove obsolete local-only artifacts that are no longer part of the deployment topology, keep the change history in BluePrint_Iteration_Log.md, and publish the cleaned monorepo to the configured GitHub remote.
+
+### Edits made
+
+- `blueprint_takeoff_backup.zip`: Removed from the workspace root as an obsolete archive no longer needed in the active deployment layout.
+- `start_servers.bat`: Removed from the workspace root as a local convenience script not required for the cloud deployment topology.
+- `BluePrint_Iteration_Log.md`: Appended this final cleanup and publication record to the iteration history.
+- Verification: Confirmed the project root no longer contains the backup zip or the local Windows launcher, and the repo status reflects only the purposeful tracked project changes and the required cleanup deletions.
+- Intentionally left unchanged: The architecture log, the backend/frontend decoupled layout, deployment-ready API configuration, and the protected project records.
+
+---

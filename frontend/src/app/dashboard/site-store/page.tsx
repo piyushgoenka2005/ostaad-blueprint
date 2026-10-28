@@ -33,6 +33,7 @@ export default function SiteStoreDashboard() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [projectName, setProjectName] = useState("No project imported");
 
   // Store data
   const [dispatchedPOs, setDispatchedPOs] = useState<StoreDispatchedPO[]>([]);
@@ -63,15 +64,21 @@ export default function SiteStoreDashboard() {
       return;
     }
     setUser(activeUser);
-    loadData();
+    setProjectName(window.localStorage.getItem("buildbharat_operations_project_name") || "No project imported");
+    loadData(window.localStorage.getItem("buildbharat_operations_project_id"));
   }, [router]);
 
-  const loadData = async () => {
+  const loadData = async (projectId: string | null = window.localStorage.getItem("buildbharat_operations_project_id")) => {
     try {
       setRefreshing(true);
+      if (!projectId) {
+        setDispatchedPOs([]);
+        setGodownStock([]);
+        return;
+      }
       const [pos, report] = await Promise.all([
-        getStorePOs("proj-demo-101"),
-        getProcurementReport("proj-demo-101")
+        getStorePOs(projectId),
+        getProcurementReport(projectId)
       ]);
       setDispatchedPOs(pos);
       if (pos.length > 0 && !selectedPO) {
@@ -81,13 +88,7 @@ export default function SiteStoreDashboard() {
       if (report && (report.godown_inventory || report.godown_stock)) {
         setGodownStock(report.godown_inventory || report.godown_stock);
       } else {
-        // Fallback default godown items
-        setGodownStock([
-          { material_name: "OPC 53 Grade Cement", current_stock: 1320, uom: "Bags" },
-          { material_name: "Fe550D TMT Rebar (12mm-25mm)", current_stock: 45.5, uom: "MT" },
-          { material_name: "Washed River Sand (Zone II)", current_stock: 110, uom: "MT" },
-          { material_name: "Crushed Granite Aggregate 20mm", current_stock: 180, uom: "MT" }
-        ]);
+        setGodownStock([]);
       }
     } catch (err: any) {
       console.error("Failed to load storekeeper data:", err);
@@ -177,7 +178,7 @@ export default function SiteStoreDashboard() {
 
         <div className="flex items-center gap-4">
           <button
-            onClick={loadData}
+            onClick={() => loadData()}
             disabled={refreshing}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 text-xs text-slate-300 transition-colors"
             title="Refresh Data"
@@ -216,7 +217,7 @@ export default function SiteStoreDashboard() {
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                 Gate Delivery Inward & Physical GRN Control
               </span>
-              <span className="text-xs text-slate-400 font-mono">Project: Shivaji Nagar Metro Viaduct (proj-demo-101)</span>
+              <span className="text-xs text-slate-400 font-mono">Project: {projectName}</span>
             </div>
             <h2 className="text-2xl font-bold text-white mt-2">
               Delivery Challan Verification & Live Godown Warehouse Balance

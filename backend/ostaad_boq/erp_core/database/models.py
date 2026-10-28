@@ -200,6 +200,8 @@ class PurchaseOrderModel(Base):
     finance_approval_status = Column(SQLEnum(FinanceApprovalStatus), default=FinanceApprovalStatus.PENDING_FINANCE_APPROVAL, nullable=False)
     finance_approver_id = Column(String(36), ForeignKey("users.id"), nullable=True)
     finance_rejection_reason = Column(Text, nullable=True)
+    finance_clarification_reason = Column(Text, nullable=True)
+    finance_clarification_at = Column(DateTime, nullable=True)
     payment_structure = Column(SQLEnum(PaymentStructure), nullable=True)
     advance_percentage = Column(Float, default=0.0)
 

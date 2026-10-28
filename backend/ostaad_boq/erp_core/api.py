@@ -3,6 +3,7 @@ BuildBharat ERP - Complete REST API Endpoints (FastAPI)
 Includes automatic database table initialization, pre-seeded realistic master data,
 and smart Swagger pre-filled defaults.
 """
+import uuid
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -52,6 +53,19 @@ class CreateBOQItemRequest(BaseModel):
     quantity: float = 1.0
     unit_rate: float = 0.0
 
+class CreateVendorRequest(BaseModel):
+    vendor_name: str = Field(..., min_length=1)
+    gstin: str = Field(..., min_length=1)
+    phone: str = Field(..., min_length=1)
+    city: str = Field(..., min_length=1)
+    category: str = Field(..., min_length=1)
+
+class CreateProjectFromTakeoffRequest(BaseModel):
+    project_name: str
+    district: str = ""
+    state: str = ""
+    lines: List[Dict[str, Any]] = Field(default_factory=list)
+
 erp_router = APIRouter(prefix="/api/v1/erp", tags=["BuildBharat ERP Core"])
 
 # ==================== Pydantic Schemas with Realistic Defaults ====================
@@ -98,6 +112,11 @@ class FinanceRejectRequest(BaseModel):
     po_id: str = Field(..., description="Target Purchase Order ID")
     finance_user_id: str = Field("user-fin-01", description="Finance Approver ID")
     rejection_reason: str = Field(..., description="Reason for audit budget rejection")
+
+class FinanceClarificationRequest(BaseModel):
+    po_id: str = Field(..., description="Target Purchase Order ID")
+    finance_user_id: str = Field("user-fin-01", description="Finance approver ID")
+    clarification_reason: str = Field(..., min_length=1, description="Clarification request")
 
 class RecordPaymentRequest(BaseModel):
     po_id: str = Field(..., description="Target Purchase Order ID")
@@ -313,6 +332,22 @@ def api_finance_reject(req: FinanceRejectRequest, db: Session = Depends(get_db))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@erp_router.post("/finance/clarification")
+def api_finance_clarification(req: FinanceClarificationRequest, db: Session = Depends(get_db)):
+    """Keep a PO pending while recording a Finance clarification request."""
+    user = db.query(User).filter_by(id=req.finance_user_id).first()
+    po = db.query(PurchaseOrderModel).filter_by(id=req.po_id).first()
+    if not user or user.role not in [UserRole.FINANCE, UserRole.ADMIN, UserRole.SUPERADMIN]:
+        raise HTTPException(status_code=403, detail="Unauthorized Finance user.")
+    if not po:
+        raise HTTPException(status_code=404, detail="Purchase order not found.")
+    if po.finance_approval_status != FinanceApprovalStatus.PENDING_FINANCE_APPROVAL:
+        raise HTTPException(status_code=400, detail="Clarification can only be requested for pending orders.")
+    po.finance_clarification_reason = req.clarification_reason.strip()
+    po.finance_clarification_at = datetime.utcnow()
+    db.commit()
+    return {"status": "success", "po_id": po.id, "clarification_reason": po.finance_clarification_reason}
+
 @erp_router.post("/finance/payment")
 def api_record_payment(req: RecordPaymentRequest, db: Session = Depends(get_db)):
     """Record manual bank payment transaction (Bank UTR / RTGS / Cheque Number)."""
@@ -445,6 +480,39 @@ def api_get_project_boq_items(project_id: str, db: Session = Depends(get_db)):
         "verified_by_user_id": item.verified_by_user_id
     } for item in items]
 
+@erp_router.post("/projects/from-takeoff")
+def api_create_project_from_takeoff(req: CreateProjectFromTakeoffRequest, db: Session = Depends(get_db)):
+    """Persist an uploaded takeoff as a new project and editable draft BOQ."""
+    tenant = db.query(Tenant).first()
+    if not tenant:
+        raise HTTPException(status_code=400, detail="Create an organization before importing a blueprint.")
+    if not req.lines:
+        raise HTTPException(status_code=400, detail="The uploaded blueprint produced no BOQ lines.")
+
+    project_id = f"project-{uuid.uuid4().hex[:12]}"
+    project = Project(
+        id=project_id,
+        tenant_id=tenant.id,
+        project_name=req.project_name.strip() or "Imported Blueprint Project",
+        district=req.district,
+        state=req.state,
+        status=ProjectStatus.PLANNING,
+    )
+    db.add(project)
+    for index, line in enumerate(req.lines, start=1):
+        db.add(BOQItemModel(
+            id=f"boq-{uuid.uuid4().hex[:12]}",
+            project_id=project_id,
+            wbs_code=line.get("wbs_code") or f"TAKEOFF-{index:03d}",
+            description=line.get("item_description") or "Imported takeoff item",
+            unit=str(line.get("unit") or "EA"),
+            quantity=float(line.get("quantity") or 0),
+            unit_rate=float(line.get("unit_cost") or 0),
+            is_verified=False,
+        ))
+    db.commit()
+    return {"status": "success", "project_id": project_id, "project_name": project.project_name, "boq_line_count": len(req.lines)}
+
 @erp_router.put("/boq/item/{item_id}")
 def api_update_boq_item(item_id: str, req: UpdateBOQItemRequest, db: Session = Depends(get_db)):
     """Project Manager edits a BOQ item line (quantity, rate, or description) if takeoff needs correction."""
@@ -514,12 +582,40 @@ def api_get_vendors_directory(category: Optional[str] = None, db: Session = Depe
     vendors = query.all()
     return [{
         "id": v.id,
+        "vendor_name": v.vendor_name,
         "name": v.vendor_name,
         "category": v.category,
         "phone": v.phone,
         "city": v.city,
         "gstin": v.gstin
     } for v in vendors]
+
+@erp_router.post("/vendors")
+def api_create_vendor(req: CreateVendorRequest, db: Session = Depends(get_db)):
+    """Create a controlled vendor directory record for Operations quotations."""
+    tenant = db.query(Tenant).first()
+    if not tenant:
+        raise HTTPException(status_code=400, detail="Create an organization before adding vendors.")
+    vendor = Vendor(
+        id=f"vendor-{uuid.uuid4().hex[:12]}",
+        tenant_id=tenant.id,
+        vendor_name=req.vendor_name.strip(),
+        gstin=req.gstin.strip(),
+        phone=req.phone.strip(),
+        city=req.city.strip(),
+        category=req.category.strip(),
+    )
+    db.add(vendor)
+    db.commit()
+    db.refresh(vendor)
+    return {
+        "id": vendor.id,
+        "vendor_name": vendor.vendor_name,
+        "gstin": vendor.gstin,
+        "phone": vendor.phone,
+        "city": vendor.city,
+        "category": vendor.category,
+    }
 
 @erp_router.get("/finance/pending")
 def api_get_finance_pending_pos(db: Session = Depends(get_db)):
@@ -539,6 +635,28 @@ def api_get_finance_pending_pos(db: Session = Depends(get_db)):
         "manager_notes": po.manager_notes,
         "status": po.finance_approval_status.value,
         "created_at": po.created_at.isoformat() if po.created_at else None
+    } for po in pos]
+
+@erp_router.get("/finance/orders")
+def api_get_finance_orders(db: Session = Depends(get_db)):
+    """Return every project PO so Finance can review pending, approved, and denied history."""
+    pos = db.query(PurchaseOrderModel).order_by(PurchaseOrderModel.created_at.desc()).all()
+    return [{
+        "id": po.id,
+        "po_number": po.po_number,
+        "material_name": po.material_name,
+        "quantity": po.quantity,
+        "uom": po.uom,
+        "unit_rate": po.landed_unit_rate,
+        "total_amount": po.total_landed_amount_inr,
+        "vendor_name": po.vendor.vendor_name if po.vendor else "Unknown Vendor",
+        "manager_notes": po.manager_notes,
+        "status": po.finance_approval_status.value,
+        "rejection_reason": po.finance_rejection_reason,
+        "clarification_reason": po.finance_clarification_reason,
+        "clarification_at": po.finance_clarification_at.isoformat() if po.finance_clarification_at else None,
+        "is_dispatched": po.is_dispatched_to_vendor,
+        "created_at": po.created_at.isoformat() if po.created_at else None,
     } for po in pos]
 
 @erp_router.get("/notifications/pm/{project_id}")

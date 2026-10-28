@@ -10,6 +10,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import io
+import os
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -29,6 +30,14 @@ from .export_engine import (
 from .models import BOQReport, DrawingType
 from .pricing_engine import price_boq_report
 
+def _get_allowed_origins() -> list[str]:
+    configured = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+    if configured:
+        origins = [origin.strip() for origin in configured.split(",") if origin.strip()]
+        return ["*"] if "*" in origins else origins
+    return ["*"]
+
+
 app = FastAPI(
     title="Ostaad Blueprint-to-BOQ Engine",
     description="Clean-room, commercially unrestricted Blueprint-to-BOQ Takeoff System",
@@ -37,7 +46,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_get_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -45,6 +54,7 @@ app.add_middleware(
 )
 
 engine = OstaadBOQEngine()
+
 
 # Register BuildBharat ERP Core Routers
 from .erp_core.api import erp_router, auth_router
