@@ -149,7 +149,7 @@ export interface NotificationItem {
 }
 
 // ----------------- Fallback Demo Datasets -----------------
-const FALLBACK_DEMO_ACCOUNTS: DemoAccount[] = [
+export const FALLBACK_DEMO_ACCOUNTS: DemoAccount[] = [
   {
     role: "OPERATIONS",
     role_title: "Project Operations Lead",

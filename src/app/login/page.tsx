@@ -27,6 +27,7 @@ import {
   saveAuthSession,
   getAuthSession,
   DemoAccount,
+  FALLBACK_DEMO_ACCOUNTS,
 } from "@/lib/api";
 
 export default function LoginPage() {
@@ -51,7 +52,7 @@ export default function LoginPage() {
   const [signUpCompany, setSignUpCompany] = useState("Larsen & Toubro Construction Ltd");
 
   // Demo Accounts
-  const [demoAccounts, setDemoAccounts] = useState<DemoAccount[]>([]);
+  const [demoAccounts, setDemoAccounts] = useState<DemoAccount[]>(FALLBACK_DEMO_ACCOUNTS);
 
   const redirectByRole = useCallback(
     (role: string) => {

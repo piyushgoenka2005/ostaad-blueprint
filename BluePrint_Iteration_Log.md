@@ -4,6 +4,47 @@ This log records every technical iteration, user prompt request, architectural e
 
 ---
 
+## Iteration 63 - Pre-Construction Planning Engine (Tool 1 Site Survey GO/NO-GO & Tool 6 Plot Geometry) & Executive White Theme Enforcement
+
+### Last update
+
+2026-11-05 22:55:00 +05:30
+
+### Expected change and functioning
+
+1. **Executive White Theme Enforcement & Demo Switcher Optimization**:
+   - Aligned theme 100% with user-verified login screenshot (`#f4f8fc` canvas, `#ffffff` card container, `border-slate-200`, deep navy `#122b45` typography, `#1368d8` royal blue, `#059669` emerald).
+   - Exported `FALLBACK_DEMO_ACCOUNTS` in `src/lib/api.ts` and set initial state in `src/app/login/page.tsx` for zero-latency, flash-free rendering of all 4 demo profiles (Operations, Finance, Site Store, Admin).
+2. **Sub-Module 2.1: Pre-Construction Planning Hub Implementation (`src/app/dashboard/pre-construction/page.tsx`)**:
+   - **Tool 1: Site Survey GO / NO-GO Engine**:
+     - Built 10-section rigorous physical verification matrix (Title & Ownership, Heavy Vehicle Access, Topography & Drainage, Geotechnical Soil, Utilities & HT Line Hazards, Statutory Zoning, Neighboring Shoring, Site Establishment).
+     - Integrated weighted 100-point index with mandatory Critical Abort Gate triggers (e.g. active litigation stay orders, contaminated soil, HT line corridor infringements, or lack of 9m trailer road access instantly triggers `NO-GO`).
+     - Engineered official **Site Feasibility & Clearance Certificate** modal with digital stamps, surveyor credentials, and printable summary.
+   - **Tool 6: Plot Area & Land Geometry Engine**:
+     - Built dynamic rectangular and polygon dimension calculator with perimeter boundary Rft estimation for 2.4m GI hoarding fencing.
+     - Implemented NBC statutory setback deductions (Front, Rear, Left, Right) to calculate Net Permissible Building Footprint and Ground Coverage %.
+     - Implemented Indian multi-unit revenue conversions (Gaj/War, Pucca Bigha, Guntha, Acres, Sq.Ft, Sq.M).
+   - **Tool 5: Statutory Permit & NOC Tracker**:
+     - Tracked Commencement Certificates (CC), SEIAA Environmental Clearances, CFO Fire NOCs, AAI Airport Clearance, and temporary power loads with fees and expiry milestones.
+3. **Operations Dashboard Integration**:
+   - Added dedicated `Pre-Construction (15 Tools)` item to sidebar navigation in `src/app/dashboard/operations/page.tsx`.
+   - Added interactive Quick Access Banner in project operations overview.
+
+### Edits made
+
+- `src/lib/api.ts`: Exported `FALLBACK_DEMO_ACCOUNTS`.
+- `src/app/login/page.tsx`: Initialized demo accounts directly with fallback array for instant rendering.
+- `src/app/dashboard/pre-construction/page.tsx`: Implemented full Pre-Construction Planning Hub with Tool 1 (Site Survey GO/NO-GO), Tool 6 (Plot Geometry & Setbacks), Tool 5 (Permit Tracker), and Certificate modal.
+- `src/app/dashboard/operations/page.tsx`: Integrated pre-construction links and quick-access banner.
+- `BluePrint_Iteration_Log.md`: Documented Iteration 63.
+
+### Verification
+
+- Type Check: `npx tsc --noEmit` exited 0 with zero errors.
+- Visual Theme: Retained 100% fidelity to the executive white palette.
+
+---
+
 ---
 
 ## Iteration 62 - Full-Stack Ostaad ERP Architecture Blueprint & Modular Implementation Plan Formulation
@@ -187,6 +228,7 @@ This log records every technical iteration, user prompt request, architectural e
 ### Expected change and functioning
 
 Perform a deep audit across the entire workspace to eliminate all obsolete legacy assets and verify production build readiness:
+
 1. Purge legacy Python virtual environment directory (`.venv_old`) and residual locked processes.
 2. Remove obsolete `assets/` directory containing legacy blueprint PDFs and showcase media from the deprecated takeoff engine.
 3. Clean temporary build caches and intermediate artifacts (`dist/`, `.cloudflare/`, `.vinext/`, `.wrangler/`, `tsconfig.tsbuildinfo`).
@@ -222,6 +264,7 @@ Perform a deep audit across the entire workspace to eliminate all obsolete legac
 ### Expected change and functioning
 
 Transition the project from the legacy dual-tier architecture (FastAPI backend + Next.js frontend) to the new **Ostaad ERP Single-Worker Full-Stack Cloudflare Architecture** specified in `Ostaad_ERP.pdf`:
+
 1. Preserve existing Cloudflare D1 schema and seed definitions into the root `migrations/` directory (`0001_initial_schema.sql`, `0002_seed_demo_data.sql`).
 2. Completely remove the legacy Python `backend/` directory and all Python tooling artifacts (`uv.lock`, `.python-version`, `.pre-commit-config.yaml`, `.pytest_cache`, `buildbharat_erp.db`, and root `.env`).
 3. Promote the Next.js TypeScript application from `frontend/` to the project root directory (`src/`, `public/`, `package.json`, `tsconfig.json`, `next.config.ts`, etc.).
@@ -288,6 +331,7 @@ Transition the project from the legacy dual-tier architecture (FastAPI backend +
 ### Expected change and functioning
 
 Align the backend production configuration with the primary Ostaad platform standard of using Cloudflare's native D1 (serverless SQLite) database alongside Cloudflare R2 private document storage:
+
 1. Lift PostgreSQL exclusivity in backend/ostaad_boq/config.py to natively support Cloudflare D1 (SQLite) in production environments without artificial rejection.
 2. Update backend/wrangler.backend.jsonc with the d1_databases binding (ostaad-erp-db) and production environment defaults.
 3. Add edge CORS pre-flight optimization in backend/cloudflare/index.js to eliminate container wake-up delays on HTTP OPTIONS requests from the frontend.
@@ -313,7 +357,6 @@ Align the backend production configuration with the primary Ostaad platform stan
 - Production config tests: 9/9 production security and guard tests passed (100%).
 - Frontend TypeScript check: npx tsc --noEmit passed with 0 errors across all routes.
 - Backend readiness status: **READY FOR DEPLOYMENT** with Docker Desktop + Cloudflare D1/R2.
-
 
 ## Iteration 53 - Cloudflare backend deployment preflight blocked
 
@@ -657,6 +700,7 @@ Eliminate clutter across the repository by removing obsolete `.md` planning file
 ### Expected change and Functioning
 
 Formulate a robust, multi-tiered engineering strategy to eliminate surveyor grid lines prior to tracing geometry:
+
 1. CAD vector layer inspection and suppression.
 2. Directional morphological filtering to subtract thin hairline grid lines while preserving thick structural walls.
 3. Coordinate text regex filtering to prevent station numbers from corrupting scale detection.
@@ -736,6 +780,7 @@ Provide a rigorous, unbiased, and practical technical audit detailing exactly wh
 ### Expected change and Functioning
 
 Perform an exhaustive feature analysis of three open-source construction and takeoff repositories from their provided README documentation:
+
 1. `OpenConstructionERP` (`README (1).md`): Full web-based construction ERP workspace.
 2. `cad2data` (`README (2).md`): Standalone/offline CAD/BIM ETL converters and pipelines.
 3. `OpenTakeoff` (`README (3).md`): 2D blueprint measurement engine with 53 MCP agent tools and browser canvas.
@@ -805,6 +850,7 @@ Initialize and maintain a comprehensive chronological changelog in `BluePrint_It
 ---
 
 ---
+
 ## Iteration 14 â€” Indian Construction ERP Architecture & Tailored Specification
 
 ### Last update
@@ -814,6 +860,7 @@ Initialize and maintain a comprehensive chronological changelog in `BluePrint_It
 ### Expected change and Functioning
 
 Re-architect the construction ERP product specification specifically for the Indian construction and contracting ecosystem based on stakeholder feedback:
+
 1. Scope adjustments: Remove 2D blueprint takeoff canvas, scale calibration, autonomous AI agents (MCP tools), global cost databases, semantic cost search, and automatic real-time cost roll-ups.
 2. Vendor Quotation Workflow: Replace static company-uploaded price databases with an active Vendor Request for Quotation (RFQ) model where calculated material packages are dispatched to regional suppliers who submit live market rates.
 3. Indian Standards Compliance: Enforce Indian national standards (IS 1200, IS 456, CPWD schedules), cement grades (OPC 43, OPC 53, PPC), structural steel (Fe 500, Fe 550D TMT), and standard mix designs. Exclude Western/international standards (DIN, NRM, MasterFormat, GAEB).
@@ -831,6 +878,7 @@ Re-architect the construction ERP product specification specifically for the Ind
 ---
 
 ---
+
 ## Iteration 15 â€” Integration of QA/QC Lab, QS Billing & Material Reconciliation, and Pilot Testing Roadmap
 
 ### Last update
@@ -840,6 +888,7 @@ Re-architect the construction ERP product specification specifically for the Ind
 ### Expected change and Functioning
 
 Incorporate two mission-critical departments unique to the Indian civil construction and contracting sector into the ERP architecture:
+
 1. QA/QC & Material Testing Lab Department: Enforce concrete cube compressive strength tracking (7-day, 14-day, 28-day automated test alerts), digital 4-point Pre-Pour Cards (shuttering, rebar binding, cover blocks, MEP conduits sign-off), and steel mill test certificates (MTC) as mandatory prerequisites before slab casting and RA billing.
 2. QS, Billing & Material Reconciliation Department: Enforce Joint Measurement Records (JMR) directly tied to CAD/BIM elements and implement theoretical vs. actual material consumption reconciliation (IS 456 mix design formulas vs. site issue slips) to prevent cement bag theft and steel wastage, applying automatic contractor penalty deductions under CPWD permissible limits.
 3. Establish full end-to-end operational lifecycle gating where work cannot proceed without technical clearances.
@@ -857,6 +906,7 @@ Incorporate two mission-critical departments unique to the Indian civil construc
 ---
 
 ---
+
 ## Iteration 16 â€” Corporate Implementation Plan, Open-Source Feature Reuse, and Validation Controls
 
 ### Last update
@@ -866,6 +916,7 @@ Incorporate two mission-critical departments unique to the Indian civil construc
 ### Expected change and Functioning
 
 Create a comprehensive, step-by-step pilot implementation plan based on README_BUILDBHARAT_ERP_PILOT.md:
+
 1. Open-Source Feature Reuse Mapping: Map existing features from ostaad_boq (scale validation, surveyor grid filter), OpenConstructionERP (WBS tree, dry-mix assemblies, 158 validation rules, Excel export), cad2data (offline RVT/IFC/DWG converters to DataFrames and 3D web meshes), and OpenTakeoff (buy list math and RFI register) to avoid building anything from scratch.
 2. Corporate Monorepo Folder Structure: Establish professional, scalable monorepo organization (pps/web, pps/api, packages/cad-worker, packages/database, packages/shared-types, deploy/) following enterprise standards.
 3. Step-by-Step Implementation with Strict Validation Gates: Define 4 distinct phases (Foundations, Procurement & Store, QA/QC & Billing, Finance & Client Pilot) with explicit validation rules (GSTIN regex, mandatory manual BOQ verification, Pour Card checklist, 7/14/28-day cube strength thresholds, and IS 456 material reconciliation theft detection).
@@ -881,6 +932,7 @@ Create a comprehensive, step-by-step pilot implementation plan based on README_B
 ---
 
 ---
+
 ## Iteration 17 â€” Scope Streamlining: Finance Approval Gate, Payment Scheduling, and QA/JMR Removal
 
 ### Last update
@@ -890,6 +942,7 @@ Create a comprehensive, step-by-step pilot implementation plan based on README_B
 ### Expected change and Functioning
 
 Refine the BuildBharat ERP architecture and implementation plan based on commercial stakeholder requirements:
+
 1. Scope Removal: Eliminate QA/QC testing lab (no digital Pour Cards, no 7/14/28-day concrete cube breaking test registers) and remove theft/JMR measuring work (no physical tape Joint Measurement Records or theoretical vs actual consumption reconciliation).
 2. Finance Budget Approval Gate: Introduce a mandatory financial governance gate. When the Project Manager selects a preferred vendor quote, the order is routed to the Finance Department for final budget clearance. Only upon Finance approval is the formal Purchase Order dispatched to the vendor.
 3. Flexible Payment Terms Engine: Allow Finance to configure payment terms per PO: Advance Payment vs Part-by-Part (milestone tranches) vs On-Delivery credit. Support manual entry of payment transactions (recording bank UTR/RTGS reference numbers, cheque numbers, amounts, and dates).
@@ -906,6 +959,7 @@ Refine the BuildBharat ERP architecture and implementation plan based on commerc
 ---
 
 ---
+
 ## Iteration 18 â€” Open-Source ERP Feature Extraction, Micro-Step Implementation Plan & IST Timestamping
 
 ### Last update
@@ -934,7 +988,7 @@ Refine the BuildBharat ERP architecture and implementation plan based on commerc
 ### Edits made
 
 - ostaad_boq/erp_core/: Created 11 new modules across oq, materials, procurement, stores, and cad_converters.
-- 	ests/unit/test_erp_core.py: Added 10 new unit tests covering all extracted ERP core modules. (All 40 unit tests pass in 6.35s).
+- ests/unit/test_erp_core.py: Added 10 new unit tests covering all extracted ERP core modules. (All 40 unit tests pass in 6.35s).
 - IMPLEMENTATION_PLAN_BUILDBHARAT_ERP.md: Completely removed Client View; created micro-step development plan with automated test criteria.
 - README_INDIAN_CONSTRUCTION_ERP.md: Removed Client View references from master architecture.
 - BluePrint_Iteration_Log.md: Appended Iteration 18 with IST timestamp and updated the future template.
@@ -944,6 +998,7 @@ Refine the BuildBharat ERP architecture and implementation plan based on commerc
 ---
 
 ---
+
 ## Iteration 19 â€” Milestone 1 Implementation: PostgreSQL Database Models, RBAC & Engineer Verification Gate
 
 ### Last update
@@ -953,6 +1008,7 @@ Refine the BuildBharat ERP architecture and implementation plan based on commerc
 ### Expected change and Functioning
 
 Implement Milestone 1 of the BuildBharat ERP:
+
 1. Pure PostgreSQL Relational Database Models:
    - Configured session.py with PostgreSQL connection string and local fallback.
    - Implemented Tenant model with Indian 15-digit GSTIN regex validation and state codes.
@@ -974,13 +1030,14 @@ Implement Milestone 1 of the BuildBharat ERP:
 - ostaad_boq/erp_core/database/session.py: Database engine & session management.
 - ostaad_boq/erp_core/database/models.py: SQLAlchemy ORM entity models with GSTIN validation.
 - ostaad_boq/erp_core/database/verification_service.py: Verification gate service logic.
-- 	ests/unit/test_milestone1_database.py: 5 comprehensive unit tests.
+- ests/unit/test_milestone1_database.py: 5 comprehensive unit tests.
 - Verification: Executed pytest tests/unit/ -q confirming 45/45 tests pass.
 - Intentionally left unchanged: Core ostaad_boq geometric algorithms and scale validation logic.
 
 ---
 
 ---
+
 ## Iteration 20 â€” Milestone 2 Implementation: Material Decomposition, Dynamic Vendor RFQs & Manager Recommendation Gate
 
 ### Last update
@@ -990,6 +1047,7 @@ Implement Milestone 1 of the BuildBharat ERP:
 ### Expected change and Functioning
 
 Implement Milestone 2 of the BuildBharat ERP:
+
 1. Indian Standard Material Decomposition (decompose_verified_boq_to_materials):
    - Enforce gate: Verifies all project BOQ items are verified before decomposition can run.
    - Decomposes verified concrete items (CUM) into OPC 53 cement bags, sand brass, and aggregate brass using IS 456 mix proportions.
@@ -1014,7 +1072,7 @@ Implement Milestone 2 of the BuildBharat ERP:
 - ostaad_boq/erp_core/database/models.py: Added Vendor, RFQPackageModel, VendorBidModel, PurchaseOrderModel, RFQStatus, and FinanceApprovalStatus.
 - ostaad_boq/erp_core/database/__init__.py: Exposed new models.
 - ostaad_boq/erp_core/procurement/procurement_service.py: Implemented material decomposition, RFQ bidding, comparative statements, and manager recommendation gate.
-- 	ests/unit/test_milestone2_procurement.py: 6 comprehensive unit tests.
+- ests/unit/test_milestone2_procurement.py: 6 comprehensive unit tests.
 - Verification: Executed pytest tests/unit/ -q confirming 51/51 tests pass.
 - Intentionally left unchanged: Core ostaad_boq geometric pipeline and scale validation logic.
 
@@ -1029,23 +1087,24 @@ Implement Milestone 2 of the BuildBharat ERP:
 ### Expected change and Functioning
 
 1. Finance Budget Approval Gate:
+
    - Mandatory financial gatekeeper prevents PO transmission to vendors until the Finance Department or SuperAdmin formally approves the procurement budget.
    - Manager's recommended vendor quote transitions to `APPROVED` or `REJECTED_BY_FINANCE`.
    - On approval, sets `is_dispatched_to_vendor = True` and locks in payment terms (ADVANCE vs PART_BY_PART with configurable advance percentage).
-
 2. Manual Financial Transaction & UTR Logging:
+
    - Track disbursements with manual entry of transaction references (Bank UTR / RTGS, Cheque Number, NEFT).
    - Strict validation preventing cumulative payments from exceeding PO total value.
    - Real-time recalculation of `paid_amount` and `balance_due`.
-
 3. Site Store GRN Receiving & Godown Stock Sync:
+
    - Site storekeepers log physical deliveries against dispatched POs with delivery challan photo URI and vehicle number.
    - Enforces role-based permissions (`SITE_STORE`, `OPERATIONS`, `ADMIN`, `SUPERADMIN`).
    - Prevents unapproved or undispatched PO deliveries.
    - Enforces a 5% maximum over-delivery threshold to protect against unauthorized excess deliveries.
    - Automatically increments real-time warehouse inventory (`SiteInventoryModel`).
-
 4. Automated Testing:
+
    - Added `tests/unit/test_milestone3_finance_stores.py` with 8 comprehensive unit tests.
    - All 59 unit tests across the repository pass with 100% success rate.
 
@@ -1069,23 +1128,24 @@ Implement Milestone 2 of the BuildBharat ERP:
 ### Expected change and Functioning
 
 1. Two-Way Match Reconciliation Engine:
+
    - Automated financial verification matching PO contracted landed rates and Site Store physical accepted GRN quantities against Vendor Invoices.
    - Enforces rate discrepancy detection: Automatically caps approved unit rates at contracted PO landed rate if vendor overbills.
    - Enforces quantity discrepancy detection: Automatically caps payable quantities at net physical goods received (excluding damaged goods), strictly preventing payment for undelivered materials.
    - Role enforcement: Only Finance, SuperAdmin, and Admin roles can perform reconciliation or execute final settlements.
-
 2. Final Balance Settlement & PO Closure:
+
    - Calculates exact outstanding balance due after deducting prior advance and milestone tranche disbursements.
    - Validates final payment disbursements against balance due (rejects overpayments).
    - Records manual payment details (UTR, RTGS/NEFT, Cheque No, Bank Name).
    - Automatically transitions PO status to `is_fully_settled = True` with timestamp `settled_at`, and updates associated invoices to `SETTLED`.
-
 3. Operational & Executive Financial Reporting:
+
    - Project Procurement Status Report: Aggregates total committed PO values, delivered materials, remaining balances, and real-time site godown inventory levels.
    - Financial Cash Outflow & Accounts Payable Report: Tracks total budget commitments, advance disbursements, milestone payments, final settlements, and outstanding liabilities.
    - Vendor Commercial Ledger: Comprehensive vendor statement with all issued POs, physical delivery fulfillment, invoice amounts, paid transactions with UTRs, and net balances due.
-
 4. Automated Testing:
+
    - Added `tests/unit/test_milestone4_settlement_reporting.py` with 8 comprehensive unit tests.
    - All 67 unit tests across the repository pass with 100% success rate.
 
@@ -1320,12 +1380,11 @@ Implement Milestone 2 of the BuildBharat ERP:
 - rontend/src/app/dashboard/*: Created department dashboard shells for Operations, Finance, Site Store, and Admin.
 - rontend/src/app/page.tsx: Set up automatic root redirect to /login.
 - BluePrint_Iteration_Log.md: Recorded Iteration 29 with exact IST timestamp.
-- Verification: Tested /auth/login, /auth/register, /auth/me; ran 
-ext build (compiled in 10.8s, 0 errors); executed browser subagent confirming login and redirection to Operations Dashboard.
+- Verification: Tested /auth/login, /auth/register, /auth/me; ran
+  ext build (compiled in 10.8s, 0 errors); executed browser subagent confirming login and redirection to Operations Dashboard.
 - Intentionally left unchanged: Core calculation formulas, database models, and dual approval gate verification rules.
 
 ---
-
 
 ## Iteration 30 — Step 4: Decoupled Multi-Department Next.js Dashboards (Operations, Finance, Site Store, Admin)
 
@@ -1338,29 +1397,29 @@ ext build (compiled in 10.8s, 0 errors); executed browser subagent confirming lo
 1. Complete Step 4 of the Full-Stack Decoupled Migration:
    - Construct dedicated high-fidelity Next.js 15+ App Router dashboards for all four enterprise departments:
      a) Operations (Managing Authority) Dashboard (/dashboard/operations):
-        - Live editable Bill of Quantities (BOQ) with inline description, quantity, and unit rate editing.
-        - Add Line Item and Delete Line Item capabilities.
-        - "Approve Final BOQ" action that locks the project baseline.
-        - IS 456 Material Decomposition Engine triggering automatic theoretical quantity calculations for Cement, Steel, Coarse Sand, and Aggregate.
-        - Categorized Vendor Directory with direct telephonic contact details, cities, and GSTIN numbers.
-        - Telephonic Vendor Quotation Log form recording base rates, freight, GST %, and landing rate calculations.
-        - "Submit Bill Proposal to Finance" workflow initiating formal approval requests.
-     b) Finance Department Approval Hub (/dashboard/finance):
-        - Pending Purchase Order approval queue displaying project manager proposals and justifications.
-        - Dual Decision Gate:
-          * Approve Gate: Configure payment structure (Part-by-Part tranches, Advance Only, Credit on Delivery), advance disbursement percentage, originating bank name, and transaction UTR.
-          * Reject Gate: Decline proposal with mandatory audit trail reason; triggers real-time notification back to Operations.
-        - Two-Way Match Reconciliation Form: Reconcile vendor tax invoices against physical GRN accepted quantities and calculate variance before issuing final settlement.
-     c) Site Storekeeper Godown Portal (/dashboard/site-store):
-        - Active Dispatched PO table tracking released orders in transit.
-        - Physical Gate Delivery Inward (GRN) verification form recording transporter delivery challan number, truck registration number, gross delivered quantity, and transit-damaged units.
-        - Automatic live stock crediting to the site warehouse godown inventory.
-        - Real-time Godown Warehouse Physical Inventory registry showing live balances (Cement, TMT Steel, Sand, Aggregate).
-     d) Corporate Administrator Dashboard (/dashboard/admin):
-        - Central multi-department enterprise users directory from GET /api/v1/erp/users.
-        - Role-based access governance and direct department portal switching.
-        - Tenant legal entity governance (Larsen & Toubro Limited, Corporate GSTIN: 27AAACL1234F1Z1).
-        - Real-time system health and connectivity monitors for FastAPI backend and SQLite database.
+     - Live editable Bill of Quantities (BOQ) with inline description, quantity, and unit rate editing.
+     - Add Line Item and Delete Line Item capabilities.
+     - "Approve Final BOQ" action that locks the project baseline.
+     - IS 456 Material Decomposition Engine triggering automatic theoretical quantity calculations for Cement, Steel, Coarse Sand, and Aggregate.
+     - Categorized Vendor Directory with direct telephonic contact details, cities, and GSTIN numbers.
+     - Telephonic Vendor Quotation Log form recording base rates, freight, GST %, and landing rate calculations.
+     - "Submit Bill Proposal to Finance" workflow initiating formal approval requests.
+       b) Finance Department Approval Hub (/dashboard/finance):
+     - Pending Purchase Order approval queue displaying project manager proposals and justifications.
+     - Dual Decision Gate:
+       * Approve Gate: Configure payment structure (Part-by-Part tranches, Advance Only, Credit on Delivery), advance disbursement percentage, originating bank name, and transaction UTR.
+       * Reject Gate: Decline proposal with mandatory audit trail reason; triggers real-time notification back to Operations.
+     - Two-Way Match Reconciliation Form: Reconcile vendor tax invoices against physical GRN accepted quantities and calculate variance before issuing final settlement.
+       c) Site Storekeeper Godown Portal (/dashboard/site-store):
+     - Active Dispatched PO table tracking released orders in transit.
+     - Physical Gate Delivery Inward (GRN) verification form recording transporter delivery challan number, truck registration number, gross delivered quantity, and transit-damaged units.
+     - Automatic live stock crediting to the site warehouse godown inventory.
+     - Real-time Godown Warehouse Physical Inventory registry showing live balances (Cement, TMT Steel, Sand, Aggregate).
+       d) Corporate Administrator Dashboard (/dashboard/admin):
+     - Central multi-department enterprise users directory from GET /api/v1/erp/users.
+     - Role-based access governance and direct department portal switching.
+     - Tenant legal entity governance (Larsen & Toubro Limited, Corporate GSTIN: 27AAACL1234F1Z1).
+     - Real-time system health and connectivity monitors for FastAPI backend and SQLite database.
 2. Production Build & Integration Verification:
    - Verify npm run build passes with zero compilation, TypeScript, or layout errors.
    - Run end-to-end multi-role browser test logging in as each department persona, verifying data synchronization across backend REST endpoints and frontend state.
@@ -1389,23 +1448,23 @@ ext build (compiled in 10.8s, 0 errors); executed browser subagent confirming lo
 1. Complete Step 5 of the Decoupled ERP Architecture:
    - Full End-to-End Pilot Simulation across all four department personas:
      a) Operations (Managing Authority - Rajesh Sharma):
-        - Lock approved BOQ baseline items.
-        - Recommend vendor quote and submit commercial proposal to Finance.
-     b) Finance Department (Sunita Iyer):
-        - Review pending purchase order proposal.
-        - Dual Approval Decision Gate: Approve budget, set 25% advance payment structure, and disburse bank advance with UTR HDFCR52026102700994321.
-        - Order unlocks and is dispatched to vendor.
-     c) Site Storekeeper (Ramesh Pawar):
-        - Inspect active dispatched purchase orders arriving in transit.
-        - Verify transporter delivery challan (CHAL-2026-E2E-01) and commercial truck registration (MH-04-AZ-9988).
-        - Log gross delivered units (700 Bags) and deduct damaged bags (5 Bags).
-        - Submit physical GRN: credits 695.0 net accepted bags directly into the live Godown warehouse inventory.
-     d) Finance Department Final Reconciliation & Closure:
-        - Perform two-way match reconciliation: compare vendor tax invoice against physical net accepted GRN goods.
-        - Disburse final balance settlement with bank UTR SBINR52026102700887766.
-        - Purchase order closes in is_fully_settled = True state.
-     e) Corporate Administrator (Aditya Verma):
-        - Verify all enterprise users in multi-department directory and validate tenant governance for Larsen & Toubro Limited (27AAACL1234F1Z1).
+     - Lock approved BOQ baseline items.
+     - Recommend vendor quote and submit commercial proposal to Finance.
+       b) Finance Department (Sunita Iyer):
+     - Review pending purchase order proposal.
+     - Dual Approval Decision Gate: Approve budget, set 25% advance payment structure, and disburse bank advance with UTR HDFCR52026102700994321.
+     - Order unlocks and is dispatched to vendor.
+       c) Site Storekeeper (Ramesh Pawar):
+     - Inspect active dispatched purchase orders arriving in transit.
+     - Verify transporter delivery challan (CHAL-2026-E2E-01) and commercial truck registration (MH-04-AZ-9988).
+     - Log gross delivered units (700 Bags) and deduct damaged bags (5 Bags).
+     - Submit physical GRN: credits 695.0 net accepted bags directly into the live Godown warehouse inventory.
+       d) Finance Department Final Reconciliation & Closure:
+     - Perform two-way match reconciliation: compare vendor tax invoice against physical net accepted GRN goods.
+     - Disburse final balance settlement with bank UTR SBINR52026102700887766.
+     - Purchase order closes in is_fully_settled = True state.
+       e) Corporate Administrator (Aditya Verma):
+     - Verify all enterprise users in multi-department directory and validate tenant governance for Larsen & Toubro Limited (27AAACL1234F1Z1).
 2. Self-Healing Fallbacks & API Hardening:
    - Make rfq_id and selected_bid_id optional in ManagerRecommendRequest with automatic on-the-fly provisioning if missing, ensuring seamless UI proposal submissions.
    - Synchronize typed API payload mapping in frontend/src/lib/api.ts for submitBillProposalToFinance() and receiveGoodsGRN().
@@ -1930,7 +1989,7 @@ Copy this block and append it below the latest iteration. Do not rewrite previou
 
 ### Last update
 
-YYYY-MM-DD HH:MM:SS IST — Commit: <commit-sha> — <commit-message>
+YYYY-MM-DD HH:MM:SS IST — Commit: <commit-sha></commit>`<commit-sha>` — `<commit-message>`<commit-message></commit>
 
 ### Expected change and Functioning
 
