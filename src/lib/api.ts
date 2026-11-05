@@ -16,6 +16,10 @@ export const PUBLIC_REGISTRATION_ENABLED =
 
 type ApiErrorResponse = { detail?: string; message?: string };
 
+import { Company } from "@/lib/tenant-context";
+
+export type { Company };
+
 export interface UserProfile {
   id: string;
   full_name: string;
@@ -303,6 +307,81 @@ const FALLBACK_POS: PendingPO[] = [
   },
 ];
 
+export const FALLBACK_COMPANIES: Company[] = [
+  {
+    id: "comp-lt-01",
+    tenant_id: "tenant-demo-1",
+    company_name: "Larsen & Toubro Construction Ltd",
+    legal_name: "Larsen & Toubro Limited - Heavy Civil Infrastructure IC",
+    gstin: "27AAACL0149C1ZM",
+    pan_number: "AAACL0149C",
+    state_code: "27",
+    state_name: "Maharashtra",
+    registered_address: "L&T House, Ballard Estate, P.O. Box: 278, Mumbai 400001",
+    city: "Mumbai",
+    pincode: "400001",
+    currency: "INR",
+    financial_year_start: "04-01",
+    is_active: true,
+    created_at: "2026-01-01T00:00:00Z",
+  },
+  {
+    id: "comp-lt-metro-02",
+    tenant_id: "tenant-demo-1",
+    company_name: "L&T Metro Rail & Elevated Corridors JV",
+    legal_name: "L&T Infrastructure Engineering Joint Venture Ltd",
+    gstin: "29AAACL0149C1ZK",
+    pan_number: "AAACL0149C",
+    state_code: "29",
+    state_name: "Karnataka",
+    registered_address: "Whitefield Main Road, ITPL Tech Park, Bangalore 560066",
+    city: "Bengaluru",
+    pincode: "560066",
+    currency: "INR",
+    financial_year_start: "04-01",
+    is_active: true,
+    created_at: "2026-01-15T00:00:00Z",
+  },
+  {
+    id: "comp-shapoorji-03",
+    tenant_id: "tenant-demo-1",
+    company_name: "Shapoorji Pallonji EPC Ltd",
+    legal_name: "Shapoorji Pallonji and Company Private Limited",
+    gstin: "07AAACS1234D1Z8",
+    pan_number: "AAACS1234D",
+    state_code: "07",
+    state_name: "Delhi",
+    registered_address: "Barakhamba Road, Connaught Place, New Delhi 110001",
+    city: "New Delhi",
+    pincode: "110001",
+    currency: "INR",
+    financial_year_start: "04-01",
+    is_active: true,
+    created_at: "2026-02-01T00:00:00Z",
+  },
+];
+
+export function getActiveCompany(): Company {
+  if (typeof window === "undefined") return FALLBACK_COMPANIES[0];
+  const stored = localStorage.getItem("ostaad_active_company");
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch {
+      // ignore
+    }
+  }
+  return FALLBACK_COMPANIES[0];
+}
+
+export function setActiveCompany(company: Company) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("ostaad_active_company", JSON.stringify(company));
+    localStorage.setItem("ostaad_company_id", company.id);
+    window.dispatchEvent(new CustomEvent("ostaad_company_changed", { detail: company }));
+  }
+}
+
 // ----------------- Auth Session Functions -----------------
 export function saveAuthSession(token: string, user: UserProfile) {
   if (typeof window !== "undefined") {
@@ -359,9 +438,13 @@ async function authenticatedFetch(
   init: RequestInit = {}
 ): Promise<Response & { json<T>(): Promise<T> }> {
   const { token } = getAuthSession();
+  const activeCompany = getActiveCompany();
   const headers = new Headers(init.headers);
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
+  }
+  if (activeCompany?.id) {
+    headers.set("x-company-id", activeCompany.id);
   }
 
   try {
@@ -524,6 +607,59 @@ export async function getCurrentUser(token: string): Promise<UserProfile | null>
   } catch {
     return null;
   }
+}
+
+// ----------------- Multi-Company Sub-Module 1.1 -----------------
+export async function getCompanies(): Promise<Company[]> {
+  try {
+    const res = await authenticatedFetch(`${API_BASE_URL}/companies`);
+    if (!res.ok) return FALLBACK_COMPANIES;
+    const data = await res.json();
+    return Array.isArray(data.companies) && data.companies.length ? data.companies : FALLBACK_COMPANIES;
+  } catch {
+    return FALLBACK_COMPANIES;
+  }
+}
+
+export async function createCompany(payload: {
+  company_name: string;
+  legal_name: string;
+  gstin: string;
+  pan_number?: string;
+  registered_address: string;
+  city?: string;
+  pincode?: string;
+}): Promise<Company> {
+  const res = await authenticatedFetch(`${API_BASE_URL}/companies`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errorData = (await res.json()) as { message?: string };
+    throw new Error(errorData.message || "Failed to create operating company");
+  }
+
+  const data = await res.json();
+  return data.company;
+}
+
+export async function switchCompany(companyId: string): Promise<Company> {
+  const res = await authenticatedFetch(`${API_BASE_URL}/companies/switch`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ company_id: companyId }),
+  });
+
+  if (!res.ok) {
+    const errorData = (await res.json()) as { message?: string };
+    throw new Error(errorData.message || "Failed to switch company");
+  }
+
+  const data = await res.json();
+  setActiveCompany(data.activeCompany);
+  return data.activeCompany;
 }
 
 // ----------------- Operations & BOQ -----------------

@@ -34,6 +34,8 @@ import {
   FileCheck,
 } from "lucide-react";
 
+import CompanySwitcher from "@/components/CompanySwitcher";
+
 // ==========================================
 // TOOL 1: SITE SURVEY CHECKLIST SPECIFICATION
 // ==========================================
@@ -433,20 +435,23 @@ export default function PreConstructionEngine() {
           </div>
         </div>
 
-        {/* Project Meta Bar */}
-        <div className="hidden items-center gap-3 lg:flex">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700 flex items-center gap-2">
-            <Building2 className="h-3.5 w-3.5 text-blue-600" />
-            <span className="font-semibold text-slate-900">{projectName}</span>
-            <span className="text-slate-400">|</span>
-            <span className="text-slate-500">{projectLocation}</span>
+        {/* Project Meta Bar & Tenant Switcher */}
+        <div className="flex items-center gap-3">
+          <CompanySwitcher />
+          <div className="hidden items-center gap-3 lg:flex">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700 flex items-center gap-2">
+              <Building2 className="h-3.5 w-3.5 text-blue-600" />
+              <span className="font-semibold text-slate-900">{projectName}</span>
+              <span className="text-slate-400">|</span>
+              <span className="text-slate-500">{projectLocation}</span>
+            </div>
           </div>
           <button
             onClick={() => setShowCertificateModal(true)}
             className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 transition-all"
           >
             <Award className="h-4 w-4" />
-            <span>Clearance Certificate</span>
+            <span className="hidden sm:inline">Clearance Certificate</span>
           </button>
         </div>
       </header>

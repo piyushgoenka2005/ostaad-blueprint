@@ -4,6 +4,8 @@
  * Provides instant responses for Next.js App Router API routes.
  */
 
+import { Company, UserCompanyRole } from "@/lib/tenant-context";
+
 export interface DemoUser {
   id: string;
   email: string;
@@ -13,12 +15,14 @@ export interface DemoUser {
   dept_badge: string;
   avatar: string;
   tenant_id: string;
+  company_id?: string;
   phone?: string;
 }
 
 export interface StoreBOQItem {
   id: string;
   project_id: string;
+  company_id?: string;
   wbs_code: string;
   description: string;
   quantity: number;
@@ -31,6 +35,7 @@ export interface StoreBOQItem {
 
 export interface StoreVendor {
   id: string;
+  company_id?: string;
   vendor_name: string;
   gstin: string;
   phone: string;
@@ -41,6 +46,7 @@ export interface StoreVendor {
 export interface StorePO {
   id: string;
   po_number: string;
+  company_id?: string;
   project_id: string;
   project_name: string;
   vendor_id: string;
@@ -76,6 +82,69 @@ export interface StoreGRN {
 }
 
 class ERPDataStore {
+  public companies: Company[] = [
+    {
+      id: "comp-lt-01",
+      tenant_id: "tenant-demo-1",
+      company_name: "Larsen & Toubro Construction Ltd",
+      legal_name: "Larsen & Toubro Limited - Heavy Civil Infrastructure IC",
+      gstin: "27AAACL0149C1ZM",
+      pan_number: "AAACL0149C",
+      state_code: "27",
+      state_name: "Maharashtra",
+      registered_address: "L&T House, Ballard Estate, P.O. Box: 278, Mumbai 400001",
+      city: "Mumbai",
+      pincode: "400001",
+      currency: "INR",
+      financial_year_start: "04-01",
+      is_active: true,
+      created_at: "2026-01-01T00:00:00Z",
+    },
+    {
+      id: "comp-lt-metro-02",
+      tenant_id: "tenant-demo-1",
+      company_name: "L&T Metro Rail & Elevated Corridors JV",
+      legal_name: "L&T Infrastructure Engineering Joint Venture Ltd",
+      gstin: "29AAACL0149C1ZK",
+      pan_number: "AAACL0149C",
+      state_code: "29",
+      state_name: "Karnataka",
+      registered_address: "Whitefield Main Road, ITPL Tech Park, Bangalore 560066",
+      city: "Bengaluru",
+      pincode: "560066",
+      currency: "INR",
+      financial_year_start: "04-01",
+      is_active: true,
+      created_at: "2026-01-15T00:00:00Z",
+    },
+    {
+      id: "comp-shapoorji-03",
+      tenant_id: "tenant-demo-1",
+      company_name: "Shapoorji Pallonji EPC Ltd",
+      legal_name: "Shapoorji Pallonji and Company Private Limited",
+      gstin: "07AAACS1234D1Z8",
+      pan_number: "AAACS1234D",
+      state_code: "07",
+      state_name: "Delhi",
+      registered_address: "Barakhamba Road, Connaught Place, New Delhi 110001",
+      city: "New Delhi",
+      pincode: "110001",
+      currency: "INR",
+      financial_year_start: "04-01",
+      is_active: true,
+      created_at: "2026-02-01T00:00:00Z",
+    },
+  ];
+
+  public userCompanyRoles: UserCompanyRole[] = [
+    { user_id: "user-pm-01", company_id: "comp-lt-01", role: "OPERATIONS", is_default: true, assigned_at: "2026-01-01T00:00:00Z" },
+    { user_id: "user-fin-01", company_id: "comp-lt-01", role: "FINANCE", is_default: true, assigned_at: "2026-01-01T00:00:00Z" },
+    { user_id: "user-store-01", company_id: "comp-lt-01", role: "SITE_STORE", is_default: true, assigned_at: "2026-01-01T00:00:00Z" },
+    { user_id: "admin-01", company_id: "comp-lt-01", role: "ADMIN", is_default: true, assigned_at: "2026-01-01T00:00:00Z" },
+    { user_id: "user-pm-01", company_id: "comp-lt-metro-02", role: "OPERATIONS", is_default: false, assigned_at: "2026-01-15T00:00:00Z" },
+    { user_id: "user-fin-01", company_id: "comp-shapoorji-03", role: "FINANCE", is_default: false, assigned_at: "2026-02-01T00:00:00Z" },
+  ];
+
   public users: DemoUser[] = [
     {
       id: "user-pm-01",
@@ -281,6 +350,66 @@ class ERPDataStore {
     if (user) return user;
     // Fallback default
     return this.users[0];
+  }
+
+  // Multi-Company Sub-Module 1.1 Methods
+  public getCompanies(): Company[] {
+    return this.companies.filter((c) => c.is_active);
+  }
+
+  public getCompanyById(id: string): Company | undefined {
+    return this.companies.find((c) => c.id === id);
+  }
+
+  public getCompaniesForUser(userId: string): Company[] {
+    const assignedIds = this.userCompanyRoles
+      .filter((ucr) => ucr.user_id === userId)
+      .map((ucr) => ucr.company_id);
+    
+    // If no explicit assignments, provide default access to active companies
+    if (assignedIds.length === 0) return this.getCompanies();
+    return this.companies.filter((c) => assignedIds.includes(c.id) && c.is_active);
+  }
+
+  public createCompany(data: {
+    company_name: string;
+    legal_name: string;
+    gstin: string;
+    pan_number: string;
+    state_code: string;
+    state_name: string;
+    registered_address: string;
+    city: string;
+    pincode: string;
+    tenant_id?: string;
+  }): Company {
+    const newCompany: Company = {
+      id: `comp-${Date.now().toString(36)}-${Math.floor(Math.random() * 900 + 100)}`,
+      tenant_id: data.tenant_id || "tenant-demo-1",
+      company_name: data.company_name.trim(),
+      legal_name: data.legal_name.trim(),
+      gstin: data.gstin.trim().toUpperCase(),
+      pan_number: data.pan_number.trim().toUpperCase(),
+      state_code: data.state_code.trim(),
+      state_name: data.state_name.trim(),
+      registered_address: data.registered_address.trim(),
+      city: data.city.trim(),
+      pincode: data.pincode.trim(),
+      currency: "INR",
+      financial_year_start: "04-01",
+      is_active: true,
+      created_at: new Date().toISOString(),
+    };
+
+    this.companies.push(newCompany);
+    return newCompany;
+  }
+
+  public updateCompany(id: string, updates: Partial<Company>): Company | null {
+    const index = this.companies.findIndex((c) => c.id === id);
+    if (index === -1) return null;
+    this.companies[index] = { ...this.companies[index], ...updates };
+    return this.companies[index];
   }
 }
 

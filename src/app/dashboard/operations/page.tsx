@@ -15,6 +15,7 @@ import {
   submitMaterialBid, TakeoffResponse, updateBOQItem, uploadBlueprint, UserProfile,
   verifyAllBOQItems, Vendor, VendorBidComparison, BOQItem,
 } from "@/lib/api";
+import CompanySwitcher from "@/components/CompanySwitcher";
 
 type Quote = { value: string; bidId?: string };
 const money = (value: number) => `₹${value.toLocaleString("en-IN")}`;
@@ -194,7 +195,21 @@ export default function OperationsDashboard() {
       <div className="mt-auto border-t border-white/10 p-5 text-[11px] text-slate-300">Better planning.<br /><span className="text-slate-400">Smoother construction.</span></div>
     </aside>
     <div className="lg:ml-64">
-      <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-5 shadow-sm backdrop-blur md:px-8"><div className="relative w-72"><Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search projects or BOQs..." suppressHydrationWarning className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-xs outline-none focus:border-blue-400" /></div><div className="flex items-center gap-4"><button className="relative text-slate-500"><Bell className="h-5 w-5" /><span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-rose-500" /></button><div className="hidden text-right sm:block"><div className="text-xs font-semibold text-slate-800">{user?.full_name || "Project Manager"}</div><div className="text-[10px] text-slate-500">Managing Authority</div></div><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#12304c] text-xs font-bold text-white">{(user?.full_name || "PM").split(" ").map((part) => part[0]).join("").slice(0, 2)}</div><button onClick={logout} className="text-slate-400 hover:text-rose-500" title="Sign out"><LogOut className="h-4 w-4" /></button></div></header>
+      <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-5 shadow-sm backdrop-blur md:px-8">
+        <div className="flex items-center gap-4">
+          <div className="relative w-64 md:w-72">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search projects or BOQs..."
+              suppressHydrationWarning
+              className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-xs outline-none focus:border-blue-400"
+            />
+          </div>
+          <CompanySwitcher />
+        </div>
+        <div className="flex items-center gap-4"><button className="relative text-slate-500"><Bell className="h-5 w-5" /><span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-rose-500" /></button><div className="hidden text-right sm:block"><div className="text-xs font-semibold text-slate-800">{user?.full_name || "Project Manager"}</div><div className="text-[10px] text-slate-500">Managing Authority</div></div><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#12304c] text-xs font-bold text-white">{(user?.full_name || "PM").split(" ").map((part) => part[0]).join("").slice(0, 2)}</div><button onClick={logout} className="text-slate-400 hover:text-rose-500" title="Sign out"><LogOut className="h-4 w-4" /></button></div></header>
       <main className="mx-auto max-w-[1500px] space-y-6 p-4 md:p-8">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><div className="mb-1 text-xs text-slate-500">Operations <ChevronDown className="mx-1 inline h-3 w-3" /> Project Management</div><h1 className="text-2xl font-bold tracking-tight text-[#122b45]">Project Operations</h1><p className="mt-1 text-sm text-slate-500">Monitor project progress, material requirements, procurement, and approvals.</p></div><button onClick={() => setNotice("Create a project by uploading its blueprint.")} className="inline-flex items-center gap-2 rounded-lg bg-[#1368d8] px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#0f59bb]"><Plus className="h-4 w-4" />Create Project</button></div>
         {notice && <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700"><span>{notice}</span><button onClick={() => setNotice(null)}><XCircle className="h-4 w-4" /></button></div>}
