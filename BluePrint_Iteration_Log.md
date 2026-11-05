@@ -2041,7 +2041,7 @@ Perform a deep audit across the entire workspace to eliminate all obsolete legac
 
 ### Last update
 
-2026-11-05 23:35:00 IST — Commit: 071783a — feat(rbac): implement Sub-Module 1.2 Role-Based Access Control (RBAC) and Session Engine
+2026-11-05 23:35:00 IST — Commit: 50c9824 — feat(rbac): implement Sub-Module 1.2 Role-Based Access Control (RBAC) and Session Engine
 
 ### Expected change and Functioning
 
@@ -2093,6 +2093,51 @@ Perform a deep audit across the entire workspace to eliminate all obsolete legac
 - TypeScript Check: `npx tsc --noEmit` exited with code 0 (zero errors).
 - WebCrypto Execution: Verified cryptographic HMAC-SHA256 signing and PBKDF2 salt derivation.
 - UI Theme: 100% adherence to executive white/light palette.
+
+---
+
+## Iteration 66 — D1 Database Migration Framework & Schema Management (Sub-Module 1.3)
+
+### Last update
+
+2026-11-05 23:45:00 IST — Commit: c38194a — feat(db): implement Sub-Module 1.3 D1 database migration framework and schema management
+
+### Expected change and Functioning
+
+Implement Sub-Module 1.3 of the approved Ostaad ERP Architecture Plan:
+1. **D1 Migration Tracking Table (`migrations/0004_d1_migration_tracking.sql`)**:
+   - Create schema migration tracking table `schema_migrations` with `id`, `version`, `name`, `batch`, `checksum`, `applied_at`, and `execution_time_ms`.
+   - Seed record of all 4 foundational baseline migrations (`0001_initial_schema`, `0002_add_audit_and_indexes`, `0003_multi_company_tenants`, `0004_d1_migration_tracking`).
+2. **D1 Database Access & Batch Transaction Engine (`src/lib/db/d1.ts`)**:
+   - Provide type-safe Cloudflare D1 database abstraction layer (`d1Service`) handling edge queries, single-record fetches, executions, and atomic batch transactions.
+   - Implement `batch(statements)` to execute multi-statement SQL batches atomically with automatic rollback on error.
+   - Catalogue all 19 relational entities (`companies`, `users`, `projects`, `boq_items`, `vendors`, `rfqs`, `vendor_bids`, `purchase_orders`, `grn_records`, `invoices`, `material_rates`, `site_surveys`, `plot_geometries`, etc.).
+   - Provide schema integrity verification and migration status querying.
+3. **Migration & Schema Diagnostic API (`src/app/api/admin/migrations/route.ts`)**:
+   - `GET /api/admin/migrations`: Returns database binding info, applied migration history, table catalog, and pending status.
+   - `POST /api/admin/migrations`: Verifies schema integrity and registers migration tracking records. Gated by tenant management authorization.
+4. **Interactive D1 Migration Dashboard UI (`src/components/D1MigrationDashboard.tsx`)**:
+   - Executive White Theme diagnostics component displaying live Cloudflare D1 connection status, applied migration sequence timeline, and 19 registered tables.
+   - Includes real-time "Verify Schema Integrity" action with live feedback.
+5. **Admin Portal Integration (`src/app/dashboard/admin/page.tsx`)**:
+   - Integrated `D1MigrationDashboard` into the Admin Dashboard with navigation anchor and sidebar tab.
+   - Updated Admin header with `CompanySwitcher` and `RoleBadge` for seamless tenant switching and RBAC visibility.
+   - Removed legacy duplicated sections to ensure clean DOM structure.
+
+### Edits made
+
+- `migrations/0004_d1_migration_tracking.sql`: Created migration tracking schema and baseline records.
+- `src/lib/db/d1.ts`: Created D1 database abstraction service with batched transactions and schema catalog.
+- `src/app/api/admin/migrations/route.ts`: Built administrative migration status and schema verification API.
+- `src/components/D1MigrationDashboard.tsx`: Built executive white theme D1 diagnostics dashboard component.
+- `src/app/dashboard/admin/page.tsx`: Embedded D1 Migration Dashboard, updated header with CompanySwitcher and RoleBadge, removed duplicate sections.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 66 sequentially before future template, aligned Iteration 65 commit hash to `50c9824`.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- D1 schema validity: Confirmed SQLite compatibility, primary key constraints, and foreign key definitions.
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and slate borders.
 
 ---
 

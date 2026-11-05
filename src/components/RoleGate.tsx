@@ -95,3 +95,4 @@ export function AccessDeniedCard({ requiredRole }: { requiredRole?: string }) {
     </div>
   );
 }
+

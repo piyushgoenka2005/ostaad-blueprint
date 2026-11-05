@@ -437,3 +437,4 @@ export function enforcePermission(
 
   return { authorized: true };
 }
+
