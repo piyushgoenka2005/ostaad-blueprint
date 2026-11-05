@@ -37,6 +37,8 @@ import {
   requestFinanceClarification,
   UserProfile,
 } from "@/lib/api";
+import CompanySwitcher from "@/components/CompanySwitcher";
+import { RoleBadge } from "@/components/RoleGate";
 
 type DecisionAction = "reject" | "clarification" | null;
 
@@ -187,9 +189,21 @@ export default function FinanceDashboard() {
         <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-slate-200 bg-white/95 px-4 shadow-sm backdrop-blur md:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <button onClick={() => setMobileNav(true)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"><Menu className="h-5 w-5" /></button>
-            <div className="relative hidden w-[360px] md:block"><Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search PO, project, vendor..." suppressHydrationWarning className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-xs outline-none focus:border-blue-400" /></div>
+            <div className="relative hidden w-[320px] md:block">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search PO, project, vendor..." suppressHydrationWarning className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-xs outline-none focus:border-blue-400" />
+            </div>
+            <CompanySwitcher />
           </div>
-          <div className="flex items-center gap-4"><button className="relative text-slate-500"><Bell className="h-5 w-5" /><span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-rose-500" /></button><div className="hidden text-right sm:block"><div className="text-xs font-semibold text-slate-800">{user?.full_name || "Finance Manager"}</div><div className="text-[10px] text-slate-500">Finance Approver</div></div><div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#12304c] text-xs font-bold text-white">{(user?.full_name || "FM").split(" ").map((part) => part[0]).join("").slice(0, 2)}</div><button onClick={() => { clearAuthSession(); router.push("/login"); }} className="text-slate-400 hover:text-rose-500" title="Sign out"><LogOut className="h-4 w-4" /></button></div>
+          <div className="flex items-center gap-4">
+            <button className="relative text-slate-500"><Bell className="h-5 w-5" /><span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-rose-500" /></button>
+            <div className="hidden text-right sm:block">
+              <div className="text-xs font-semibold text-slate-800">{user?.full_name || "Finance Manager"}</div>
+              <div className="mt-0.5"><RoleBadge role={user?.role || "FINANCE_APPROVER"} size="sm" /></div>
+            </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#12304c] text-xs font-bold text-white">{(user?.full_name || "FM").split(" ").map((part) => part[0]).join("").slice(0, 2)}</div>
+            <button onClick={() => { clearAuthSession(); router.push("/login"); }} className="text-slate-400 hover:text-rose-500" title="Sign out"><LogOut className="h-4 w-4" /></button>
+          </div>
         </header>
 
         <main id="finance-top" className="mx-auto max-w-[1500px] space-y-6 p-4 md:p-8">

@@ -28,6 +28,8 @@ import {
   StoreDispatchedPO,
   GodownStockItem,
 } from "@/lib/api";
+import CompanySwitcher from "@/components/CompanySwitcher";
+import { RoleBadge } from "@/components/RoleGate";
 
 export default function SiteStoreDashboard() {
   const router = useRouter();
@@ -212,6 +214,7 @@ export default function SiteStoreDashboard() {
         </div>
 
         <div className="flex items-center gap-4">
+          <CompanySwitcher />
           <button
             onClick={() => loadData()}
             disabled={refreshing}
@@ -228,7 +231,7 @@ export default function SiteStoreDashboard() {
             </div>
             <div className="text-left text-xs">
               <div className="font-semibold text-slate-800">{user?.full_name || "Ramesh Pawar"}</div>
-              <div className="text-[10px] text-slate-500">Site Storekeeper (Godown)</div>
+              <div className="mt-0.5"><RoleBadge role={user?.role || "STORE_MANAGER"} size="sm" /></div>
             </div>
           </div>
 

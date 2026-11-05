@@ -153,3 +153,4 @@ export function enforceCompanyIsolation<T extends { company_id?: string; tenant_
   if (!activeCompanyId) return items;
   return items.filter((item) => !item.company_id || item.company_id === activeCompanyId);
 }
+

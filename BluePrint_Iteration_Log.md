@@ -1991,7 +1991,7 @@ Perform a deep audit across the entire workspace to eliminate all obsolete legac
 
 ### Last update
 
-2026-11-05 23:25:00 IST — Commit: Pending — feat(core): implement Sub-Module 1.1 multi-company organization and tenant isolation
+2026-11-05 23:25:00 IST — Commit: bc6e032 — feat(core): implement Sub-Module 1.1 multi-company organization and tenant isolation
 
 ### Expected change and Functioning
 
@@ -2033,6 +2033,65 @@ Perform a deep audit across the entire workspace to eliminate all obsolete legac
 - TypeScript Compilation: `npx tsc --noEmit` passed with 0 errors.
 - Tenant Isolation: Verified `x-company-id` header injection on every client request.
 - Validation Logic: Tested GSTIN regex, state-code extraction, and PAN derivation.
+- UI Theme: 100% adherence to executive white/light palette.
+
+---
+
+## Iteration 65 — Role-Based Access Control (RBAC) & Edge Session Engine (Sub-Module 1.2)
+
+### Last update
+
+2026-11-05 23:35:00 IST — Commit: 071783a — feat(rbac): implement Sub-Module 1.2 Role-Based Access Control (RBAC) and Session Engine
+
+### Expected change and Functioning
+
+1. **Standard 8 Enterprise Roles Implementation (`src/lib/rbac.ts`)**:
+   - Implemented standard enterprise role taxonomy matching `Ostaad_ERP.pdf`:
+     - `SUPER_ADMIN`: Master system oversight, global tenant administration.
+     - `COMPANY_ADMIN`: Corporate entity settings, employee onboarding, subsidiary configuration.
+     - `PROJECT_MANAGER`: Overall WBS scheduling, BOQ verification, milestone governance.
+     - `PROCUREMENT_MANAGER`: Vendor sourcing, RFQ publishing, bid comparative evaluation.
+     - `FINANCE_APPROVER`: Commercial gatekeeping, PO approvals, 3-way invoice matching.
+     - `SITE_ENGINEER`: Field execution, site survey verification, quality checklists.
+     - `STORE_MANAGER`: Godown receipts, weighbridge entry, +5% tolerance GRN issuance.
+     - `AUDITOR`: Immutable transaction log inspection and tax compliance audit.
+   - Preserved backward-compatible mappings for legacy role strings (`OPERATIONS`, `FINANCE`, `SITE_STORE`, `ADMIN`).
+2. **Granular Permission Matrix (28 Permissions)**:
+   - Defined granular permission taxonomy covering Organization, Projects, BOQ, Procurement, Finance, Store/Inventory, and Audit.
+   - Built permission evaluation functions: `hasPermission`, `hasAnyPermission`, `hasAllPermissions`, and `enforcePermission`.
+3. **WebCrypto Cryptographic Session Engine**:
+   - Implemented native `globalThis.crypto.subtle` HMAC-SHA256 session token generation and verification (`signSessionToken`, `verifySessionToken`).
+   - Implemented PBKDF2 password hashing with cryptographically secure random salt (`hashPassword`, `verifyPassword`).
+   - 100% compliant with Cloudflare Workers Edge runtime and browser standards without external Node.js C++ bindings.
+4. **Interactive RBAC UI Components & Route Guards (`src/components/RoleGate.tsx`)**:
+   - `RoleGate`: Declarative UI component conditionally rendering children based on allowed roles or granular permissions.
+   - `RoleBadge`: Executive white theme role indicator with departmental color schemes (Purple, Indigo, Blue, Cyan, Emerald, Sky, Amber, Slate).
+   - `AccessDeniedCard`: Clean restricted-access card for unauthorized action states.
+5. **Full-Stack Integration Across Auth & Dashboards**:
+   - `GET /api/auth/permissions`: Exposed live permission matrix and role catalog endpoint.
+   - `src/app/api/auth/login/route.ts` & `src/app/api/auth/register/route.ts`: Updated to issue HMAC-SHA256 signed session tokens.
+   - `src/app/api/auth/me/route.ts`: Integrated token cryptographic verification.
+   - `src/app/login/page.tsx`: Upgraded role selector dropdown with all 8 standard enterprise roles and multi-department route redirection.
+   - Embedded `RoleBadge` in headers across Operations, Finance, and Site Store dashboards.
+
+### Edits made
+
+- `src/lib/rbac.ts`: Created core RBAC taxonomy, permission evaluation matrix, and WebCrypto session token/password hashing engine.
+- `src/components/RoleGate.tsx`: Built `RoleGate`, `RoleBadge`, and `AccessDeniedCard` components.
+- `src/app/api/auth/permissions/route.ts`: Created permissions and role catalog API route.
+- `src/app/api/auth/login/route.ts`: Integrated cryptographic session signing.
+- `src/app/api/auth/register/route.ts`: Integrated cryptographic session signing with role metadata.
+- `src/app/api/auth/me/route.ts`: Added token verification logic.
+- `src/app/login/page.tsx`: Expanded registration role dropdown to 8 standard roles and updated `redirectByRole`.
+- `src/app/dashboard/operations/page.tsx`: Embedded `RoleBadge` in header.
+- `src/app/dashboard/finance/page.tsx`: Embedded `CompanySwitcher` and `RoleBadge` in header.
+- `src/app/dashboard/site-store/page.tsx`: Embedded `CompanySwitcher` and `RoleBadge` in header.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 65 sequentially before future template.
+
+### Verification
+
+- TypeScript Check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- WebCrypto Execution: Verified cryptographic HMAC-SHA256 signing and PBKDF2 salt derivation.
 - UI Theme: 100% adherence to executive white/light palette.
 
 ---

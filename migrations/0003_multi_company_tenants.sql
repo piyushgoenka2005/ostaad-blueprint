@@ -53,3 +53,4 @@ INSERT OR IGNORE INTO user_company_roles (id, user_id, company_id, role, is_defa
 ('ucr-03', 'user-store-01', 'comp-lt-01', 'SITE_STORE', 1),
 ('ucr-04', 'admin-01', 'comp-lt-01', 'ADMIN', 1),
 ('ucr-05', 'user-pm-01', 'comp-lt-metro-02', 'OPERATIONS', 0);
+

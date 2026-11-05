@@ -213,16 +213,14 @@ export default function CompanySwitcher() {
                   type="button"
                   onClick={() => handleSelectCompany(comp)}
                   disabled={loading}
-                  className={`w-full flex items-start gap-3 rounded-xl p-2.5 text-left transition-all ${
-                    isSelected
-                      ? "bg-blue-50/80 border border-blue-200 text-blue-900"
-                      : "hover:bg-slate-50 text-slate-700"
-                  }`}
+                  className={`w-full flex items-start gap-3 rounded-xl p-2.5 text-left transition-all ${isSelected
+                    ? "bg-blue-50/80 border border-blue-200 text-blue-900"
+                    : "hover:bg-slate-50 text-slate-700"
+                    }`}
                 >
                   <div
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                      isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
-                    }`}
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
+                      }`}
                   >
                     <Building2 className="h-4 w-4" />
                   </div>
@@ -419,3 +417,4 @@ export default function CompanySwitcher() {
     </div>
   );
 }
+

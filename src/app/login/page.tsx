@@ -58,16 +58,24 @@ export default function LoginPage() {
     (role: string) => {
       switch (role?.toUpperCase()) {
         case "OPERATIONS":
+        case "PROJECT_MANAGER":
+        case "SITE_ENGINEER":
           router.push("/dashboard/operations");
           break;
         case "FINANCE":
+        case "FINANCE_APPROVER":
           router.push("/dashboard/finance");
           break;
         case "SITE_STORE":
+        case "STORE_MANAGER":
+        case "PROCUREMENT_MANAGER":
           router.push("/dashboard/site-store");
           break;
         case "ADMIN":
+        case "COMPANY_ADMIN":
+        case "SUPER_ADMIN":
         case "SUPERADMIN":
+        case "AUDITOR":
           router.push("/dashboard/admin");
           break;
         default:
@@ -190,9 +198,6 @@ export default function LoginPage() {
           <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 font-medium text-[11px]">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> IS 456 & 1200 Standard
           </span>
-          <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 font-medium text-[11px]">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Cloudflare D1 Native
-          </span>
         </div>
       </header>
 
@@ -221,11 +226,10 @@ export default function LoginPage() {
                     setError(null);
                     setSuccess(null);
                   }}
-                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                    mode === "signin"
+                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${mode === "signin"
                       ? "bg-white text-blue-700 shadow-sm border border-slate-200/60"
                       : "text-slate-600 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   Sign In (Existing User)
                 </button>
@@ -236,11 +240,10 @@ export default function LoginPage() {
                     setError(null);
                     setSuccess(null);
                   }}
-                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                    mode === "signup"
+                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${mode === "signup"
                       ? "bg-white text-blue-700 shadow-sm border border-slate-200/60"
                       : "text-slate-600 hover:text-slate-900"
-                  }`}
+                    }`}
                 >
                   Create Account (New Entity)
                 </button>
@@ -424,10 +427,14 @@ export default function LoginPage() {
                     onChange={(e) => setSignUpRole(e.target.value)}
                     className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all font-medium truncate"
                   >
-                    <option value="OPERATIONS">Managing Authority — Operations Lead</option>
-                    <option value="FINANCE">Commercial & Treasury — Head of Finance</option>
-                    <option value="SITE_STORE">Site Stores & Godown — Inventory In-Charge</option>
-                    <option value="ADMIN">Corporate Administration & Governance</option>
+                    <option value="PROJECT_MANAGER">Project Operations Lead (Managing Authority)</option>
+                    <option value="FINANCE_APPROVER">Head of Commercial & Finance (Approver)</option>
+                    <option value="STORE_MANAGER">Site Stores & Godown In-Charge</option>
+                    <option value="PROCUREMENT_MANAGER">Procurement & Sourcing Lead</option>
+                    <option value="SITE_ENGINEER">Site Execution Engineer</option>
+                    <option value="COMPANY_ADMIN">Corporate Administrator & Governance</option>
+                    <option value="AUDITOR">Statutory Compliance Auditor</option>
+                    <option value="SUPER_ADMIN">Executive Super Administrator</option>
                   </select>
                 </div>
 
