@@ -33,6 +33,7 @@ import {
   Ruler,
   FileCheck,
   FolderArchive,
+  TrendingUp,
 } from "lucide-react";
 
 import CompanySwitcher from "@/components/CompanySwitcher";
@@ -42,6 +43,8 @@ import PlotGeometryCalculator from "@/components/planning/PlotGeometryCalculator
 import ZoningSetbacksEngine from "@/components/planning/ZoningSetbacksEngine";
 import GeotechSoilTracker from "@/components/planning/GeotechSoilTracker";
 import PreConstructionCostEstimator from "@/components/planning/PreConstructionCostEstimator";
+import FinancialFeasibilityEngine from "@/components/planning/FinancialFeasibilityEngine";
+import OptionsScorecardGateMatrix from "@/components/planning/OptionsScorecardGateMatrix";
 
 // ==========================================
 // TOOL 1: SITE SURVEY CHECKLIST SPECIFICATION
@@ -265,7 +268,9 @@ export default function PreConstructionEngine() {
   const router = useRouter();
 
   // Active Tool Tab
-  const [activeTab, setActiveTab] = useState<"survey" | "geometry" | "zoning" | "soil" | "cost" | "permits" | "vault">("survey");
+  const [activeTab, setActiveTab] = useState<
+    "survey" | "geometry" | "zoning" | "soil" | "cost" | "feasibility" | "options" | "permits" | "vault"
+  >("survey");
 
   // Project Meta State
   const [projectName, setProjectName] = useState("Commercial Complex — Tower B");
@@ -513,6 +518,36 @@ export default function PreConstructionEngine() {
               <span>Tool 2: Pre-Con Cost Budget</span>
               <span className="rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5 text-[10px] font-mono border border-emerald-200">
                 CPWD DSR
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("feasibility")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "feasibility"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <TrendingUp className="h-4 w-4 text-teal-400" />
+              <span>Tool 9: Feasibility & Debt</span>
+              <span className="rounded-full bg-teal-50 text-teal-700 px-2 py-0.5 text-[10px] font-mono border border-teal-200">
+                CF / DSCR
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("options")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "options"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <Scale className="h-4 w-4 text-indigo-400" />
+              <span>Tool 14: Options Gate Matrix</span>
+              <span className="rounded-full bg-indigo-50 text-indigo-700 px-2 py-0.5 text-[10px] font-mono border border-indigo-200">
+                IS 13920
               </span>
             </button>
 
@@ -787,6 +822,23 @@ export default function PreConstructionEngine() {
         {/* ======================================================== */}
         {activeTab === "cost" && (
           <PreConstructionCostEstimator initialBUASqFt={75000} />
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 6: TOOL 9 - FINANCIAL FEASIBILITY & DEBT/EMI MODEL   */}
+        {/* ======================================================== */}
+        {activeTab === "feasibility" && (
+          <FinancialFeasibilityEngine
+            initialCapexINR={225000000}
+            initialSaleableSqFt={65000}
+          />
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 7: TOOL 14 - PROJECT OPTIONS SCORECARD & GATE MATRIX */}
+        {/* ======================================================== */}
+        {activeTab === "options" && (
+          <OptionsScorecardGateMatrix />
         )}
 
         {/* ======================================================== */}

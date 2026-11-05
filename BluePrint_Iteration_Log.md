@@ -2284,7 +2284,7 @@ Implement Sub-Modules 2.1 & 2.2 of the approved Ostaad ERP Architecture Plan:
 
 ### Last update
 
-2026-11-06 03:22:00 IST — Commit: a1f802d — feat(planning): implement Sub-Modules 2.4 and 2.5 Geotech Soil Tracker and Pre-Con Cost Estimator
+2026-11-06 03:22:00 IST — Commit: `461258b` — `feat(planning): implement Sub-Modules 2.4 and 2.5 Geotech Soil Tracker and Pre-Con Cost Estimator`
 
 ### Expected change and Functioning
 
@@ -2325,6 +2325,57 @@ Implement Sub-Modules 2.4 & 2.5 of the approved Ostaad ERP Architecture Plan:
 - TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
 - Mathematical verification: Confirmed Terzaghi SBC formulas and CPWD package cost percentage sums.
 - Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and slate borders.
+
+---
+
+## Iteration 71 — Financial Feasibility Engine & Options Selection Gate Matrix (Sub-Modules 2.6 & 2.7)
+
+### Last update
+
+2026-11-06 03:36:00 IST — Commit: `d9426f0` — `feat(planning): implement Sub-Modules 2.6 and 2.7 Financial Feasibility and Options Gate Matrix`
+
+### Expected change and Functioning
+
+Implement Sub-Modules 2.6 & 2.7 of the approved Ostaad ERP Architecture Plan:
+1. **Financial Feasibility, Debt/EMI & Return Analyzer (`src/lib/planning/finance-scorecard.ts`)**:
+   - Formulated debt-equity capital structure calculator with promoter equity contribution % vs Construction Finance (CF) loan debt.
+   - Built reducing-balance monthly loan amortization schedule with annual interest rate, repayment tenure, and moratorium interest capitalization.
+   - Implemented financial metric derivations:
+     - Gross Profit & Gross Margin %
+     - Minimum Break-even Sale Rate (₹/sq.ft)
+     - Return on Equity (ROE %) & Estimated Internal Rate of Return (IRR %)
+     - Debt Service Coverage Ratio (DSCR = Net Revenue / Total Debt Service).
+2. **Project Options Selection Scorecard & Gate Matrix Engine**:
+   - Formulated multi-criteria weighted scorecard across 4 structural typologies:
+     - Option A: Conventional Cast-in-Situ RCC Frame (M30/M35)
+     - Option B: Monolithic Aluminium Formwork (Mivan System)
+     - Option C: Precast Concrete Columns & Hollow-Core Slabs
+     - Option D: Structural Steel Composite Framing & Deck Slab.
+   - Formulated 3 Mandatory Hard Pass/Fail Gates:
+     1. Seismic Ductile Detailing (IS 13920 Compliance)
+     2. Site Road Access for Heavy Crane Rigging (>40T)
+     3. Working Capital & Factory Mobilization Readiness.
+   - Formulated 5 weighted evaluation criteria (Initial Capex 25%, Turnaround Speed 25%, Local Labour Supply 20%, Remodeling Flexibility 15%, Durability 15%).
+   - Formulated strict gating logic: any single failed gate triggers automatic disqualification regardless of criteria scores.
+3. **Interactive Visual Components**:
+   - `src/components/planning/FinancialFeasibilityEngine.tsx` (Tool 9): Real-time financial dashboard with Capex inputs, equity sliders, CF loan terms, capitalized interest callouts, amortization schedule table, and print export.
+   - `src/components/planning/OptionsScorecardGateMatrix.tsx` (Tool 14): Dynamic matrix with Top Recommended system pill, interactive gate pass/fail toggles, criteria scoring sliders (1-10), capex delta (₹/sq.ft) and schedule gain (months) indicators, and comparative decision matrix table.
+4. **Pre-Construction Planning Hub Integration**:
+   - Wired Tool 9 (`feasibility`) and Tool 14 (`options`) into `src/app/dashboard/pre-construction/page.tsx` tabs navigation and view rendering.
+
+### Edits made
+
+- `src/lib/planning/finance-scorecard.ts`: Created financial feasibility mathematics, loan amortization engine, and options gate matrix algorithms.
+- `src/components/planning/FinancialFeasibilityEngine.tsx`: Built interactive Construction Finance (CF) loan & return analyzer component.
+- `src/components/planning/OptionsScorecardGateMatrix.tsx`: Built multi-criteria scorecard and hard pass/fail gate matrix component.
+- `src/app/dashboard/pre-construction/page.tsx`: Integrated Tool 9 and Tool 14 tabs into Pre-Construction Planning Hub.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 71 sequentially before the future template with IST timestamp and commit details.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- Mathematical verification: Confirmed reducing balance EMI formula and IS 13920 hard pass/fail disqualification logic.
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and deep navy typography.
 
 ---
 

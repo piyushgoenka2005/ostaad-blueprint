@@ -360,3 +360,4 @@ export function calculatePreConstructionBudget(
     effectiveAllInclusiveRatePerSqFt,
   };
 }
+
