@@ -40,6 +40,8 @@ import DocumentVault from "@/components/DocumentVault";
 import AppShell from "@/components/AppShell";
 import PlotGeometryCalculator from "@/components/planning/PlotGeometryCalculator";
 import ZoningSetbacksEngine from "@/components/planning/ZoningSetbacksEngine";
+import GeotechSoilTracker from "@/components/planning/GeotechSoilTracker";
+import PreConstructionCostEstimator from "@/components/planning/PreConstructionCostEstimator";
 
 // ==========================================
 // TOOL 1: SITE SURVEY CHECKLIST SPECIFICATION
@@ -263,7 +265,7 @@ export default function PreConstructionEngine() {
   const router = useRouter();
 
   // Active Tool Tab
-  const [activeTab, setActiveTab] = useState<"survey" | "geometry" | "permits" | "vault" | "soil" | "zoning">("survey");
+  const [activeTab, setActiveTab] = useState<"survey" | "geometry" | "zoning" | "soil" | "cost" | "permits" | "vault">("survey");
 
   // Project Meta State
   const [projectName, setProjectName] = useState("Commercial Complex — Tower B");
@@ -481,6 +483,36 @@ export default function PreConstructionEngine() {
               <span>Tool 12: Zoning & FAR</span>
               <span className="rounded-full bg-indigo-50 text-indigo-700 px-2 py-0.5 text-[10px] font-mono border border-indigo-200">
                 NBC 2016
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("soil")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "soil"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <Layers className="h-4 w-4 text-purple-400" />
+              <span>Tool 8: Geotech & Strata</span>
+              <span className="rounded-full bg-purple-50 text-purple-700 px-2 py-0.5 text-[10px] font-mono border border-purple-200">
+                SBC Advisory
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("cost")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "cost"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <Calculator className="h-4 w-4 text-emerald-400" />
+              <span>Tool 2: Pre-Con Cost Budget</span>
+              <span className="rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5 text-[10px] font-mono border border-emerald-200">
+                CPWD DSR
               </span>
             </button>
 
@@ -741,6 +773,20 @@ export default function PreConstructionEngine() {
         {/* ======================================================== */}
         {activeTab === "zoning" && (
           <ZoningSetbacksEngine initialPlotAreaSqFt={geometryMetrics.grossAreaSqFt} />
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 4: TOOL 8 - GEOTECHNICAL SOIL INVESTIGATION & STRATA */}
+        {/* ======================================================== */}
+        {activeTab === "soil" && (
+          <GeotechSoilTracker />
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 5: TOOL 2 - PRE-CONSTRUCTION COST ESTIMATOR & RATES  */}
+        {/* ======================================================== */}
+        {activeTab === "cost" && (
+          <PreConstructionCostEstimator initialBUASqFt={75000} />
         )}
 
         {/* ======================================================== */}

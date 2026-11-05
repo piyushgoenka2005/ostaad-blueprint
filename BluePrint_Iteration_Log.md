@@ -2241,7 +2241,7 @@ Implement Sub-Module 1.5 of the approved Ostaad ERP Architecture Plan:
 
 ### Last update
 
-2026-11-06 03:15:00 IST — Commit: 7a84c20 — feat(planning): implement Sub-Modules 2.1 and 2.2 Plot Geometry and NBC Zoning FAR Engine
+2026-11-06 03:15:00 IST — Commit: e8f8c43 — feat(planning): implement Sub-Modules 2.1 and 2.2 Plot Geometry and NBC Zoning FAR Engine
 
 ### Expected change and Functioning
 
@@ -2276,6 +2276,54 @@ Implement Sub-Modules 2.1 & 2.2 of the approved Ostaad ERP Architecture Plan:
 
 - TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
 - Mathematical verification: Confirmed Shoelace area against known polygon coordinates and NBC 2016 setback formulas.
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and slate borders.
+
+---
+
+## Iteration 70 — Geotechnical Soil Strata Tracker & Pre-Con Cost Budgeting (Sub-Modules 2.4 & 2.5)
+
+### Last update
+
+2026-11-06 03:22:00 IST — Commit: a1f802d — feat(planning): implement Sub-Modules 2.4 and 2.5 Geotech Soil Tracker and Pre-Con Cost Estimator
+
+### Expected change and Functioning
+
+Implement Sub-Modules 2.4 & 2.5 of the approved Ostaad ERP Architecture Plan:
+1. **Geotechnical Soil Investigation & Strata Tracker Engine (`src/lib/planning/geotech-cost.ts`)**:
+   - Built borehole data models supporting multi-borehole management (BH-01, BH-02), depth profiling, and ground water table logging.
+   - Implemented Standard Penetration Test (SPT) $N$-value recording with overburden & dilatancy corrections ($N_{corrected}$).
+   - Formulated IS 6403 / Terzaghi empirical Safe Bearing Capacity ($\text{SBC}$ in $kN/m^2$ and $t/m^2$) derivation.
+   - Built automated Foundation Type Advisory Matrix recommending shallow isolated pad footings, combined strap footings, solid RC raft/mat slabs, or bored cast-in-situ piles based on strata competence.
+   - Integrated ground water table dewatering advisory (Open Sump vs. Multi-Stage Vacuum Well-Point) and chemical aggression cement selection (OPC 53 vs. Sulphate Resistant Cement).
+2. **Pre-Construction Work-Head Cost Estimator & CPWD Rate Analysis**:
+   - Formulated 7 standard CPWD / IS 1200 civil & MEP work-head packages:
+     1. Substructure & Foundation Excavation
+     2. Superstructure RCC Core & Slabs
+     3. Masonry, AAC Blocks & Plastering
+     4. Waterproofing & Chemical Membranes
+     5. MEP, Electrical & Plumbing Rough-Ins
+     6. Flooring, Cladding & Architectural Finishes
+     7. External Infrastructure & Statutory Fees
+   - Implemented building specification grade multipliers (Economy, Standard Commercial, Premium Corporate, Luxury High-Rise).
+   - Structured full financial markup breakdown: Contractor Overheads & Profit (10-15%), Contingency & Escalation Reserve (3-5%), Statutory Approval & Consulting Fees (3.5%), and Works Contract GST (18%).
+3. **Interactive Visual Components**:
+   - `src/components/planning/GeotechSoilTracker.tsx` (Tool 8): Visual geological strata column with colored depth bands, water table marker, editable continuous strata table, and foundation recommendation cards.
+   - `src/components/planning/PreConstructionCostEstimator.tsx` (Tool 2): Real-time capex calculator with Crores/Lakhs display, all-inclusive rate per sq.ft BUA, interactive package rate table with weight bars, and print/export budget action.
+4. **Pre-Construction Planning Hub Integration**:
+   - Embedded Tool 8 (Geotech & Strata) and Tool 2 (Pre-Con Cost Budget) tabs into `src/app/dashboard/pre-construction/page.tsx`.
+
+### Edits made
+
+- `src/lib/planning/geotech-cost.ts`: Created geotechnical borehole calculation engine, SBC formulas, and CPWD rate analysis module.
+- `src/components/planning/GeotechSoilTracker.tsx`: Built visual strata column and foundation advisory component.
+- `src/components/planning/PreConstructionCostEstimator.tsx`: Built interactive CPWD work-head cost estimation component.
+- `src/app/dashboard/pre-construction/page.tsx`: Integrated Tool 8 and Tool 2 tabs into planning hub.
+- `BluePrint_Iteration_Log.md`: Aligned Iteration 69 commit to `e8f8c43`, appended Iteration 70 sequentially before future template.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- Mathematical verification: Confirmed Terzaghi SBC formulas and CPWD package cost percentage sums.
 - Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and slate borders.
 
 ---
