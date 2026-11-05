@@ -37,6 +37,7 @@ import {
 
 import CompanySwitcher from "@/components/CompanySwitcher";
 import DocumentVault from "@/components/DocumentVault";
+import AppShell from "@/components/AppShell";
 
 // ==========================================
 // TOOL 1: SITE SURVEY CHECKLIST SPECIFICATION
@@ -406,47 +407,21 @@ export default function PreConstructionEngine() {
   ]);
 
   return (
-    <div className="min-h-screen bg-[#f4f8fc] text-slate-800 selection:bg-blue-100 selection:text-blue-900">
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-5 shadow-sm backdrop-blur md:px-8">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.push("/dashboard/operations")}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
-            title="Return to Operations Dashboard"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
-              <Compass className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-[#122b45] tracking-tight">
-                  Pre-Construction Planning Hub
-                </h1>
-                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                  15 Engineering Tools
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                Ostaad ERP • Project Feasibility, Site Vetting & Statutory Land Geometry
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Project Meta Bar & Tenant Switcher */}
-        <div className="flex items-center gap-3">
-          <CompanySwitcher />
-          <div className="hidden items-center gap-3 lg:flex">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700 flex items-center gap-2">
-              <Building2 className="h-3.5 w-3.5 text-blue-600" />
-              <span className="font-semibold text-slate-900">{projectName}</span>
-              <span className="text-slate-400">|</span>
-              <span className="text-slate-500">{projectLocation}</span>
-            </div>
+    <AppShell
+      title="Pre-Construction Planning Hub"
+      subtitle="Comprehensive project feasibility, site survey GO/NO-GO gating, and land geometry analysis"
+      breadcrumbs={[
+        { label: "Planning Hub", href: "/dashboard/pre-construction" },
+        { label: "15 Tools Suite" },
+      ]}
+      activeNav="pre-construction"
+      actions={
+        <div className="flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 shadow-2xs">
+            <Building2 className="h-3.5 w-3.5 text-blue-600" />
+            <span className="font-semibold text-slate-900">{projectName}</span>
+            <span className="text-slate-400">|</span>
+            <span className="text-slate-500">{projectLocation}</span>
           </div>
           <button
             onClick={() => setShowCertificateModal(true)}
@@ -456,10 +431,9 @@ export default function PreConstructionEngine() {
             <span className="hidden sm:inline">Clearance Certificate</span>
           </button>
         </div>
-      </header>
-
-      {/* Main Body */}
-      <main className="mx-auto max-w-7xl p-4 md:p-8 space-y-6">
+      }
+    >
+      <div className="space-y-6">
         {/* Navigation Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
           <div className="flex flex-wrap gap-2">
@@ -984,7 +958,7 @@ export default function PreConstructionEngine() {
         {activeTab === "vault" && (
           <DocumentVault projectId="proj-1" />
         )}
-      </main>
+      </div>
 
       {/* ======================================================== */}
       {/* MODAL: OFFICIAL SITE FEASIBILITY & CLEARANCE CERTIFICATE */}
@@ -1104,6 +1078,6 @@ export default function PreConstructionEngine() {
           </div>
         </div>
       )}
-    </div>
+    </AppShell>
   );
 }

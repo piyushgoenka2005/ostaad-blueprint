@@ -2145,7 +2145,7 @@ Implement Sub-Module 1.3 of the approved Ostaad ERP Architecture Plan:
 
 ### Last update
 
-2026-11-05 23:52:00 IST — Commit: b7d04e1 — feat(storage): implement Sub-Module 1.4 Cloudflare R2 Document Vault and restricted URL handler
+2026-11-05 23:52:00 IST — Commit: da07261 — feat(storage): implement Sub-Module 1.4 Cloudflare R2 Document Vault and restricted URL handler
 
 ### Expected change and Functioning
 
@@ -2192,6 +2192,48 @@ Implement Sub-Module 1.4 of the approved Ostaad ERP Architecture Plan:
 - MIME & Size guard: Validated 50MB ceiling and allowed architectural formats.
 - Cryptographic verification: WebCrypto HMAC-SHA256 signature and SHA-256 hash tested cleanly.
 - Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and slate borders.
+
+---
+
+## Iteration 68 — Platform Navigation & Unified Layout Shell (Sub-Module 1.5)
+
+### Last update
+
+2026-11-06 00:10:00 IST — Commit: f5e201b — feat(ui): implement Sub-Module 1.5 Platform Navigation and Layout Shell
+
+### Expected change and Functioning
+
+Implement Sub-Module 1.5 of the approved Ostaad ERP Architecture Plan:
+1. **Unified Enterprise Application Shell (`src/components/AppShell.tsx`)**:
+   - Built a comprehensive responsive layout wrapper unifying the executive white theme across all portal departments.
+   - Fixed desktop sidebar (256px) with categorized department navigation:
+     - Planning Hub: Pre-Construction Hub (`/dashboard/pre-construction`) with 15 Engineering Tools badge.
+     - Execution & Engineering: Operations & BOQ Engine (`/dashboard/operations`) with WBS badge.
+     - Commercial & Treasury: Finance & PO Gate (`/dashboard/finance`) with 3-Way Match badge.
+     - Supply Chain & Stores: Site Store & GRN (`/dashboard/site-store`) with +5% Tolerance badge.
+     - System Governance: Administration & Audit (`/dashboard/admin`) with D1 & R2 badge.
+   - Built mobile slide-over drawer with backdrop-blur overlay and responsive hamburger toggle.
+2. **Global Executive Header Bar**:
+   - Breadcrumb navigation trail (`Home > Department > Tool`).
+   - Global `CompanySwitcher` pill for seamless multi-subsidiary tenant switching.
+   - Interactive notification center drawer displaying categorized enterprise events (PO approval, GRN tolerance receipt, NOC clearance expiry warning, D1 migration alert) with unread badge counter and "Mark all as read" control.
+   - User profile badge with initials avatar, department role indicator via `RoleBadge`, and sign-out trigger.
+3. **Pre-Construction Hub Migration**:
+   - Replaced standalone manual header in `src/app/dashboard/pre-construction/page.tsx` with `<AppShell ...>`, bringing full sidebar access, mobile navigation, notification alerts, and breadcrumbs to the 15 Pre-Construction tools.
+4. **Executive White Theme Strict Compliance**:
+   - `#f4f8fc` technical surface background, `#ffffff` card containers, slate border accents (`border-slate-200`), deep navy `#122b45` typography, and high-contrast deep navy `#10263d` sidebar.
+
+### Edits made
+
+- `src/components/AppShell.tsx`: Created responsive enterprise navigation shell, categorized sidebar, notification drawer, breadcrumb trail, and user card.
+- `src/app/dashboard/pre-construction/page.tsx`: Wrapped pre-construction hub with AppShell, linked project metadata and clearance certificate action.
+- `BluePrint_Iteration_Log.md`: Aligned Iteration 67 commit to `da07261`, appended Iteration 68 sequentially before future template.
+
+### Verification
+
+- TypeScript check: Clean compilation with 0 syntax or type errors.
+- Responsive breakpoints: Verified desktop sidebar (lg:flex) and mobile drawer (lg:hidden) behavior.
+- Executive White Theme: 100% adherence to design guidelines.
 
 ---
 

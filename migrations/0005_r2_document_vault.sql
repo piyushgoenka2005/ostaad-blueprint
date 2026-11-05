@@ -36,3 +36,4 @@ CREATE INDEX IF NOT EXISTS idx_document_vault_created_at ON document_vault(creat
 -- Record migration in schema_migrations
 INSERT OR IGNORE INTO schema_migrations (version, name, batch, checksum, applied_at, execution_time_ms)
 VALUES ('0005', '0005_r2_document_vault', 2, 'sha256_0005_r2_document_vault', datetime('now'), 12);
+
