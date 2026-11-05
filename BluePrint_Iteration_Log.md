@@ -2199,7 +2199,7 @@ Implement Sub-Module 1.4 of the approved Ostaad ERP Architecture Plan:
 
 ### Last update
 
-2026-11-06 00:10:00 IST — Commit: f5e201b — feat(ui): implement Sub-Module 1.5 Platform Navigation and Layout Shell
+2026-11-06 00:10:00 IST — Commit: 3b20c39 — feat(ui): implement Sub-Module 1.5 Platform Navigation and Layout Shell
 
 ### Expected change and Functioning
 
@@ -2234,6 +2234,49 @@ Implement Sub-Module 1.5 of the approved Ostaad ERP Architecture Plan:
 - TypeScript check: Clean compilation with 0 syntax or type errors.
 - Responsive breakpoints: Verified desktop sidebar (lg:flex) and mobile drawer (lg:hidden) behavior.
 - Executive White Theme: 100% adherence to design guidelines.
+
+---
+
+## Iteration 69 — Plot Boundary Geometry & NBC 2016 Zoning / FAR Engine (Sub-Modules 2.1 & 2.2)
+
+### Last update
+
+2026-11-06 03:15:00 IST — Commit: 7a84c20 — feat(planning): implement Sub-Modules 2.1 and 2.2 Plot Geometry and NBC Zoning FAR Engine
+
+### Expected change and Functioning
+
+Implement Sub-Modules 2.1 & 2.2 of the approved Ostaad ERP Architecture Plan:
+1. **Cartesian Shoelace Geometry & Boundary Calculator Engine (`src/lib/planning/geometry-zoning.ts`)**:
+   - Implemented Cartesian coordinate Gauss / Shoelace formula: $A = \frac{1}{2} | \sum (x_i y_{i+1} - x_{i+1} y_i) |$ for irregular $N$-sided polygons.
+   - Built boundary perimeter calculation engine across polygon vertices.
+   - Built comprehensive 10-unit Indian regional land conversion matrix:
+     - Square Feet ($sq.ft$), Square Meters ($sq.m$)
+     - Guntha ($1,089 sq.ft$), Gaj / Sq.Yard ($9.0 sq.ft$)
+     - Pucca Bigha ($27,225 sq.ft$), Bengal Bigha ($14,400 sq.ft$), UP Bigha ($27,000 sq.ft$)
+     - Acres ($43,560 sq.ft$), Hectares ($10,000 sq.m$), Brass ($100 sq.ft$).
+2. **National Building Code (NBC 2016) Zoning & FAR Permissible Area Calculator**:
+   - Implemented regulatory setback evaluation based on road width categories (`<9m`, `9-12m`, `12-18m`, `18-24m`, `>24m`), proposed building height ($H/3.5$ front, $H/4$ rear, $H/5$ sides), and municipal zoning classifications (R1, R2, C1, C2, Mixed Use, Industrial).
+   - Computed base FSI, incentive TDR/Premium FSI (+0.50), and fungible/ancillary FSI (+35% residential / +20% commercial).
+   - Calculated Gross Permissible Built-Up Area (BUA in $sq.ft$ and $sq.m$), RERA Net Carpet Area at 72% efficiency ratio, Maximum Permissible Ground Coverage Footprint ($sq.ft$ and $\%$), and maximum estimated floor capacity.
+3. **Interactive Visual CAD & Calculator Components**:
+   - `src/components/planning/PlotGeometryCalculator.tsx` (Tool 6): Supports regular (rectangle, trapezoid, triangle) and irregular $N$-point polygon coordinate editing, with dynamic SVG CAD plan view, coordinate vertex pins, dark-mode technical canvas, and 1-click clipboard unit copy.
+   - `src/components/planning/ZoningSetbacksEngine.tsx` (Tool 12): Interactive municipal setback analysis, height sliders, incentive FSI toggles, manual setback override controls, and visual core buildable footprint diagram.
+4. **Pre-Construction Hub Integration**:
+   - Integrated both engines into `src/app/dashboard/pre-construction/page.tsx` under dedicated tabs: Tool 6 (Plot Geometry) and Tool 12 (Zoning & FAR).
+
+### Edits made
+
+- `src/lib/planning/geometry-zoning.ts`: Created core geometric math and NBC 2016 zoning/FAR calculation algorithms.
+- `src/components/planning/PlotGeometryCalculator.tsx`: Built visual SVG plot geometry calculator and regional land converter.
+- `src/components/planning/ZoningSetbacksEngine.tsx`: Built interactive NBC setback and FAR permissible area engine.
+- `src/app/dashboard/pre-construction/page.tsx`: Integrated Tool 6 and Tool 12 components into planning hub.
+- `BluePrint_Iteration_Log.md`: Aligned Iteration 68 commit to `3b20c39`, appended Iteration 69 sequentially before future template.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- Mathematical verification: Confirmed Shoelace area against known polygon coordinates and NBC 2016 setback formulas.
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and slate borders.
 
 ---
 

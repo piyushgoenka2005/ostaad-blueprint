@@ -38,6 +38,8 @@ import {
 import CompanySwitcher from "@/components/CompanySwitcher";
 import DocumentVault from "@/components/DocumentVault";
 import AppShell from "@/components/AppShell";
+import PlotGeometryCalculator from "@/components/planning/PlotGeometryCalculator";
+import ZoningSetbacksEngine from "@/components/planning/ZoningSetbacksEngine";
 
 // ==========================================
 // TOOL 1: SITE SURVEY CHECKLIST SPECIFICATION
@@ -468,6 +470,21 @@ export default function PreConstructionEngine() {
             </button>
 
             <button
+              onClick={() => setActiveTab("zoning")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "zoning"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <Building2 className="h-4 w-4 text-indigo-400" />
+              <span>Tool 12: Zoning & FAR</span>
+              <span className="rounded-full bg-indigo-50 text-indigo-700 px-2 py-0.5 text-[10px] font-mono border border-indigo-200">
+                NBC 2016
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab("permits")}
               className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
                 activeTab === "permits"
@@ -709,185 +726,21 @@ export default function PreConstructionEngine() {
         )}
 
         {/* ======================================================== */}
-        {/* TAB 2: TOOL 6 - PLOT AREA & LAND GEOMETRY CALCULATOR   */}
+        {/* TAB 2: TOOL 6 - PLOT AREA & LAND GEOMETRY CALCULATOR     */}
         {/* ======================================================== */}
         {activeTab === "geometry" && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column: Input Form */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
-                <div>
-                  <h3 className="text-base font-bold text-[#122b45] flex items-center gap-2">
-                    <Ruler className="h-4 w-4 text-blue-600" />
-                    Plot Dimensions & Setbacks
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Enter physical boundaries and statutory National Building Code (NBC) setbacks.
-                  </p>
-                </div>
+          <PlotGeometryCalculator
+            onAreaChange={(area) => {
+              // Synchronize area with local metrics if needed
+            }}
+          />
+        )}
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Plot Length (Front to Rear)
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          value={plotLengthFt}
-                          onChange={(e) => setPlotLengthFt(Math.max(1, Number(e.target.value)))}
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-blue-500 outline-none"
-                        />
-                        <span className="absolute right-3 top-2 text-xs font-mono text-slate-400">ft</span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Plot Width (Road Frontage)
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          value={plotWidthFt}
-                          onChange={(e) => setPlotWidthFt(Math.max(1, Number(e.target.value)))}
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-blue-500 outline-none"
-                        />
-                        <span className="absolute right-3 top-2 text-xs font-mono text-slate-400">ft</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-slate-100 pt-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      NBC Statutory Setbacks (Deductions)
-                    </span>
-                    <div className="grid grid-cols-2 gap-3 mt-2">
-                      <div>
-                        <label className="block text-[11px] font-medium text-slate-600 mb-1">Front Setback (ft)</label>
-                        <input
-                          type="number"
-                          value={setbackFrontFt}
-                          onChange={(e) => setSetbackFrontFt(Number(e.target.value))}
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-900 focus:bg-white outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-medium text-slate-600 mb-1">Rear Setback (ft)</label>
-                        <input
-                          type="number"
-                          value={setbackRearFt}
-                          onChange={(e) => setSetbackRearFt(Number(e.target.value))}
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-900 focus:bg-white outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-medium text-slate-600 mb-1">Left Side Setback (ft)</label>
-                        <input
-                          type="number"
-                          value={setbackSideLeftFt}
-                          onChange={(e) => setSetbackSideLeftFt(Number(e.target.value))}
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-900 focus:bg-white outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-medium text-slate-600 mb-1">Right Side Setback (ft)</label>
-                        <input
-                          type="number"
-                          value={setbackSideRightFt}
-                          onChange={(e) => setSetbackSideRightFt(Number(e.target.value))}
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-900 focus:bg-white outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Middle Column: Calculated Results & Footprint Envelope */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
-                <div>
-                  <h3 className="text-base font-bold text-[#122b45] flex items-center gap-2">
-                    <Scale className="h-4 w-4 text-emerald-600" />
-                    Permissible Building Envelope
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Net usable footprint after deducting municipal setbacks.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
-                    <div className="text-[10px] font-bold uppercase text-slate-500">Gross Plot Area</div>
-                    <div className="text-lg font-black text-slate-900">
-                      {geometryMetrics.grossAreaSqFt.toLocaleString()} <span className="text-xs font-normal">sq.ft</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">{geometryMetrics.conversions.sqm} sq.m</div>
-                  </div>
-
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3.5">
-                    <div className="text-[10px] font-bold uppercase text-emerald-800">Net Usable Footprint</div>
-                    <div className="text-lg font-black text-emerald-900">
-                      {geometryMetrics.netFootprintSqFt.toLocaleString()} <span className="text-xs font-normal">sq.ft</span>
-                    </div>
-                    <div className="text-[10px] text-emerald-700 font-semibold mt-0.5">
-                      Ground Coverage: {geometryMetrics.groundCoveragePercent}%
-                    </div>
-                  </div>
-                </div>
-
-                {/* Perimeter & Fencing Estimation */}
-                <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-blue-900">Boundary Perimeter Fencing</span>
-                    <span className="text-sm font-black text-blue-900">
-                      {geometryMetrics.boundaryPerimeterFt} <span className="text-xs font-normal">Rft</span>
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-blue-800">
-                    Estimated 2.4m GI Sheet temporary hoarding required: ~{(geometryMetrics.boundaryPerimeterFt * 2.4 * 0.0929).toFixed(0)} sqm of cladding.
-                  </p>
-                </div>
-              </div>
-
-              {/* Right Column: Multi-Unit Indian Land Conversions */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
-                <div>
-                  <h3 className="text-base font-bold text-[#122b45] flex items-center gap-2">
-                    <Layers className="h-4 w-4 text-indigo-600" />
-                    Multi-Unit Land Conversions
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Standardized conversions across Indian revenue units.
-                  </p>
-                </div>
-
-                <div className="divide-y divide-slate-100 text-xs">
-                  <div className="flex items-center justify-between py-2.5">
-                    <span className="text-slate-600 font-medium">Square Yards (Gaj / War)</span>
-                    <span className="font-bold font-mono text-slate-900">{geometryMetrics.conversions.gaj} Gaj</span>
-                  </div>
-                  <div className="flex items-center justify-between py-2.5">
-                    <span className="text-slate-600 font-medium">Guntha (Western India)</span>
-                    <span className="font-bold font-mono text-slate-900">{geometryMetrics.conversions.guntha} Guntha</span>
-                  </div>
-                  <div className="flex items-center justify-between py-2.5">
-                    <span className="text-slate-600 font-medium">Pucca Bigha (North India)</span>
-                    <span className="font-bold font-mono text-slate-900">{geometryMetrics.conversions.bigha} Bigha</span>
-                  </div>
-                  <div className="flex items-center justify-between py-2.5">
-                    <span className="text-slate-600 font-medium">Acres</span>
-                    <span className="font-bold font-mono text-emerald-700">{geometryMetrics.conversions.acres} Acres</span>
-                  </div>
-                  <div className="flex items-center justify-between py-2.5">
-                    <span className="text-slate-600 font-medium">Square Meters</span>
-                    <span className="font-bold font-mono text-slate-900">{geometryMetrics.conversions.sqm} sqm</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* ======================================================== */}
+        {/* TAB 3: TOOL 12 - ZONING, SETBACKS & FAR PERMISSIBLE AREA */}
+        {/* ======================================================== */}
+        {activeTab === "zoning" && (
+          <ZoningSetbacksEngine initialPlotAreaSqFt={geometryMetrics.grossAreaSqFt} />
         )}
 
         {/* ======================================================== */}
