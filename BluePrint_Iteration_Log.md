@@ -2332,7 +2332,7 @@ Implement Sub-Modules 2.4 & 2.5 of the approved Ostaad ERP Architecture Plan:
 
 ### Last update
 
-2026-11-06 03:36:00 IST — Commit: `d9426f0` — `feat(planning): implement Sub-Modules 2.6 and 2.7 Financial Feasibility and Options Gate Matrix`
+2026-11-06 03:36:00 IST — Commit: `82de5e5` — `feat(planning): implement Sub-Modules 2.6 and 2.7 Financial Feasibility and Options Gate Matrix`
 
 ### Expected change and Functioning
 
@@ -2375,6 +2375,65 @@ Implement Sub-Modules 2.6 & 2.7 of the approved Ostaad ERP Architecture Plan:
 
 - TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
 - Mathematical verification: Confirmed reducing balance EMI formula and IS 13920 hard pass/fail disqualification logic.
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and deep navy typography.
+
+---
+
+## Iteration 72 — Master BOQ Engine & Vendor Comparison Matrix (Sub-Modules 2.8 & 2.9)
+
+### Last update
+
+2026-11-06 03:40:00 IST — Commit: `3ef419b` — `feat(planning): implement Sub-Modules 2.8 and 2.9 Master BOQ Engine and Vendor Comparison Matrix`
+
+### Expected change and Functioning
+
+Implement Sub-Modules 2.8 & 2.9 of the approved Ostaad ERP Architecture Plan:
+1. **Master BOQ Template & Excel/CSV Importer/Exporter (`src/lib/planning/boq-vendor.ts` & `src/components/planning/MasterBOQTemplateEngine.tsx`)**:
+   - Structured 10 standard CPWD / IS 1200 work packages:
+     1. Earthwork & Excavation
+     2. Plain & Reinforced Concrete (M10, M30 Design Mix)
+     3. TMT Reinforcement Steel (Fe 550D)
+     4. Shuttering & Scaffolding
+     5. AAC Blockwork & Masonry
+     6. Internal & External Plaster (20mm waterproofed)
+     7. Waterproofing Systems (Elastomeric PU)
+     8. Flooring & Cladding (800x800 Vitrified Double Charged)
+     9. Doors, Windows & Glazing
+     10. MEP Rough-Ins & Conduiting.
+   - Built two-way Excel/CSV serialization and deserialization engine with UTF-8 BOM encoding.
+   - Implemented real-time interactive table with live inline quantity/rate editing, add new item modal, category pill filtering, instant search, and section subtotals.
+   - Integrated financial summary cards showing Grand Total Capex in ₹ Crores and ₹ Lakhs.
+2. **Pre-Construction Vendor Comparison Matrix & Benchmarking (`src/components/planning/PreConVendorMatrix.tsx`)**:
+   - Structured multi-vendor benchmarking across 4 critical early-stage packages:
+     - Ordinary Portland Cement (OPC 53 Grade)
+     - Primary Producer TMT Reinforcement (Fe 550D)
+     - Ready Mix Concrete (Design Mix M30)
+     - System Aluminium Formwork.
+   - Implemented full landed cost decomposition: $\text{Landed} = \text{Base Rate} + \text{Freight} + \text{Unloading} + \text{GST}$.
+   - Built multi-criteria composite scoring algorithm (100-point scale):
+     - Normalized Landed Price (45 pts)
+     - Payment Credit Terms (20 pts - e.g. 45 days credit)
+     - Delivery Lead Time (15 pts)
+     - Quality & BIS Certification (20 pts).
+   - Formulated dual-verdict determination:
+     - $L_1$: Absolute lowest landed cost bidder
+     - $V_1$: Best Value award recommendation based on highest composite score.
+   - Built side-by-side comparative cards and printable executive comparative statement table.
+3. **Pre-Construction Planning Hub Integration**:
+   - Integrated Tool 3 (`boq`) and Tool 7 (`vendors`) tabs into `src/app/dashboard/pre-construction/page.tsx`.
+
+### Edits made
+
+- `src/lib/planning/boq-vendor.ts`: Created CPWD/IS 1200 Master BOQ data models, CSV import/export parser, landed cost calculations, and multi-criteria vendor scoring engine.
+- `src/components/planning/MasterBOQTemplateEngine.tsx`: Built interactive Master BOQ table, category filters, CSV export/import modals, and live quantity recalculation.
+- `src/components/planning/PreConVendorMatrix.tsx`: Built multi-package vendor benchmarking cards, landed cost breakdown, and $L_1$ vs $V_1$ Best Value comparator.
+- `src/app/dashboard/pre-construction/page.tsx`: Integrated Tool 3 and Tool 7 tabs into Pre-Construction Planning Hub.
+- `BluePrint_Iteration_Log.md`: Aligned Iteration 71 commit to `82de5e5`, appended Iteration 72 sequentially before future template.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- Functional verification: Tested CSV serialization format and verified landed cost formulas ($Base + Freight + Loading + GST$).
 - Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and deep navy typography.
 
 ---

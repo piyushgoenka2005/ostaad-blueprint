@@ -34,6 +34,8 @@ import {
   FileCheck,
   FolderArchive,
   TrendingUp,
+  FileSpreadsheet,
+  Users,
 } from "lucide-react";
 
 import CompanySwitcher from "@/components/CompanySwitcher";
@@ -45,6 +47,8 @@ import GeotechSoilTracker from "@/components/planning/GeotechSoilTracker";
 import PreConstructionCostEstimator from "@/components/planning/PreConstructionCostEstimator";
 import FinancialFeasibilityEngine from "@/components/planning/FinancialFeasibilityEngine";
 import OptionsScorecardGateMatrix from "@/components/planning/OptionsScorecardGateMatrix";
+import MasterBOQTemplateEngine from "@/components/planning/MasterBOQTemplateEngine";
+import PreConVendorMatrix from "@/components/planning/PreConVendorMatrix";
 
 // ==========================================
 // TOOL 1: SITE SURVEY CHECKLIST SPECIFICATION
@@ -269,7 +273,7 @@ export default function PreConstructionEngine() {
 
   // Active Tool Tab
   const [activeTab, setActiveTab] = useState<
-    "survey" | "geometry" | "zoning" | "soil" | "cost" | "feasibility" | "options" | "permits" | "vault"
+    "survey" | "geometry" | "zoning" | "soil" | "cost" | "feasibility" | "options" | "boq" | "vendors" | "permits" | "vault"
   >("survey");
 
   // Project Meta State
@@ -548,6 +552,36 @@ export default function PreConstructionEngine() {
               <span>Tool 14: Options Gate Matrix</span>
               <span className="rounded-full bg-indigo-50 text-indigo-700 px-2 py-0.5 text-[10px] font-mono border border-indigo-200">
                 IS 13920
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("boq")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "boq"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <FileSpreadsheet className="h-4 w-4 text-blue-400" />
+              <span>Tool 3: Master BOQ</span>
+              <span className="rounded-full bg-blue-50 text-blue-700 px-2 py-0.5 text-[10px] font-mono border border-blue-200">
+                Excel / CSV
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("vendors")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "vendors"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <Users className="h-4 w-4 text-amber-400" />
+              <span>Tool 7: Vendor Benchmarking</span>
+              <span className="rounded-full bg-amber-50 text-amber-700 px-2 py-0.5 text-[10px] font-mono border border-amber-200">
+                L1 vs V1
               </span>
             </button>
 
@@ -839,6 +873,20 @@ export default function PreConstructionEngine() {
         {/* ======================================================== */}
         {activeTab === "options" && (
           <OptionsScorecardGateMatrix />
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 8: TOOL 3 - MASTER BOQ TEMPLATE & EXCEL/CSV ENGINE   */}
+        {/* ======================================================== */}
+        {activeTab === "boq" && (
+          <MasterBOQTemplateEngine />
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 9: TOOL 7 - PRE-CON VENDOR BENCHMARKING & L1 MATRIX  */}
+        {/* ======================================================== */}
+        {activeTab === "vendors" && (
+          <PreConVendorMatrix />
         )}
 
         {/* ======================================================== */}
