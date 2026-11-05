@@ -18,3 +18,4 @@ INSERT OR IGNORE INTO schema_migrations (version, name, batch) VALUES
 ('0002', '0002_seed_demo_data.sql', 1),
 ('0003', '0003_multi_company_tenants.sql', 1),
 ('0004', '0004_d1_migration_tracking.sql', 1);
+

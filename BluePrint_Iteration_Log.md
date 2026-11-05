@@ -2100,7 +2100,7 @@ Perform a deep audit across the entire workspace to eliminate all obsolete legac
 
 ### Last update
 
-2026-11-05 23:45:00 IST — Commit: c38194a — feat(db): implement Sub-Module 1.3 D1 database migration framework and schema management
+2026-11-05 23:45:00 IST — Commit: b68c3e6 — feat(db): implement Sub-Module 1.3 D1 database migration framework and schema management
 
 ### Expected change and Functioning
 
@@ -2137,6 +2137,60 @@ Implement Sub-Module 1.3 of the approved Ostaad ERP Architecture Plan:
 
 - TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
 - D1 schema validity: Confirmed SQLite compatibility, primary key constraints, and foreign key definitions.
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and slate borders.
+
+---
+
+## Iteration 67 — Cloudflare R2 Document Vault & Restricted URL Handler (Sub-Module 1.4)
+
+### Last update
+
+2026-11-05 23:52:00 IST — Commit: b7d04e1 — feat(storage): implement Sub-Module 1.4 Cloudflare R2 Document Vault and restricted URL handler
+
+### Expected change and Functioning
+
+Implement Sub-Module 1.4 of the approved Ostaad ERP Architecture Plan:
+1. **R2 Document Vault Metadata Schema (`migrations/0005_r2_document_vault.sql`)**:
+   - Created `document_vault` table with `id`, `company_id` (foreign key with cascade delete), `project_id`, `file_key` (unique hierarchical path), `filename`, `mime_type`, `file_size_bytes`, `category` (CHECK constraint across 9 categories: `BLUEPRINT`, `SITE_PHOTO`, `NOC_DOCUMENT`, `SOIL_REPORT`, `BOQ_SHEET`, `INVOICE`, `VENDOR_QUOTE`, `CONTRACT`, `OTHER`), `checksum_sha256`, `uploaded_by`, `uploader_name`, `is_public`, and timestamps.
+   - Indexed `company_id`, `project_id`, `category`, and `created_at`.
+   - Seeded migration tracking record for version `0005`.
+2. **R2 Storage Service Abstraction (`src/lib/storage/r2.ts`)**:
+   - Integrated Cloudflare R2 bucket binding (`env.STORAGE`) with target bucket `ostaad-erp-storage` from `wrangler.jsonc`.
+   - Implemented tenant-isolated hierarchical storage key builder: `tenants/{companyId}/projects/{projectId}/{category}/{timestamp}_{cleanFilename}`.
+   - Built file signature & MIME validation supporting PDF blueprints, DWG/CAD drawings, PNG/JPG photos, XLSX/CSV schedules with a 50 MB file limit.
+   - Integrated native WebCrypto SHA-256 fingerprinting (`computeBufferSHA256`) and time-expiring HMAC-SHA256 signed download tokens (`generateSignedDownloadToken`, `verifySignedDownloadToken`).
+   - Provided fallback in-memory and binary store for local development.
+3. **Restricted Storage Endpoints**:
+   - `GET /api/storage`: Lists vaulted documents filtered strictly by authenticated tenant `company_id`, with optional category and search filters.
+   - `POST /api/storage`: Multipart form upload endpoint validating tenant context, checking file size & MIME type, hashing content, writing to R2, and returning document record with signed token.
+   - `GET /api/storage/[...key]`: Streaming endpoint validating HMAC signed tokens or cookie tenant session, streaming binary data with cache headers.
+   - `DELETE /api/storage/[...key]`: Company-isolated deletion endpoint removing documents from R2 and registry.
+4. **Interactive Document Vault Component (`src/components/DocumentVault.tsx`)**:
+   - Executive White Theme diagnostics and management UI with category filter pills, search bar, storage metrics (total count, size in MB, R2 binding badge, SHA-256 verified status).
+   - Interactive upload modal with file dropzone, category selector, SHA-256 tamper warning, and live progress state.
+   - Interactive document explorer table with category icons, clickable SHA-256 copy action, download button, and gated delete trigger.
+5. **Dashboard Integrations**:
+   - Embedded `<DocumentVault />` into `src/app/dashboard/pre-construction/page.tsx` as a dedicated tab alongside Tool 1 (Survey), Tool 6 (Geometry), and Tool 5 (NOCs).
+   - Embedded `<DocumentVault />` into `src/app/dashboard/admin/page.tsx` with sidebar navigation anchor.
+   - Registered `document_vault` entity and migration `0005` in `src/lib/db/d1.ts`.
+
+### Edits made
+
+- `migrations/0005_r2_document_vault.sql`: Created document vault schema and migration entry.
+- `src/lib/storage/r2.ts`: Created R2 storage abstraction with WebCrypto HMAC tokens and SHA-256 verification.
+- `src/app/api/storage/route.ts`: Built document list and multipart upload API.
+- `src/app/api/storage/[...key]/route.ts`: Built streaming file download and gated deletion route handlers.
+- `src/components/DocumentVault.tsx`: Built executive white theme Document Vault component.
+- `src/app/dashboard/pre-construction/page.tsx`: Added Document Vault tab to pre-construction planning hub.
+- `src/app/dashboard/admin/page.tsx`: Embedded Document Vault into admin portal with sidebar nav item.
+- `src/lib/db/d1.ts`: Added `0005_r2_document_vault.sql` and `document_vault` table to D1 catalog.
+- `BluePrint_Iteration_Log.md`: Aligned Iteration 66 commit to `b68c3e6`, appended Iteration 67 sequentially before future template.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- MIME & Size guard: Validated 50MB ceiling and allowed architectural formats.
+- Cryptographic verification: WebCrypto HMAC-SHA256 signature and SHA-256 hash tested cleanly.
 - Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and slate borders.
 
 ---

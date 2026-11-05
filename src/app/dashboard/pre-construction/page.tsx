@@ -32,9 +32,11 @@ import {
   ArrowLeft,
   Ruler,
   FileCheck,
+  FolderArchive,
 } from "lucide-react";
 
 import CompanySwitcher from "@/components/CompanySwitcher";
+import DocumentVault from "@/components/DocumentVault";
 
 // ==========================================
 // TOOL 1: SITE SURVEY CHECKLIST SPECIFICATION
@@ -258,7 +260,7 @@ export default function PreConstructionEngine() {
   const router = useRouter();
 
   // Active Tool Tab
-  const [activeTab, setActiveTab] = useState<"survey" | "geometry" | "permits" | "soil" | "zoning">("survey");
+  const [activeTab, setActiveTab] = useState<"survey" | "geometry" | "permits" | "vault" | "soil" | "zoning">("survey");
 
   // Project Meta State
   const [projectName, setProjectName] = useState("Commercial Complex — Tower B");
@@ -503,6 +505,21 @@ export default function PreConstructionEngine() {
               <span>Tool 5: Statutory NOC Tracker</span>
               <span className="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-mono">
                 4/5 Cleared
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("vault")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "vault"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <FolderArchive className="h-4 w-4 text-purple-500" />
+              <span>Document Vault (R2)</span>
+              <span className="rounded-full bg-blue-50 text-blue-700 px-2 py-0.5 text-[10px] font-mono border border-blue-200">
+                R2 Secure
               </span>
             </button>
           </div>
@@ -959,6 +976,13 @@ export default function PreConstructionEngine() {
               </table>
             </div>
           </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 4: CLOUDFLARE R2 DOCUMENT VAULT                      */}
+        {/* ======================================================== */}
+        {activeTab === "vault" && (
+          <DocumentVault projectId="proj-1" />
         )}
       </main>
 

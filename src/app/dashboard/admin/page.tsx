@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Activity, AlertCircle, BadgeCheck, Bell, Building2, CheckCircle2, ChevronRight,
-  CircleUserRound, Database, FileCheck2, FileText, FolderKanban, KeyRound, LayoutDashboard,
+  CircleUserRound, Database, FileCheck2, FileText, FolderArchive, FolderKanban, KeyRound, LayoutDashboard,
   LogOut, Menu, Plus, RefreshCw, Search, Settings, Shield, ShieldCheck, ShoppingCart,
   SlidersHorizontal, Truck, Users, XCircle,
 } from "lucide-react";
@@ -12,6 +12,7 @@ import { clearAuthSession, createVendor, getAuthSession, getRegisteredUsers, get
 import CompanySwitcher from "@/components/CompanySwitcher";
 import { RoleBadge } from "@/components/RoleGate";
 import D1MigrationDashboard from "@/components/D1MigrationDashboard";
+import DocumentVault from "@/components/DocumentVault";
 
 type AdminUser = { id: string; email: string; full_name: string; role: string };
 
@@ -82,6 +83,7 @@ export default function AdminDashboard() {
       <nav className="space-y-1 px-3 py-5 text-xs">
         <Nav icon={LayoutDashboard} label="Dashboard" active={section === "dashboard"} onClick={() => nav("dashboard")} />
         <Nav icon={Database} label="D1 Database & Migrations" active={section === "database"} onClick={() => nav("database")} />
+        <Nav icon={FolderArchive} label="Document Vault (R2)" active={section === "vault"} onClick={() => nav("vault")} />
         <Nav icon={Users} label="Users & Access" active={section === "users"} onClick={() => nav("users")} />
         <Nav icon={Truck} label="Vendors" active={section === "vendors"} onClick={() => nav("vendors")} />
         <Nav icon={FolderKanban} label="Projects" onClick={() => showUnsupported(setMessage, "Project provisioning is not available in the current API.")} />
@@ -138,6 +140,10 @@ export default function AdminDashboard() {
 
         <section id="database" className="scroll-mt-24">
           <D1MigrationDashboard />
+        </section>
+
+        <section id="vault" className="scroll-mt-24">
+          <DocumentVault />
         </section>
 
         <section id="vendors" className="scroll-mt-24 rounded-xl border border-slate-200 bg-white shadow-sm"><SectionHeader icon={Truck} title="Vendor Directory" subtitle="Review vendor categories, contact information, locations, and verification state." action="Add Vendor" onAction={() => setShowVendorForm(true)} /><div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead className="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500"><tr><th className="px-4 py-3">Vendor Name</th><th className="px-4 py-3">Materials Supplied</th><th className="px-4 py-3">Contact Person</th><th className="px-4 py-3">Phone</th><th className="px-4 py-3">Location</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Verification</th><th className="px-4 py-3">Action</th></tr></thead><tbody className="divide-y divide-slate-100">{filteredVendors.map((vendor) => <tr key={vendor.id} className="hover:bg-slate-50"><td className="px-4 py-3 font-semibold text-slate-800">{vendor.vendor_name}</td><td className="px-4 py-3 text-slate-600">{vendor.category}</td><td className="px-4 py-3 text-slate-400">Not available</td><td className="px-4 py-3 text-blue-700">+91 {vendor.phone}</td><td className="px-4 py-3">{vendor.city}</td><td className="px-4 py-3"><Status text="Active" tone="green" /></td><td className="px-4 py-3"><Status text="Not available" tone="amber" /></td><td className="px-4 py-3"><button onClick={() => showUnsupported(setMessage, "Vendor editing is not available in the current API.")} className="rounded border border-slate-200 px-2.5 py-1.5 text-[10px] font-semibold text-slate-600">Manage</button></td></tr>)}</tbody></table>{!loading && !filteredVendors.length && <Empty text="No registered vendors are currently available." />}</div></section>

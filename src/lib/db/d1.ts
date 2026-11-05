@@ -54,6 +54,7 @@ class D1DatabaseService {
     { id: 2, version: "0002", name: "0002_seed_demo_data.sql", applied_at: "2026-11-01T00:00:00Z", batch: 1 },
     { id: 3, version: "0003", name: "0003_multi_company_tenants.sql", applied_at: "2026-11-05T23:00:00Z", batch: 1 },
     { id: 4, version: "0004", name: "0004_d1_migration_tracking.sql", applied_at: "2026-11-05T23:35:00Z", batch: 1 },
+    { id: 5, version: "0005", name: "0005_r2_document_vault.sql", applied_at: "2026-11-05T23:45:00Z", batch: 2 },
   ];
 
   private knownTables: string[] = [
@@ -73,6 +74,7 @@ class D1DatabaseService {
     "site_inventory_ledger",
     "invoices",
     "payment_vouchers",
+    "document_vault",
     "schema_migrations",
     "login_throttles",
     "audit_logs",
@@ -222,3 +224,4 @@ export const d1Service: D1DatabaseService = globalObj[d1Key] || new D1DatabaseSe
 if (process.env.NODE_ENV !== "production") {
   globalObj[d1Key] = d1Service;
 }
+
