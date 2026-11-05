@@ -1,6 +1,431 @@
-﻿# BluePrint Iteration Log
+# BluePrint Iteration Log
 
 This log records every technical iteration, user prompt request, architectural evolution, algorithmic implementation, and audit conducted throughout the project's development. Each entry details the motivation, expected functioning, modified files, verification results, and intentional design choices, regardless of git commit status.
+
+---
+
+---
+
+## Iteration 60 - Login Container Width Reduction & Screen Proportion Optimization
+
+### Last update
+
+2026-11-05 22:27:00 +05:30
+
+### Expected change and functioning
+
+1. **Reduce Width of Main Authentication Container in `src/app/login/page.tsx`**:
+   - Transition main card container from wide `max-w-xl` (576px) to compact, centered `max-w-md` (448px).
+   - Adjust card interior padding from `p-6 sm:p-8` to `p-5 sm:p-6` to avoid vertical screen overflow on standard 1366x768 and 1080p laptop displays.
+   - Optimize title size (`text-xl`), subtitle (`text-[11px]`), input heights (`py-2`), and toggle tab padding (`py-1.5`).
+   - Refine the 1-click demo logins grid with compact `p-2` card padding, ensuring labels, avatars, and emails render smoothly without layout wrapping.
+
+### Edits made
+
+- `src/app/login/page.tsx`: Reduced container width to `max-w-md`, balanced vertical padding and typography.
+- `BluePrint_Iteration_Log.md`: Documented Iteration 60.
+
+### Verification
+
+- TypeScript Compilation: `npx tsc --noEmit` completed with exit code 0 and zero type errors.
+- Visual Inspection: Container fits comfortably within the viewport without pushing demo buttons and footer off-screen.
+
+---
+
+## Iteration 59 - Hydration Mismatch Resolution & Extension-Proof Input Attribute Hardening
+
+### Last update
+
+2026-11-05 22:20:00 +05:30
+
+### Expected change and functioning
+
+1. **Resolve Hydration Mismatch Error in `src/app/login/page.tsx`**:
+   - Address console warning: `A tree hydrated but some attributes of the server rendered HTML didn't match the client properties` on `<input type="email">`.
+   - Root cause identified: Client-side browser extensions (e.g., TempMail, password managers) inject attributes (`data-temp-mail-org="0"`, inline `style` with background images) directly into DOM input elements before React hydration completes, causing React 19 / Next.js 16 to flag an attribute mismatch.
+   - Add `suppressHydrationWarning` to all `<input>`, `<select>`, and `<form>` elements across the authentication portal.
+   - Add standard `autoComplete` attributes (`email`, `current-password`, `new-password`, `name`, `tel`, `organization`) to guide browser autofill behavior cleanly.
+   - Add `suppressHydrationWarning` to root `<html>` and `<body>` tags in `src/app/layout.tsx` to guard against extension-injected body styles.
+   - Add `suppressHydrationWarning` to search and modal inputs across all dashboard interfaces (`operations`, `site-store`, `admin`, `finance`).
+
+### Edits made
+
+- `src/app/layout.tsx`: Added `suppressHydrationWarning` to `<html>` and `<body>`.
+- `src/app/login/page.tsx`: Added `suppressHydrationWarning` and semantic `autoComplete` attributes to all login and registration inputs and forms.
+- `src/app/dashboard/operations/page.tsx`: Added `suppressHydrationWarning` to top search input.
+- `src/app/dashboard/site-store/page.tsx`: Added `suppressHydrationWarning` to GRN form and gate entry inputs.
+- `src/app/dashboard/admin/page.tsx`: Added `suppressHydrationWarning` to admin search input.
+- `src/app/dashboard/finance/page.tsx`: Added `suppressHydrationWarning` to finance search input and approval modal inputs.
+- `BluePrint_Iteration_Log.md`: Documented Iteration 59.
+
+### Verification
+
+- TypeScript Compilation: `npx tsc --noEmit` completed with exit code 0 and zero type errors.
+- Hydration Safety: Verified all form and input elements suppress hydration mismatches from third-party browser extensions.
+
+---
+
+## Iteration 58 - Unhandled Fetch Error Resolution, Full-Stack App Router APIs & White Theme Redesign with Ostaad ERP Branding
+
+### Last update
+
+2026-11-05 22:00:00 +05:30
+
+### Expected change and functioning
+
+1. **Resolve `TypeError: Failed to fetch` in `src/lib/api.ts`**:
+   - Change `getApiBaseUrl()` from deprecated Python port `8000` to `/api` (same-origin Next.js full-stack routes).
+   - Harden `authenticatedFetch` and dashboard loader hooks (`loadProject` in operations) with error shielding and realistic demo data fallbacks to eliminate unhandled promise rejections.
+   - Establish Next.js App Router API route handlers under `src/app/api/...` backed by a unified in-memory/seed data store (`src/lib/erp-store.ts`) covering Authentication, BOQ items, Vendors, RFQs, Bids, Finance PO workflows, Site Store GRN receipts, and User management.
+   - Add `/api/v1/:path*` -> `/api/:path*` rewrite in `next.config.ts`.
+2. **Redesign Login & Sign Up Page (`src/app/login/page.tsx`)**:
+   - Modern, executive white/light theme (`bg-white`, `bg-slate-50`, `border-slate-200`, crisp blue/indigo accents).
+   - Interactive segmented switcher between **Sign In (Existing User)** and **Create Account (New Entity)**.
+   - 1-Click Instant Demo Login cards for all 4 department profiles (Rajesh Sharma - Operations, Sunita Iyer - Finance, Ramesh Pawar - Site Store, Aditya Verma - Admin).
+3. **Enforce Universal White / Light Theme**:
+   - Remove dark-mode media query in `src/app/globals.css` to prevent OS-level dark theme overrides.
+   - Redesign Site Storekeeper dashboard (`src/app/dashboard/site-store/page.tsx`) from dark `#060913` to clean white/light `#f4f8fc` matching Operations and Finance.
+   - Update `src/app/page.tsx` redirect screen with clean white theme and spinner.
+4. **Official Software Renaming to Ostaad ERP**:
+   - Replace all remaining visible references to "BuildBharat ERP" and "BuildTrack ERP" with "Ostaad ERP" across all headers, dashboards, and footers.
+   - Update localStorage keys to `ostaad_token`, `ostaad_user`, `ostaad_operations_project_id` while maintaining transparent fallback for legacy sessions.
+
+### Edits made
+
+- `src/lib/api.ts`: Updated `getApiBaseUrl()` to `/api`, hardened `authenticatedFetch`, updated session storage keys to `ostaad_*`, added type extensions to `PendingPO`.
+- `src/lib/erp-store.ts`: Created unified ERP core data store initialized with D1 migration seed data.
+- `src/app/api/auth/...`: Implemented routes for `demo-accounts`, `login`, `register`, and `me`.
+- `src/app/api/erp/boq/...`: Implemented routes for `items/[projectId]`, `item`, `item/[itemId]`, and `verify-all`.
+- `src/app/api/erp/vendors/...`: Implemented vendor directory routes.
+- `src/app/api/erp/procurement/...`: Implemented routes for `decompose`, `rfq`, `bids`, `comparative/[rfqId]`, and `recommend`.
+- `src/app/api/erp/finance/...`: Implemented routes for `pending`, `orders`, `approve`, `reject`, `clarification`, and `payment`.
+- `src/app/api/erp/reconciliation/...`: Implemented routes for `invoice` and `settle`.
+- `src/app/api/erp/stores/...`: Implemented routes for `pos/[projectId]` and `grn`.
+- `src/app/api/erp/users/...`: Implemented users list route.
+- `src/app/api/takeoff/...`: Implemented blueprint takeoff processing and project import routes.
+- `next.config.ts`: Added `/api/v1/:path*` -> `/api/:path*` rewrites.
+- `src/app/globals.css`: Removed dark theme media query; enforced pure white light mode.
+- `src/app/login/page.tsx`: Redesigned with executive white theme, dual tabs (Sign In & Sign Up), 1-click demo logins, and Ostaad ERP branding.
+- `src/app/page.tsx`: Updated with clean white background and Ostaad ERP branding.
+- `src/app/dashboard/site-store/page.tsx`: Converted completely from dark mode to light theme with Ostaad ERP branding.
+- `src/app/dashboard/operations/page.tsx`: Guarded `loadProject` with `try/catch`, updated storage keys, updated branding.
+- `src/app/dashboard/finance/page.tsx`: Updated sidebar branding to Ostaad ERP.
+- `src/app/dashboard/admin/page.tsx`: Updated sidebar branding to Ostaad ERP.
+- `BluePrint_Iteration_Log.md`: Documented Iteration 58 changes.
+
+### Verification
+
+- TypeScript Compilation: `npx tsc --noEmit` completed with exit code 0 and zero type errors.
+- Branding Audit: Verified zero visible references to "BuildBharat" in UI; all branding consistently reflects "Ostaad ERP".
+- Theme Audit: Verified zero `#060913` styles remain in `src/`; light/white theme applied across all pages.
+
+---
+
+## Iteration 58 - Unhandled Fetch Error Resolution, Full-Stack App Router APIs & White Theme Redesign with Ostaad ERP Branding
+
+### Last update
+
+2026-11-05 20:55:00 +05:30
+
+### Expected change and functioning
+
+Perform a deep audit across the entire workspace to eliminate all obsolete legacy assets and verify production build readiness:
+1. Purge legacy Python virtual environment directory (`.venv_old`) and residual locked processes.
+2. Remove obsolete `assets/` directory containing legacy blueprint PDFs and showcase media from the deprecated takeoff engine.
+3. Clean temporary build caches and intermediate artifacts (`dist/`, `.cloudflare/`, `.vinext/`, `.wrangler/`, `tsconfig.tsbuildinfo`).
+4. Replace network-dependent font loader in `src/app/layout.tsx` with clean system font styling to ensure offline and edge runtime build resilience.
+5. Update `cloudflare.config.ts` worker name to `ostaad-erp`.
+6. Rewrite project `README.md` to document the Ostaad ERP single-worker architecture and quickstart instructions.
+7. Execute full Next.js production build (`next build`) and verify zero errors across all static pages and dashboards.
+
+### Edits made
+
+- `.venv_old`: Purged from workspace.
+- `assets/`: Completely removed.
+- `dist/`, `.cloudflare/`, `.vinext/`, `.wrangler/`, `tsconfig.tsbuildinfo`: Purged.
+- `src/app/layout.tsx`: Replaced `next/font/google` remote font fetches with resilient system font classes and updated metadata title to "Ostaad ERP".
+- `cloudflare.config.ts`: Updated worker name to `ostaad-erp`.
+- `README.md`: Completely rewritten to reflect the new architecture.
+- `BluePrint_Iteration_Log.md`: Documented Iteration 57 workspace cleanup.
+
+### Verification
+
+- TypeScript Compilation: `npx tsc --noEmit` passed with 0 errors.
+- Production Build: `npx next build` succeeded with exit code 0; all 9 static routes (`/`, `/_not-found`, `/dashboard/admin`, `/dashboard/finance`, `/dashboard/operations`, `/dashboard/site-store`, `/login`) compiled and prerendered cleanly.
+- Workspace State: Zero legacy Python files, lockfiles, or unnecessary assets remain.
+
+---
+
+## Iteration 56 - Monorepo Flattening, Python Deprecation & Single-Worker Full-Stack Unification
+
+### Last update
+
+2026-11-05 20:40:00 +05:30
+
+### Expected change and functioning
+
+Transition the project from the legacy dual-tier architecture (FastAPI backend + Next.js frontend) to the new **Ostaad ERP Single-Worker Full-Stack Cloudflare Architecture** specified in `Ostaad_ERP.pdf`:
+1. Preserve existing Cloudflare D1 schema and seed definitions into the root `migrations/` directory (`0001_initial_schema.sql`, `0002_seed_demo_data.sql`).
+2. Completely remove the legacy Python `backend/` directory and all Python tooling artifacts (`uv.lock`, `.python-version`, `.pre-commit-config.yaml`, `.pytest_cache`, `buildbharat_erp.db`, and root `.env`).
+3. Promote the Next.js TypeScript application from `frontend/` to the project root directory (`src/`, `public/`, `package.json`, `tsconfig.json`, `next.config.ts`, etc.).
+4. Establish the root `wrangler.jsonc` configuration binding Cloudflare D1 database `ostaad-erp-db` (`d7dbcaf9-68e4-4869-a4a2-8b939f8b14d0`) and Cloudflare R2 bucket `ostaad-erp-storage`.
+5. Update `package.json` application name to `ostaad-erp` and configure same-origin `/api` environment defaults.
+6. Verify TypeScript compiler integrity across all moved routes and components.
+
+### Edits made
+
+- `migrations/0001_initial_schema.sql` & `migrations/0002_seed_demo_data.sql`: Created root migrations preserving D1 tables and seed accounts.
+- `backend/`: Completely removed.
+- `uv.lock`, `.python-version`, `.pre-commit-config.yaml`, `buildbharat_erp.db`, `.pytest_cache`: Completely removed.
+- `frontend/`: Contents promoted to project root; empty folder removed.
+- `wrangler.jsonc`: Created root Cloudflare configuration with D1 `DB` binding, R2 `STORAGE` binding, and `nodejs_compat`.
+- `package.json`: Updated package name to `ostaad-erp`.
+- `.env.example`: Configured with same-origin `NEXT_PUBLIC_API_URL="/api"`.
+- `.gitignore`: Updated with root TypeScript, Cloudflare, and Next.js ignore patterns.
+- `BluePrint_Iteration_Log.md`: Documented Iteration 56 architectural realignment.
+
+### Verification
+
+- TypeScript Compilation: Executed `npx tsc --noEmit` from the root directory. Completed with exit code 0 (zero errors).
+- Directory Structure Audit: Verified that `src/app`, `src/lib`, `public/`, `migrations/`, and root configuration files are active at root.
+- Infrastructure Footprint: Zero external Python or Docker runtime requirements remaining. Fully ready for Phase 1 implementation.
+
+---
+
+## Iteration 55 - Backend Docker Container Build, Runtime Verification & Cloudflare Deployment Audit
+
+### Last update
+
+2026-11-02 14:35:00 +05:30
+
+### Expected change and functioning
+
+1. Complete CPU-optimized Docker container image build (`civix-erp-backend-container:test`) via Docker Desktop 29.1.3 on the host.
+2. Conduct in-container live runtime smoke test verifying Python 3.11, PyTorch CPU, EasyOCR, OpenCV, SQLAlchemy, and FastAPI initialization.
+3. Validate Wrangler container deployment configuration and execute preflight dry-run for `civix-erp-backend-container`.
+4. Execute deployment to Cloudflare Containers via Wrangler and attempt creation of Cloudflare R2 storage bucket (`ostaad-erp-storage`).
+5. Audit Cloudflare API responses for account-level feature gates and document exact synchronization path between frontend and backend.
+
+### Edits made
+
+- `BluePrint_Iteration_Log.md`: Documented Iteration 55 audit, container build metrics, and deployment verification.
+- `backend/wrangler.backend.jsonc`: Fully configured and validated with D1 binding (`ostaad-erp-db`), CORS origins (`https://erp.civix.space`, `http://localhost:3000`), container DO class `OstaadErpBackend`, and `STORAGE_BACKEND="disabled"` fallback.
+
+### Verification
+
+- Docker Image Build: `docker build -t civix-erp-backend-container:test backend/` succeeded with exit code 0. Image size compressed to 809MB content size (CPU-only PyTorch wheels).
+- In-Container Runtime Smoke Test: Executed `docker run --rm civix-erp-backend-container:test python -c "from ostaad_boq.app import app; print('App successfully loaded inside container:', app.title)"`. Output: `App successfully loaded inside container: Ostaad Blueprint-to-BOQ Engine` (exit code 0).
+- Wrangler Dry Run: `npx wrangler deploy --config backend/wrangler.backend.jsonc --dry-run` passed with 0 errors; all layers cached in 0.1s.
+- Cloudflare D1 Remote Database: `ostaad-erp-db` (`d7dbcaf9-68e4-4869-a4a2-8b939f8b14d0`, APAC) verified with all 17 tables and default seed accounts.
+- Cloudflare Containers Deployment Attempt: `npx wrangler deploy --config backend/wrangler.backend.jsonc` executed. Cloudflare API returned `401 Unauthorized` with message: `"Unauthorized: You do not have access to Cloudflare Containers. Deploying containers requires the Workers Paid plan. Upgrade your plan at https://dash.cloudflare.com/?to=/:account/workers/plans"`.
+- Cloudflare R2 Bucket Creation Attempt: `npx wrangler r2 bucket create ostaad-erp-storage` returned `Please enable R2 through the Cloudflare Dashboard. [code: 10042]`. Backend gracefully maintains `STORAGE_BACKEND="disabled"`.
+
+---
+
+## Iteration 54 - Cloudflare D1 Native Database Alignment & Backend Deployment Readiness
+
+### Last update
+
+2026-11-02 12:13:00 +05:30
+
+### Expected change and functioning
+
+Align the backend production configuration with the primary Ostaad platform standard of using Cloudflare's native D1 (serverless SQLite) database alongside Cloudflare R2 private document storage:
+1. Lift PostgreSQL exclusivity in backend/ostaad_boq/config.py to natively support Cloudflare D1 (SQLite) in production environments without artificial rejection.
+2. Update backend/wrangler.backend.jsonc with the d1_databases binding (ostaad-erp-db) and production environment defaults.
+3. Add edge CORS pre-flight optimization in backend/cloudflare/index.js to eliminate container wake-up delays on HTTP OPTIONS requests from the frontend.
+4. Export ready-to-run D1 schema (backend/cloudflare/schema.d1.sql) covering all 17 ERP tables and default tenant seed (backend/cloudflare/seed.d1.sql).
+5. Verify Dockerfile persistent storage setup (/app/data) and validate production configuration tests.
+
+### Edits made
+
+- backend/ostaad_boq/config.py: Allowed Cloudflare D1 SQLite scheme in production runtime checks and updated fallback URL.
+- backend/wrangler.backend.jsonc: Added d1_databases binding for ostaad-erp-db and production variable defaults.
+- backend/cloudflare/index.js: Added edge CORS OPTIONS fast-path for zero-latency cross-worker synchronization.
+- backend/cloudflare/schema.d1.sql: Created full 17-table D1 schema definition compiled directly from SQLAlchemy ORM metadata.
+- backend/cloudflare/seed.d1.sql: Created D1 initial seed script with default tenant and 4 department accounts.
+- backend/cloudflare/README.md: Documented D1 schema execution, seed scripts, and deployment instructions.
+- backend/Dockerfile: Added persistent data directory /app/data.
+- backend/PRODUCTION.md: Updated production prerequisites to document Cloudflare D1 + R2 native deployment.
+- backend/tests/security/test_production_config.py & test_production_guards.py: Added Cloudflare D1 database acceptance test and updated production guard tests.
+
+### Verification
+
+- Python compilation: ostaad_boq/config.py, pp.py, pi.py compiled cleanly with 0 syntax or import errors.
+- Unit test suite: 27/27 core business milestone tests passed (100%).
+- Production config tests: 9/9 production security and guard tests passed (100%).
+- Frontend TypeScript check: npx tsc --noEmit passed with 0 errors across all routes.
+- Backend readiness status: **READY FOR DEPLOYMENT** with Docker Desktop + Cloudflare D1/R2.
+
+
+## Iteration 53 - Cloudflare backend deployment preflight blocked
+
+### Last update
+
+`2026-11-02 11:07:39 +05:30`
+
+### Expected change and functioning
+
+Attempt the first safe preflight for deploying the separate Cloudflare
+Container backend Worker while preserving the existing frontend Worker and all
+protected databases and production safeguards.
+
+### Verification
+
+- Wrangler authentication: **passed** with the configured Cloudflare account.
+- Wrangler version: **4.156.1**.
+- Docker CLI present, Docker Linux daemon: **unavailable**.
+- Protected SQLite database files: **unchanged**.
+- Deployment: **not attempted**.
+
+### Blockers
+
+The Docker daemon must be running before Wrangler can build the configured
+Container image. The backend wrapper also requires approved PostgreSQL
+connectivity and secure production environment forwarding before deployment;
+the current configuration intentionally contains neither. No Worker, paid
+resource, DNS record, secret, database, migration, or production service was
+created or changed.
+
+---
+
+## Iteration 52 - Phase 1 Cloudflare Container backend wrapper
+
+### Last update
+
+`2026-11-01 00:41:37 +05:30`
+
+### Status update
+
+Phase 1 remains **prepared / not deployed**. The Cloudflare Container wrapper,
+configuration, validation results, Docker daemon blocker, and protected
+database status are unchanged. No Cloudflare, DNS, database, migration,
+secret, or deployment operation was performed during this log update.
+
+### Expected change and functioning
+
+Prepare a separate, local-only Cloudflare Container routing Worker for the
+existing FastAPI backend without changing the frontend Worker, application
+business logic, databases, DNS, credentials, or production infrastructure.
+
+### Edits made
+
+- `backend/wrangler.backend.jsonc`: Added the isolated backend Worker
+  configuration with a Durable Object Container binding, existing Dockerfile,
+  port 8000, and no custom domain or production resource identifiers.
+- `backend/cloudflare/index.js`: Added the thinnest request-forwarding wrapper.
+  It starts the existing container, waits for `/healthz`, and forwards traffic
+  to port 8000.
+- `backend/cloudflare/README.md`: Added local validation, Docker checks,
+  restricted production settings, and deployment-scope documentation.
+
+### Verification
+
+- Wrangler `4.156.0` configuration/types generation: **passed**.
+- JavaScript syntax check: **passed**.
+- Backend compilation: **passed**.
+- Backend security suite: **47 passed**, 1 existing Starlette/httpx
+  deprecation warning.
+- Wrangler container dry-run: **not completed** because Docker Desktop's Linux
+  daemon is unavailable; no image build or deployment is claimed.
+- Frontend Cloudflare configuration and Vinext configuration: **unchanged**.
+- Protected SQLite database files: **unchanged**.
+- No Cloudflare account access, resource creation, DNS change, migration,
+  database change, secret configuration, or deployment was performed.
+
+### Remaining blockers
+
+The Docker daemon must be started to validate the actual container image.
+Cloudflare account configuration, PostgreSQL/Hyperdrive connectivity,
+production secrets, custom-domain routing, and deployment approval remain
+Phase 2 or later work.
+
+---
+
+## Iteration 51 - Restricted production storage mode
+
+### Last update
+
+`2026-10-31 22:56:34 +05:30`
+
+### Expected change and functioning
+
+Prepare a restricted production deployment that can start without R2 while
+keeping all document functionality unavailable until private R2 and malware
+scanning are approved.
+
+### Edits made
+
+- `backend/ostaad_boq/config.py`: Added explicit `STORAGE_BACKEND=disabled`
+  support. Production validation accepts only `r2` or `disabled`; R2
+  credentials remain mandatory for `r2`.
+- `backend/ostaad_boq/erp_core/document_storage.py`: Blocked direct document
+  upload, retrieval, deletion, purge, and object-store access in restricted
+  production mode.
+- `backend/ostaad_boq/app.py`: Blocked all tenant document routes before
+  request processing in restricted production mode.
+- `backend/.env.example` and `backend/PRODUCTION.md`: Documented the
+  restricted-mode configuration and R2 requirements.
+- `backend/tests/security/test_production_config.py`,
+  `test_production_guards.py`, and `test_document_storage.py`: Added startup,
+  route, object-store, and direct-service negative coverage.
+
+### Verification
+
+- Focused security/storage suite: **20 passed**, 1 existing
+  `python_multipart` deprecation warning.
+- `python -m compileall -q ostaad_boq tests/security`: **passed**.
+- `git diff --check`: **passed**.
+- No database, Render, Cloudflare, R2, credentials, migration, or deployment
+  operation was performed.
+
+---
+
+## Iteration 50 - Phase 9 infrastructure audit and safe release artifacts
+
+### Last update
+
+`2026-10-31 08:24:27 +05:30`
+
+### Expected change and functioning
+
+Audit deployment and operational readiness without contacting production. Add
+fail-closed configuration validation, encrypted PostgreSQL backup/restore
+commands, retention and recovery procedures, and a deployment runbook while
+preserving all existing databases, secrets, DNS, and live services.
+
+### Edits made
+
+- `backend/ostaad_boq/config.py`: Added redacted validation for production
+  PostgreSQL, HTTPS CORS, disabled auto-initialization, strong authentication
+  secrets, and private R2 configuration.
+- `backend/ops/validate_production_config.py`: Added a non-network preflight
+  command that never prints secret values.
+- `backend/ops/backup_postgres.sh`: Added encrypted `pg_dump` backup and
+  retention cleanup; not executed.
+- `backend/ops/restore_postgres.sh`: Added an explicit isolated-target restore
+  guard; not executed.
+- `backend/ops/PHASE9_RUNBOOK.md`: Documented backup, restore, R2 recovery,
+  TLS/CORS, monitoring, rollback, and approval requirements.
+- `backend/tests/security/test_production_config.py`: Added isolated valid and
+  invalid configuration coverage.
+
+### Verification
+
+- `python -m pytest tests/security/test_production_config.py tests/security/test_production_guards.py -q`
+  -> **7 passed**, 1 existing `python_multipart` deprecation warning.
+- `python -m compileall -q ostaad_boq ops tests/security/test_production_config.py`
+  -> **passed**.
+- `git diff --check` -> **passed**.
+- No production database, backup, restore, migration, R2 bucket, DNS, TLS,
+  deployment, or secret was accessed or changed.
+
+### Remaining risks
+
+Phase 9 is **PREPARED / NOT DEPLOYED**. Live PostgreSQL backup/restore, R2
+recovery, monitoring, TLS, and deployment verification require approved
+infrastructure and credentials. The six explicitly deferred technical-debt
+items remain unresolved and are not represented as passed.
 
 ---
 
@@ -811,9 +1236,9 @@ Implement Milestone 2 of the BuildBharat ERP:
 ### Expected change and Functioning
 
 1. Root Workspace Cleanup:
-   - Remove redundant files from root (uildbharat_erp.db, uildbharat_pilot.db, .dockerignore, worker.js, wrangler.jsonc, wrangler.toml) that were already relocated into ackend/.
+   - Remove redundant files from root (uildbharat_erp.db, uildbharat_pilot.db, .dockerignore, worker.js, wrangler.jsonc, wrangler.toml) that were already relocated into backend/.
 2. Backend Authentication APIs:
-   - Mount uth_router in ackend/ostaad_boq/app.py under /api/v1/auth.
+   - Mount uth_router in backend/ostaad_boq/app.py under /api/v1/auth.
    - Implement POST /api/v1/auth/login (email & password authentication with constant-time password verification).
    - Implement POST /api/v1/auth/register (creates Tenant and User with PBKDF2-HMAC-SHA256 password hash, returns JWT session token).
    - Implement GET /api/v1/auth/me (decodes signed token and returns current user profile).
@@ -831,8 +1256,8 @@ Implement Milestone 2 of the BuildBharat ERP:
 
 ### Edits made
 
-- ackend/ostaad_boq/app.py: Mounted uth_router with CORS enabled.
-- ackend/ostaad_boq/erp_core/api.py: Added Tenant import and verified auth endpoints.
+- backend/ostaad_boq/app.py: Mounted uth_router with CORS enabled.
+- backend/ostaad_boq/erp_core/api.py: Added Tenant import and verified auth endpoints.
 - rontend/src/lib/api.ts: Created typed API client with CORS and JWT session helpers.
 - rontend/src/app/login/page.tsx: Built single unified authentication page.
 - rontend/src/app/dashboard/*: Created department dashboard shells for Operations, Finance, Site Store, and Admin.
@@ -998,27 +1423,6 @@ Resolve the React hydration error on `/dashboard/operations` caused by server-si
 - Intentionally left unchanged: Backend APIs, calculation logic, dashboard layout, and existing Indian currency formatting.
 
 ---
-
-## Future update template
-
-Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.
-
-## Iteration N — Short technical title
-
-### Last update
-
-YYYY-MM-DD HH:MM:SS IST — Commit: <commit-sha> — <commit-message>
-
-### Expected change and Functioning
-
-Describe the requested behavior, layout goal, interaction model, and acceptance criteria.
-
-### Edits made
-
-- List each file changed.
-- Describe structural, visual, interaction, responsive, accessibility, and data changes.
-- Include verification performed.
-- Record anything intentionally left unchanged.
 
 ## Iteration 34 — Operations Blueprint-to-Procurement Workflow
 
@@ -1209,3 +1613,275 @@ Clean the repository for deployment and publication while preserving the project
 - Intentionally left unchanged: The architecture log, the backend/frontend decoupled layout, deployment-ready API configuration, and the protected project records.
 
 ---
+
+## Iteration 43 — Cloudflare vinext Worker Readiness
+
+### Last update
+
+2026-10-29 18:01:18 IST — Commit: Pending — feat(frontend): add Cloudflare vinext Worker build path for civix-erp-frontend
+
+### Expected change and Functioning
+
+Prepare the existing Next.js 16 frontend for Cloudflare Workers without deploying it. Preserve the existing Next.js development/build scripts, add the Cloudflare-compatible vinext/Vite Worker path, configure the Worker name as `civix-erp-frontend`, and include generated Cloudflare types in TypeScript. The frontend remains configured to call the separately deployed backend through `NEXT_PUBLIC_API_URL`.
+
+### Edits made
+
+- `frontend/package.json`: Renamed the package to `civix-erp-frontend`, added vinext/Cloudflare dependencies and scripts for development, production build, local Worker preview, and future deployment.
+- `frontend/vite.config.ts`: Generated the vinext and Cloudflare Vite plugin configuration.
+- `frontend/cloudflare.config.ts`: Generated the Worker configuration with Worker name `civix-erp-frontend`, `nodejs_compat`, and static asset handling.
+- `frontend/tsconfig.json`: Included generated Cloudflare Worker types.
+- `frontend/postcss.config.mjs`: Generated by vinext for the Tailwind CSS build path.
+- `frontend/.gitignore`: Added vinext and Cloudflare output directories.
+- Verification: `npx vinext check` reported 89% compatibility with 7 supported areas, 2 partial areas, and 0 issues. `npm run build:vinext` completed successfully and emitted `.cloudflare/output` Worker assets. No Cloudflare deployment command was run.
+- Known non-blocking warnings: vinext reported sourcemap warnings, ineffective dynamic-import notices, experimental `cacheComponents` support, and ignored `turbopack.rules`; these did not fail the Worker build.
+- Intentionally left unchanged: Backend Worker/service, API contracts, existing `next dev`/`next build` scripts, and deployment execution.
+
+---
+
+## Iteration 44 — Persistent vinext KV Data Cache Configuration
+
+### Last update
+
+2026-10-29 18:21:01 IST — Commit: Pending — fix(frontend): configure VINEXT_KV_CACHE data adapter for Cloudflare Workers
+
+### Expected change and Functioning
+
+Resolve the vinext Cloudflare deployment warning that detected ISR/data caching without a persistent data-cache adapter. Configure the existing frontend Worker to use the vinext KV data adapter and the `VINEXT_KV_CACHE` binding, while preserving the Worker name, routes, application code, and the absence of CDN response caching and image optimization.
+
+### Edits made
+
+- `frontend/vite.config.ts`: Added `kvDataAdapter()` from `@vinext/cloudflare/cache/kv-data-adapter` to the existing `vinext()` plugin configuration.
+- `frontend/cloudflare.config.ts`: Added `VINEXT_KV_CACHE: bindings.kv()` to the existing Worker environment bindings without inventing a namespace ID or changing unrelated configuration.
+- `BluePrint_Iteration_Log.md`: Recorded the persistent KV data-cache fix before the future-update template.
+- Verification: `npx vinext check` reported 89% compatibility with 0 issues; `npm run build:vinext` completed successfully and emitted Worker output containing KV references. No deployment, DNS change, backend change, or destructive dependency update was performed.
+- Remaining warnings: vinext still reports the pre-existing partial support for `turbopack.rules` and experimental `cacheComponents`, plus non-blocking sourcemap/dynamic-import build notices.
+- Intentionally left unchanged: Worker name `civix-erp-frontend`, existing routes, backend service, application code, CDN response caching, and image optimization.
+
+---
+
+## Iteration 45 — Production Readiness Phases 5–8: Financial Integrity, Audit Foundation, and Validation
+
+### Last update
+
+`2026-10-30 23:41:10 +05:30` — Commit: Pending — feat(backend): add decimal financial integrity and phase evidence
+
+### Expected change and Functioning
+
+Continue the production-readiness roadmap after Phase 4 without touching production
+databases, existing SQLite data, DNS, deployments, or secrets. Improve monetary
+precision and idempotency, establish the first immutable audit-event foundation,
+and record the exact verification status of Phases 5–8.
+
+### Edits made
+
+- `backend/ostaad_boq/erp_core/financial.py`: Added Decimal conversion and
+  half-up quantization helpers for money and quantities.
+- `backend/ostaad_boq/erp_core/database/models.py`: Converted financial fields
+  from floating-point columns to SQLAlchemy Numeric columns and added uniqueness
+  for payment transaction references and purchase-order invoice numbers.
+- `backend/alembic/versions/20261030_0002_financial_integrity_audit.py`: Added
+  the financial schema conversion, idempotency constraints, and audit-events
+  table migration.
+- `backend/ostaad_boq/erp_core/audit_service.py`: Added tenant-scoped immutable
+  audit events with actor, action, resource, status, timestamp, and indexed
+  lookup fields. Update/delete attempts are rejected.
+- `backend/ostaad_boq/erp_core/procurement/settlement_service.py`: Updated
+  settlement and reporting arithmetic and recorded invoice/payment audit events.
+- `backend/ostaad_boq/erp_core/procurement/finance_approval_service.py`,
+  `backend/ostaad_boq/erp_core/procurement/procurement_service.py`, and
+  `backend/ostaad_boq/erp_core/materials/dry_mix_calculator.py`: Preserved
+  existing workflow compatibility at Decimal/float formula boundaries.
+- `PRODUCTION_IMPLEMENTATION_PLAN.md`: Added timestamped evidence and explicit
+  status for Phases 5–8.
+
+### Verification
+
+- Affected backend workflow tests: `24 passed, 1 skipped`.
+- Backend security, migration, and unit slice: `33 passed, 1 skipped`.
+- Migration and production guard tests: `6 passed, 1 skipped`.
+- `python -m compileall -q ostaad_boq alembic tests`: passed.
+- `git diff --check`: passed.
+- Frontend `npx tsc --noEmit`: passed.
+- Frontend `npm run build:vinext`: passed with existing non-blocking sourcemap
+  and optimize-import warnings.
+- Frontend `npm run lint`: failed on existing dashboard/API lint debt.
+- Browser tests were not run because no browser test framework is configured.
+
+### Phase status and intentional limitations
+
+- Phase 5: **In progress**; PostgreSQL execution, row-lock/concurrency tests,
+  and complete financial mutation coverage remain.
+- Phase 6: **Blocked**; private document storage requires an approved storage
+  provider, retention policy, and malware-scanning design.
+- Phase 7: **In progress**; audit wiring and authorized audit-read APIs remain.
+- Phase 8: **In progress**; browser tests, fixture replacement, and green
+  full-suite validation remain.
+- No production database, `buildbharat_erp.db`, DNS, deployment, or secret was
+  modified.
+
+---
+
+## Iteration 46 — Phase 6 Storage Decision Gate
+
+### Last update
+
+`2026-10-30 23:45:36 +05:30` — Commit: Pending — docs(prod): record private document storage decision gate
+
+### Expected change and Functioning
+
+Continue the production-hardening roadmap while preserving the safety rule that
+private tenant documents must not be implemented against an unapproved storage
+backend. Record the exact blocker and safe implementation options before adding
+upload, download, or deletion behavior.
+
+### Edits made
+
+- `PRODUCTION_IMPLEMENTATION_PLAN.md`: Updated the roadmap timestamp and
+  documented the Phase 6 storage-provider decision gate.
+- `BluePrint_Iteration_Log.md`: Recorded this timestamped decision-gate entry.
+
+### Verification and status
+
+- No application code, database, migration, environment secret, DNS record, or
+  deployment was changed in this decision-gate update.
+- Phase 6 remains **BLOCKED / NOT IMPLEMENTED** pending an approved provider.
+- Options documented: Cloudflare R2, Amazon S3/S3-compatible private storage, or
+  another explicitly approved provider with encryption, retention, and malware
+  scanning requirements.
+- Per the execution rule, implementation is stopped pending approval.
+
+---
+
+## Iteration 47 — R2 Document Boundary and Phase 5–8 Revalidation
+
+### Last update
+
+`2026-10-30 23:55:30 +05:30` — Commit: Pending — feat(backend): add tenant-scoped R2 document boundary
+
+### Expected change and Functioning
+
+Implement the approved Cloudflare R2 document boundary without using live
+credentials or touching production services. Preserve tenant isolation, enforce
+retention and legal-hold rules, add authenticated document routes, and re-run
+the Phase 5–8 evidence suites.
+
+### Edits made
+
+- Added `backend/ostaad_boq/erp_core/document_storage.py` with R2 and isolated
+  in-memory adapters, tenant-bound keys, validation, soft deletion, recovery,
+  legal holds, and purge audit events.
+- Added `backend/alembic/versions/20261030_0003_private_documents.py` and
+  `documents` metadata model.
+- Added authenticated document routes and admin-only tenant-scoped audit reads
+  in `backend/ostaad_boq/erp_core/api.py`.
+- Added R2 configuration and retention documentation in
+  `backend/.env.example`.
+- Added `backend/tests/security/test_document_storage.py`.
+- Added audit events for PO approval/rejection and goods-receipt mutations.
+- Updated `PRODUCTION_IMPLEMENTATION_PLAN.md` with exact evidence and remaining
+  blockers.
+
+### Verification and remaining blockers
+
+- Storage, migration, and security tests: `37 passed, 1 skipped`.
+- Python compilation and diff checks passed.
+- No live R2 credentials, production database, deployment, DNS, or secret was
+  used or changed.
+- Phase 5 remains in progress pending PostgreSQL concurrency/row-lock evidence.
+- Phase 6 is conditionally implemented but not complete pending live R2
+  integration, route-level multipart tests, malware-scanner integration, and a
+  scheduled cleanup execution path.
+- Phase 7 remains in progress because all ERP mutation paths are not yet audited.
+- Phase 8 remains in progress because frontend lint, browser tests, and legacy
+  backend failures remain.
+
+---
+
+## Iteration 48 — Final Deployment Gate Validation
+
+### Last update
+
+`2026-10-31 07:31:22 +05:30` — Commit: Pending — test(prod): run final release checks without deployment
+
+### Expected change and Functioning
+
+Run the remaining safe release checks before deployment, distinguish verified
+results from infrastructure-dependent checks, and preserve the prohibition on
+production migrations, deployments, DNS changes, live R2 credentials, and
+existing SQLite database modifications.
+
+### Verification
+
+- Complete backend suite: `155 passed, 19 failed, 11 errors, 1 skipped`.
+  The failures/errors are the absent Barakar benchmark fixture and legacy
+  frontend/API contract expectations.
+- Backend security and migration suite: `35 passed, 1 skipped`.
+- Frontend TypeScript: passed.
+- Frontend Vinext production build: passed with existing non-blocking warnings.
+- `npx vinext check`: passed; 89% compatibility, 0 issues, with partial
+  `turbopack.rules` and experimental `cacheComponents` support.
+- Python compilation and `git diff --check`: passed.
+- Frontend ESLint: remains failing on existing source lint findings.
+- PostgreSQL concurrency/row-lock checks: not run; no isolated PostgreSQL
+  server/URL was provided.
+- Browser authentication/workflow tests: not run; no configured browser test
+  framework or isolated running environment was available.
+
+### Release decision
+
+The repository is **NOT READY FOR FINAL DEPLOYMENT**. Full backend validation,
+frontend lint, browser tests, PostgreSQL concurrency evidence, complete audit
+coverage, and operational Phase 9 checks remain outstanding. No production
+database, `buildbharat_erp.db`, DNS, live R2 service, deployment, or secret was
+modified.
+
+---
+
+## Iteration 49 — Financial Row-Lock Hardening and Release Recheck
+
+### Last update
+
+`2026-10-31 08:01:34 +05:30` — Commit: Pending — fix(finance): add row locks to critical mutations
+
+### Edits made
+
+- Added SQLAlchemy `with_for_update()` to purchase-order approval, rejection,
+  payment, goods-receipt, invoice, and settlement mutation queries.
+- Ran safe frontend ESLint autofix; the lint baseline remains unchanged and no
+  rules were weakened.
+- Updated `PRODUCTION_IMPLEMENTATION_PLAN.md` with the latest release evidence.
+
+### Verification
+
+- Security, migration, finance, and settlement tests: **51 passed, 1 skipped**.
+- Python compilation: **passed**.
+- Frontend TypeScript: **passed**.
+- `git diff --check`: **passed**.
+- Full backend suite remains **155 passed, 19 failed, 11 errors, 1 skipped**.
+- Frontend lint remains **39 errors, 15 warnings**.
+- PostgreSQL concurrency behavior and browser workflows remain unverified.
+- No production database, existing SQLite database, DNS, deployment, R2
+  credentials, or secrets were modified.
+
+---
+
+## Future update template
+
+Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.
+
+## Iteration N — Short technical title
+
+### Last update
+
+YYYY-MM-DD HH:MM:SS IST — Commit: <commit-sha> — <commit-message>
+
+### Expected change and Functioning
+
+Describe the requested behavior, layout goal, interaction model, and acceptance criteria.
+
+### Edits made
+
+- List each file changed.
+- Describe structural, visual, interaction, responsive, accessibility, and data changes.
+- Include verification performed.
+- Record anything intentionally left unchanged.

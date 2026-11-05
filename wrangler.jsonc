@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ostaad-erp",
+  "main": ".cloudflare/worker.js",
+  "compatibility_date": "2026-10-31",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ostaad-erp-db",
+      "database_id": "d7dbcaf9-68e4-4869-a4a2-8b939f8b14d0",
+      "migrations_dir": "./migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "STORAGE",
+      "bucket_name": "ostaad-erp-storage"
+    }
+  ],
+  "vars": {
+    "APP_ENV": "production"
+  }
+}

@@ -1,102 +1,48 @@
-# ---------------------------------------------------------------------------
-# Python
-# ---------------------------------------------------------------------------
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-dist/
-*.egg-info/
-.eggs/
-.installed.cfg
-*.egg
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# ---------------------------------------------------------------------------
-# Virtual environments / package managers
-# ---------------------------------------------------------------------------
-.venv/
-.venv-linux/
-venv/
-env/
-.uv/
-# NOTE: uv.lock IS committed (reproducibility) — do not ignore it.
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# ---------------------------------------------------------------------------
-# Test / type / lint caches
-# ---------------------------------------------------------------------------
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-.coverage.*
-htmlcov/
-coverage.xml
-.hypothesis/
+# testing
+/coverage
 
-# ---------------------------------------------------------------------------
-# Secrets / environment
-# ---------------------------------------------------------------------------
-.env
-.env.*
-!.env.example
-*.pem
-*.key
+# next.js
+/.next/
+/out/
 
-# ---------------------------------------------------------------------------
-# DVC: track pointers (*.dvc, .dvc/config) in git, NEVER the cache or the data.
-# ---------------------------------------------------------------------------
-/.dvc/cache
-/.dvc/tmp
-/.dvc/config.local
+# production
+/build
 
-# ---------------------------------------------------------------------------
-# Data, datasets, model weights — versioned via DVC, NOT git.
-# The /datasets package holds the *registry and prep scripts*, never the data.
-# ---------------------------------------------------------------------------
-/data/
-datasets/raw/
-datasets/processed/
-datasets/synthetic/
-datasets/**/data/
-models/
-checkpoints/
-artifacts/
-outputs/
-*.pdf
-*.dwg
-*.dxf
-*.ifc
-*.ckpt
-*.pt
-*.pth
-*.safetensors
-*.onnx
-# Keep small test/sample fixtures that are deliberately checked in:
-!tests/**/*.pdf
-!tests/**/fixtures/**
-
-# ---------------------------------------------------------------------------
-# Experiment tracking
-# ---------------------------------------------------------------------------
-wandb/
-mlruns/
-
-# ---------------------------------------------------------------------------
-# Editors / OS
-# ---------------------------------------------------------------------------
-.idea/
-.vscode/
-*.swp
-*~
+# misc
 .DS_Store
-Thumbs.db
-datasets/real/
-_internal/
+*.pem
 
-# Open Source ERP reference downloads
-opensource_erp/
-OpenSource_ERP/
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-*.db
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+/dist/
+.vinext/
+.cloudflare/
+.wrangler/
+.venv*
+
+.vscode/
