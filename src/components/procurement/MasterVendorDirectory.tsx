@@ -310,13 +310,12 @@ export default function MasterVendorDirectory({
                   {vendor.vendorCode}
                 </span>
                 <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                    vendor.performanceMetrics.tier === "TIER_1_PREFERRED"
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${vendor.performanceMetrics.tier === "TIER_1_PREFERRED"
                       ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                       : vendor.performanceMetrics.tier === "TIER_2_APPROVED"
-                      ? "bg-blue-50 text-blue-700 border border-blue-200"
-                      : "bg-amber-50 text-amber-700 border border-amber-200"
-                  }`}
+                        ? "bg-blue-50 text-blue-700 border border-blue-200"
+                        : "bg-amber-50 text-amber-700 border border-amber-200"
+                    }`}
                 >
                   {vendor.performanceMetrics.tier.replace(/_/g, " ")}
                 </span>
@@ -337,9 +336,8 @@ export default function MasterVendorDirectory({
                 {vendor.tradeCategories.map((cat) => (
                   <span
                     key={cat}
-                    className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${
-                      CATEGORY_TAG_COLORS[cat] || "bg-slate-100 text-slate-700 border-slate-200"
-                    }`}
+                    className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${CATEGORY_TAG_COLORS[cat] || "bg-slate-100 text-slate-700 border-slate-200"
+                      }`}
                   >
                     {cat.replace(/_/g, " ")}
                   </span>
@@ -669,3 +667,4 @@ export default function MasterVendorDirectory({
     </div>
   );
 }
+

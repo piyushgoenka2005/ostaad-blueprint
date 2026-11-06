@@ -518,10 +518,10 @@ export function generateComparativeStatement(
     const creditDays = bid.paymentCreditTerms.includes("30")
       ? 30
       : bid.paymentCreditTerms.includes("21")
-      ? 21
-      : bid.paymentCreditTerms.includes("15")
-      ? 15
-      : 0;
+        ? 21
+        : bid.paymentCreditTerms.includes("15")
+          ? 15
+          : 0;
 
     // Composite scoring out of 100
     const priceScore = Math.max(0, 50 - costDeltaPct * 2);
@@ -575,3 +575,4 @@ export function validateGSTIN(gstin: string): boolean {
   const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
   return gstinRegex.test(gstin.trim().toUpperCase());
 }
+
