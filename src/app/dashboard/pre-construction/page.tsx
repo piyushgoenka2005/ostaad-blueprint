@@ -36,6 +36,8 @@ import {
   TrendingUp,
   FileSpreadsheet,
   Users,
+  CalendarClock,
+  Activity,
 } from "lucide-react";
 
 import CompanySwitcher from "@/components/CompanySwitcher";
@@ -49,6 +51,8 @@ import FinancialFeasibilityEngine from "@/components/planning/FinancialFeasibili
 import OptionsScorecardGateMatrix from "@/components/planning/OptionsScorecardGateMatrix";
 import MasterBOQTemplateEngine from "@/components/planning/MasterBOQTemplateEngine";
 import PreConVendorMatrix from "@/components/planning/PreConVendorMatrix";
+import InteractiveGanttScheduler from "@/components/planning/InteractiveGanttScheduler";
+import CumulativeCashflowPlanner from "@/components/planning/CumulativeCashflowPlanner";
 
 // ==========================================
 // TOOL 1: SITE SURVEY CHECKLIST SPECIFICATION
@@ -273,7 +277,19 @@ export default function PreConstructionEngine() {
 
   // Active Tool Tab
   const [activeTab, setActiveTab] = useState<
-    "survey" | "geometry" | "zoning" | "soil" | "cost" | "feasibility" | "options" | "boq" | "vendors" | "permits" | "vault"
+    | "survey"
+    | "geometry"
+    | "zoning"
+    | "soil"
+    | "cost"
+    | "feasibility"
+    | "options"
+    | "boq"
+    | "vendors"
+    | "gantt"
+    | "cashflow"
+    | "permits"
+    | "vault"
   >("survey");
 
   // Project Meta State
@@ -586,6 +602,36 @@ export default function PreConstructionEngine() {
             </button>
 
             <button
+              onClick={() => setActiveTab("gantt")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "gantt"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <CalendarClock className="h-4 w-4 text-rose-400" />
+              <span>Tool 4: Gantt & CPM</span>
+              <span className="rounded-full bg-rose-50 text-rose-700 px-2 py-0.5 text-[10px] font-mono border border-rose-200">
+                Critical Path
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("cashflow")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "cashflow"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <Activity className="h-4 w-4 text-teal-400" />
+              <span>Tool 10: Cashflow S-Curve</span>
+              <span className="rounded-full bg-teal-50 text-teal-700 px-2 py-0.5 text-[10px] font-mono border border-teal-200">
+                Liquidity
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab("permits")}
               className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
                 activeTab === "permits"
@@ -887,6 +933,20 @@ export default function PreConstructionEngine() {
         {/* ======================================================== */}
         {activeTab === "vendors" && (
           <PreConVendorMatrix />
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 10: TOOL 4 - INTERACTIVE GANTT & CPM SCHEDULER      */}
+        {/* ======================================================== */}
+        {activeTab === "gantt" && (
+          <InteractiveGanttScheduler />
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 11: TOOL 10 - CASHFLOW S-CURVE & LIQUIDITY PLANNER   */}
+        {/* ======================================================== */}
+        {activeTab === "cashflow" && (
+          <CumulativeCashflowPlanner />
         )}
 
         {/* ======================================================== */}

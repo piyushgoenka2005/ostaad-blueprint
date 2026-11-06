@@ -564,3 +564,4 @@ export function evaluateVendorBids(bids: VendorBid[]): EvaluatedVendorBid[] {
 
   return evaluated;
 }
+

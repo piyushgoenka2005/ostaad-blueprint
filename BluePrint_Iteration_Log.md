@@ -2383,7 +2383,7 @@ Implement Sub-Modules 2.6 & 2.7 of the approved Ostaad ERP Architecture Plan:
 
 ### Last update
 
-2026-11-06 03:40:00 IST — Commit: `3ef419b` — `feat(planning): implement Sub-Modules 2.8 and 2.9 Master BOQ Engine and Vendor Comparison Matrix`
+2026-11-06 03:40:00 IST — Commit: `9daed88` — `feat(planning): implement Sub-Modules 2.8 and 2.9 Master BOQ Engine and Vendor Comparison Matrix`
 
 ### Expected change and Functioning
 
@@ -2434,6 +2434,49 @@ Implement Sub-Modules 2.8 & 2.9 of the approved Ostaad ERP Architecture Plan:
 
 - TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
 - Functional verification: Tested CSV serialization format and verified landed cost formulas ($Base + Freight + Loading + GST$).
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and deep navy typography.
+
+---
+
+## Iteration 73 — Interactive Gantt Timeline & Cashflow S-Curve Planner (Sub-Modules 2.10 & 2.11)
+
+### Last update
+
+2026-11-06 07:32:00 IST — Commit: `1d835e2` — `feat(planning): implement Sub-Modules 2.10 and 2.11 Interactive Gantt and Cashflow S-Curve`
+
+### Expected change and Functioning
+
+Implement Sub-Modules 2.10 & 2.11 of the approved Ostaad ERP Architecture Plan:
+1. **Interactive Gantt Timeline & Critical Path Scheduler (`src/lib/planning/schedule-cashflow.ts` & `src/components/planning/InteractiveGanttScheduler.tsx`)**:
+   - Built Finish-to-Start predecessor dependency modeling across 6 core trades (Enabling, Substructure, Superstructure, Finishing, MEP, Handover).
+   - Implemented Critical Path Method (CPM) dual-pass algorithms:
+     - Forward pass: Early Start ($ES$) and Early Finish ($EF$).
+     - Backward pass: Late Start ($LS$) and Late Finish ($LF$).
+     - Total Float derivation ($TF = LS - ES$) and Zero-Float ($TF \le 0$) critical path identification.
+   - Formulated 4 milestone gates: Groundbreaking, Substructure Plinth, Structural Topping Out, and Final Handover.
+   - Integrated Indian monsoon season window (Days 90–150 / June–August) flagging high-risk excavation and external painting tasks.
+   - Built visual interactive Gantt lane canvas with clickable progress toggles (0% → 50% → 100%), trade filters, and critical-path-only view filter.
+2. **Construction Phase & Cumulative Cashflow S-Curve Planner (`src/components/planning/CumulativeCashflowPlanner.tsx`)**:
+   - Structured 18-month construction phasing schedule modeling monthly capital expenditures.
+   - Formulated customer milestone collection inflows and equity injection schedules.
+   - Built dynamic SVG S-Curve visualization plotting Cumulative Spend (Sigmoid Outflow S-Curve) against Cumulative Inflow and Net Exposure.
+   - Automated Peak Funding Deficit derivation to establish the exact Construction Finance (CF) debt facility limit required.
+   - Formulated monthly working capital schedule table with surplus/deficit status callouts.
+3. **Pre-Construction Planning Hub Integration**:
+   - Connected Tool 4 (`gantt`) and Tool 10 (`cashflow`) into `src/app/dashboard/pre-construction/page.tsx` tabs.
+
+### Edits made
+
+- `src/lib/planning/schedule-cashflow.ts`: Created CPM mathematical scheduler, float analysis formulas, and monthly cashflow S-Curve calculation engine.
+- `src/components/planning/InteractiveGanttScheduler.tsx`: Built interactive Gantt timeline canvas, monsoon alert band, milestone gates, and CPM schedule table.
+- `src/components/planning/CumulativeCashflowPlanner.tsx`: Built visual S-Curve chart, peak liquidity deficit monitor, and monthly working capital register.
+- `src/app/dashboard/pre-construction/page.tsx`: Integrated Tool 4 and Tool 10 tabs into Pre-Construction Planning Hub.
+- `BluePrint_Iteration_Log.md`: Aligned Iteration 72 commit to `9daed88`, appended Iteration 73 sequentially before future template.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- Algorithmic verification: Confirmed CPM forward/backward pass math, $TF = 0$ critical path flagging, and cumulative S-Curve cash sums.
 - Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and deep navy typography.
 
 ---
