@@ -2765,7 +2765,7 @@ Implement Module 5 (Vendor Management & Sourcing Procurement — All 5 Sub-Modul
 
 ### Last update
 
-2026-11-06 08:46:00 IST — Commit: `d942e11` — `feat(finance): implement Module 6 Budget Guardrails Dual Control PO Gate Bank Ledger and 3 Way Reconciliation`
+2026-11-06 08:46:00 IST — Commit: `30c5f76` — `feat(finance): implement Module 6 Budget Guardrails Dual Control PO Gate Bank Ledger and 3 Way Reconciliation`
 
 ### Expected change and Functioning
 
@@ -2813,6 +2813,58 @@ Implement Module 6 (Commercial Gatekeeping, Finance & Accounts — All 6 Sub-Mod
 
 - TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
 - Functional verification: Confirmed budget headroom math, dual-control PO release transitions, UTR ledger updates, and 3-way tare discrepancy flagging.
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, deep navy `#122b45` typography, and royal blue accents.
+
+---
+
+## Iteration 80 — Full Module 7: Site Operations, Godown & Stock Ledger (Sub-Modules 7.1, 7.2, 7.3, 7.4, 7.5 — 100% Complete)
+
+### Last update
+
+2026-11-06 08:55:00 IST — Commit: `5b20f92` — `feat(store): implement Module 7 Multi Godown Gate GRN Inward Tolerance and Immutable Stock Ledger`
+
+### Expected change and Functioning
+
+Implement Module 7 (Site Operations, Godown & Stock Ledger — All 5 Sub-Modules) of the approved Ostaad ERP Architecture Plan:
+1. **Sub-Module 7.1: Multi-Godown / Site Warehouse Management (`src/lib/site-store-operations.ts` & `src/components/site-store/MultiGodownManagement.tsx`)**:
+   - Structured 4 physical site storage locations (`GDN-CEM-01` Central Weatherproof Cement Shed, `GDN-STL-02` Rebar Fabrication Laydown Yard, `GDN-AGG-03` Granular Aggregate Storage Bins, `GDN-AAC-04` AAC Lightweight Block Stacking Yard).
+   - Formulated live storage capacity gauges, occupied stock quantities, utilization percentages, physical area demarcations, and storekeeper contact mandates.
+   - Built "Add Storage Location" modal and CSV export.
+2. **Sub-Module 7.2: Goods Receipt Note (GRN) Inward with Transporter Vehicle Log (`src/components/site-store/GRNInwardGateLog.tsx`)**:
+   - Formulated gate security and weighbridge inward workflow recording delivery challan numbers, truck registration numbers (`MH-12-RN-8821`), gross weight, tare weight, and net material weight in kg.
+   - Cloudflare R2 challan scan photo verification and gate security tamper-evident seals inspection (`SEALS_INTACT_VERIFIED`).
+   - Built printable official GRN inward slip certificate with delivery driver, security guard, and storekeeper signatures.
+3. **Sub-Module 7.3: Burst, Damaged & Rejected Material Accounting (+5% Tolerance Guardrail) (`src/components/site-store/GRNInwardGateLog.tsx`)**:
+   - Automated deduction of burst cement bags, rusted steel rebar, and broken blocks from the gross delivered quantity.
+   - Enforced strict +5% maximum over-delivery tolerance limit against PO quantities: any excess over $\text{PO Qty} \times 1.05$ is automatically flagged and rejected at the gate to prevent vendor over-billing.
+   - Live computation of Net Accepted Quantities into the warehouse.
+4. **Sub-Module 7.4: Double-Entry Immutable Stock Ledger (`src/components/site-store/ImmutableStockLedger.tsx`)**:
+   - Perpetual double-entry warehouse journal tracking material movements (`INWARD_GRN`, `ISSUE_TO_CONTRACTOR`, `TRANSFER_BETWEEN_GODOWNS`).
+   - Automatic real-time credit to godown stock balances upon gate GRN generation.
+   - Built "Inter-Godown Transfer" modal executing reciprocal debit and credit entries.
+   - Export Stock Ledger to CSV.
+5. **Sub-Module 7.5: Contractor Material Indent, Issue Slips & Wastage Tracking (`src/components/site-store/MaterialIndentWastageTracker.tsx`)**:
+   - Formulated contractor requisition indents and storekeeper material issue slips linked to specific work fronts (e.g. *Tower B Level 3 Shear Wall Concreting*).
+   - Live comparison of actual issued quantities against theoretical IS 456 BOQ consumption to prevent site pilferage and unauthorized scrap.
+   - Automated abnormal wastage threshold guardrail: variances $> 3.5\%$ trigger `ABNORMAL_SCRAP_WARNING` flags requiring Resident Engineer review.
+   - Built official Material Issue Slip modal with dual sign-offs.
+6. **Dashboard Route Integration**:
+   - Rewrote `src/app/dashboard/site-store/page.tsx` using `AppShell`, integrating all 4 sub-module tools with responsive tabbed switching (`grn`, `ledger`, `indent`, `godowns`).
+
+### Edits made
+
+- `src/lib/site-store-operations.ts`: Created data models, tolerance calculations, and default datasets for godown facilities, gate GRN slips, double-entry stock ledger, and contractor indent issue slips.
+- `src/components/site-store/MultiGodownManagement.tsx`: Built storage yard cards, capacity gauges, and facility addition modal.
+- `src/components/site-store/GRNInwardGateLog.tsx`: Built gate weighbridge inward recording wizard, +5% tolerance guardrail engine, and printable GRN slip modal.
+- `src/components/site-store/ImmutableStockLedger.tsx`: Built double-entry perpetual inventory ledger and inter-godown transfer modal.
+- `src/components/site-store/MaterialIndentWastageTracker.tsx`: Built contractor requisition tracker, theoretical BOQ consumption comparison, and issue slip certificate modal.
+- `src/app/dashboard/site-store/page.tsx`: Rewrote Site Store dashboard using AppShell and integrated all Module 7 sub-modules.
+- `BluePrint_Iteration_Log.md`: Aligned Iteration 79 commit to `30c5f76`, appended Iteration 80 sequentially before future template.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- Functional verification: Confirmed weighbridge net tare deductions, +5% over-delivery gate rejections, double-entry stock ledger updates, and theoretical BOQ consumption variance alerts.
 - Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, deep navy `#122b45` typography, and royal blue accents.
 
 ---
