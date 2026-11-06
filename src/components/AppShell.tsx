@@ -28,6 +28,7 @@ import {
   Clock,
   Sparkles,
   Calculator,
+  ShoppingCart,
 } from "lucide-react";
 import CompanySwitcher from "@/components/CompanySwitcher";
 import { RoleBadge } from "@/components/RoleGate";
@@ -43,7 +44,7 @@ export interface AppShellProps {
   title?: string;
   subtitle?: string;
   breadcrumbs?: BreadcrumbItem[];
-  activeNav?: "pre-construction" | "projects" | "boq" | "operations" | "finance" | "site-store" | "admin";
+  activeNav?: "pre-construction" | "projects" | "boq" | "operations" | "procurement" | "finance" | "site-store" | "admin";
   actions?: React.ReactNode;
 }
 
@@ -134,6 +135,7 @@ export default function AppShell({
     if (pathname.includes("/pre-construction")) return "pre-construction";
     if (pathname.includes("/projects")) return "projects";
     if (pathname.includes("/boq")) return "boq";
+    if (pathname.includes("/procurement")) return "procurement";
     if (pathname.includes("/operations")) return "operations";
     if (pathname.includes("/finance")) return "finance";
     if (pathname.includes("/site-store")) return "site-store";
@@ -193,8 +195,15 @@ export default function AppShell({
       ],
     },
     {
-      group: "Supply Chain & Stores",
+      group: "Supply Chain & Sourcing",
       items: [
+        {
+          id: "procurement",
+          label: "Procurement & Sourcing",
+          badge: "Module 5",
+          href: "/dashboard/procurement",
+          icon: ShoppingCart,
+        },
         {
           id: "site-store",
           label: "Site Store & GRN",

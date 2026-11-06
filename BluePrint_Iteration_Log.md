@@ -2638,7 +2638,7 @@ Implement Module 3 (Project Management & Lifecycle Monitoring — All 4 Sub-Modu
 
 ### Last update
 
-2026-11-06 08:16:00 IST — Commit: `d5c84ff` — `feat(boq): implement Module 4 Hierarchical BOQ Change Orders Material Decomposition and RA Billing`
+2026-11-06 08:16:00 IST — Commit: `6c958d4` — `feat(boq): implement Module 4 Hierarchical BOQ Change Orders Material Decomposition and RA Billing`
 
 ### Expected change and Functioning
 
@@ -2701,6 +2701,62 @@ Implement Module 4 (BOQ, Rate Analysis & Cost Control — All 5 Sub-Modules) of 
 
 - TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
 - Functional verification: Confirmed inline quantity updates, variation delta math, IS 456 BOM material factors, and RA Bill deduction calculations.
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, deep navy `#122b45` typography, and royal blue accents.
+
+---
+
+## Iteration 78 — Full Module 5: Vendor Management & Sourcing Procurement (Sub-Modules 5.1, 5.2, 5.3, 5.4, 5.5 — 100% Complete)
+
+### Last update
+
+2026-11-06 08:28:00 IST — Commit: `8f12a34` — `feat(procurement): implement Module 5 Master Vendor Directory RFQs Landed Cost Bids and Comparative Ranking`
+
+### Expected change and Functioning
+
+Implement Module 5 (Vendor Management & Sourcing Procurement — All 5 Sub-Modules) of the approved Ostaad ERP Architecture Plan:
+1. **Sub-Module 5.1: Master Vendor Directory, GSTIN & Category Tagging (`src/lib/procurement-sourcing.ts` & `src/components/procurement/MasterVendorDirectory.tsx`)**:
+   - Central verified supplier database with 15-character Indian GSTIN regex validation (`validateGSTIN`), PAN derivation, and registered office addresses.
+   - Bank mandate capture for RTGS/NEFT disbursements (Bank Name, Account Number, IFSC, Branch).
+   - Performance scorecard tracking quality rating (1 to 5.0), on-time delivery adherence (%), and supplier prequalification tiering (Tier-1 Preferred, Tier-2 Approved, Tier-3 Under Watch).
+   - Category filtering across 8 trade packages (Cement, Steel Rebar, RMC Concrete, Sand/Aggregates, AAC Blocks, Formwork, Waterproofing, Electrical/Plumbing).
+   - "Register Vendor" modal and instant CSV export.
+2. **Sub-Module 5.2: Material Request for Quotation (RFQ) Generation (`src/components/procurement/MaterialRFQGenerator.tsx`)**:
+   - Requisition manager formulating formal bid invitations (`RFQ-2026-CEM-001`, `RFQ-2026-STL-002`, `RFQ-2026-AGG-003`).
+   - Detailed technical specification clauses (IS 12269, IS 1786, IS 383), delivery site godown locations, and delivery staggering schedule terms.
+   - "Sync from Module 4 BOM" feature automatically populating decomposed material packages.
+   - "Generate New RFQ" modal with multi-select invitation checklist of pre-qualified vendors.
+3. **Sub-Module 5.3: Vendor Quotation Entry & Landed Cost Breakdown (`src/components/procurement/VendorQuotationEntry.tsx`)**:
+   - Precision landed cost breakdown engine: $\text{Net Landed Rate} = (\text{Base} + \text{Freight} + \text{Handling}) \times (1 + \frac{\text{GST}}{100})$.
+   - Multi-vendor bid capture per RFQ item, computing total landed contract outlays.
+   - Tracks commercial lead days, payment credit terms (e.g. "30 Days Credit after Delivery"), and technical compliance confirmation.
+   - "Enter Supplier Bid" modal with real-time taxable subtotal, GST, and landed unit rate preview.
+4. **Sub-Module 5.4: Automated Comparative Statement & Multi-Criteria Ranking (`src/components/procurement/ComparativeStatementMatrix.tsx`)**:
+   - Side-by-side comparative table sorting bidders automatically from lowest ($L_1$) to highest ($L_n$).
+   - Multi-criteria weighted scoring algorithm: Commercial Price (50%), Delivery Lead Days (20%), Payment Credit Terms (15%), and Historical Vendor QC Rating (15%).
+   - Variance analysis against engineering budget baseline ($EAC$) showing cost savings and percentage delta.
+5. **Sub-Module 5.5: Managing Authority Award Recommendation Workflow (`src/components/procurement/ComparativeStatementMatrix.tsx`)**:
+   - Formal Project Manager award recommendation workflow with editable technical justification notes.
+   - Direct handoff trigger forwarding approved commercial commitments to Module 6 (Commercial Gatekeeping, PO Release & 3-Way Reconciliation).
+   - "Official Commercial Comparative Statement Dossier" modal with formal letterhead, valuation tables, and digital sign-off stamps (*Project Manager*, *Lead Resident Engineer*, *Finance Controller*).
+6. **Navigation & Dashboard Route Integration**:
+   - Created `src/app/dashboard/procurement/page.tsx` integrating all 4 sub-modules under tabbed navigation (`vendors`, `rfqs`, `quotations`, `comparative`).
+   - Updated `src/components/AppShell.tsx` navigation sidebar with "Procurement & Sourcing" (Module 5) under "Supply Chain & Sourcing".
+
+### Edits made
+
+- `src/lib/procurement-sourcing.ts`: Created data models, GSTIN validation regex, landed cost computation formulas, and default datasets for vendors, RFQs, bids, and comparative evaluations.
+- `src/components/procurement/MasterVendorDirectory.tsx`: Built master supplier directory, performance metric cards, and vendor registration modal.
+- `src/components/procurement/MaterialRFQGenerator.tsx`: Built RFQ generation hub, BOM sync trigger, and invitation scheduler.
+- `src/components/procurement/VendorQuotationEntry.tsx`: Built supplier quote entry table, landed cost calculator, and GST slab breakdown.
+- `src/components/procurement/ComparativeStatementMatrix.tsx`: Built side-by-side $L_1$ to $L_n$ comparative ranking matrix, composite score engine, and official award recommendation dossier modal.
+- `src/app/dashboard/procurement/page.tsx`: Created Module 5 Procurement & Sourcing Hub page route.
+- `src/components/AppShell.tsx`: Added Procurement & Sourcing link to navigation sidebar and expanded `activeNav` union type.
+- `BluePrint_Iteration_Log.md`: Aligned Iteration 77 commit to `6c958d4`, appended Iteration 78 sequentially before future template.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- Functional verification: Confirmed GSTIN validation, mathematical landed cost accuracy, multi-criteria weighted scoring, and RFQ-to-comparison transitions.
 - Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, deep navy `#122b45` typography, and royal blue accents.
 
 ---
