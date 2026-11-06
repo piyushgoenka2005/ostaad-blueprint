@@ -116,11 +116,10 @@ export default function SiteMobilizationChecklist({
             <button
               onClick={() => setShowCertificateModal(true)}
               disabled={!summary.isCriticalPassed}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold text-white transition-all shadow-xs ${
-                summary.isCriticalPassed
+              className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold text-white transition-all shadow-xs ${summary.isCriticalPassed
                   ? "bg-emerald-600 hover:bg-emerald-700"
                   : "bg-slate-300 cursor-not-allowed"
-              }`}
+                }`}
             >
               <Award className="h-3.5 w-3.5" />
               <span>Issue Kickoff Certificate</span>
@@ -143,30 +142,26 @@ export default function SiteMobilizationChecklist({
           </div>
 
           <div
-            className={`rounded-xl border p-3.5 ${
-              summary.isCriticalPassed
+            className={`rounded-xl border p-3.5 ${summary.isCriticalPassed
                 ? "border-emerald-200 bg-emerald-50/50"
                 : "border-rose-200 bg-rose-50/50"
-            }`}
+              }`}
           >
             <div
-              className={`text-[10px] font-bold uppercase tracking-wider ${
-                summary.isCriticalPassed ? "text-emerald-700" : "text-rose-700"
-              }`}
+              className={`text-[10px] font-bold uppercase tracking-wider ${summary.isCriticalPassed ? "text-emerald-700" : "text-rose-700"
+                }`}
             >
               Critical Hard Gates
             </div>
             <div
-              className={`text-xl font-black mt-0.5 ${
-                summary.isCriticalPassed ? "text-emerald-700" : "text-rose-700"
-              }`}
+              className={`text-xl font-black mt-0.5 ${summary.isCriticalPassed ? "text-emerald-700" : "text-rose-700"
+                }`}
             >
               {summary.isCriticalPassed ? "ALL PASSED" : `${summary.criticalFailures.length} FAILED`}
             </div>
             <div
-              className={`text-[11px] font-medium ${
-                summary.isCriticalPassed ? "text-emerald-600" : "text-rose-600"
-              }`}
+              className={`text-[11px] font-medium ${summary.isCriticalPassed ? "text-emerald-600" : "text-rose-600"
+                }`}
             >
               {summary.isCriticalPassed ? "Zero Gating Breaches" : "Halts Physical Excavation"}
             </div>
@@ -183,13 +178,12 @@ export default function SiteMobilizationChecklist({
           </div>
 
           <div
-            className={`rounded-xl border p-3.5 ${
-              summary.decisionVerdict === "CLEAR TO COMMENCE"
+            className={`rounded-xl border p-3.5 ${summary.decisionVerdict === "CLEAR TO COMMENCE"
                 ? "border-emerald-300 bg-emerald-50 text-emerald-950"
                 : summary.decisionVerdict === "CONDITIONAL COMMENCEMENT"
-                ? "border-amber-300 bg-amber-50 text-amber-950"
-                : "border-rose-300 bg-rose-50 text-rose-950"
-            }`}
+                  ? "border-amber-300 bg-amber-50 text-amber-950"
+                  : "border-rose-300 bg-rose-50 text-rose-950"
+              }`}
           >
             <div className="text-[10px] font-bold uppercase tracking-wider">Statutory Kickoff Decision</div>
             <div className="text-sm font-black mt-1 leading-snug">{summary.decisionVerdict}</div>
@@ -226,11 +220,10 @@ export default function SiteMobilizationChecklist({
       <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1">
         <button
           onClick={() => setSelectedCategory("ALL")}
-          className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${
-            selectedCategory === "ALL"
+          className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${selectedCategory === "ALL"
               ? "bg-[#122b45] text-white shadow-xs"
               : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-          }`}
+            }`}
         >
           All Categories ({items.length})
         </button>
@@ -244,11 +237,10 @@ export default function SiteMobilizationChecklist({
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${
-              selectedCategory === cat.id
+            className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${selectedCategory === cat.id
                 ? "bg-amber-600 text-white shadow-xs"
                 : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-            }`}
+              }`}
           >
             {cat.name}
           </button>
@@ -294,13 +286,12 @@ export default function SiteMobilizationChecklist({
                   <td className="py-3 px-3 text-center">
                     <button
                       onClick={() => cycleStatus(item.id)}
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold cursor-pointer transition-transform active:scale-95 ${
-                        item.status === "PASS"
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold cursor-pointer transition-transform active:scale-95 ${item.status === "PASS"
                           ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
                           : item.status === "FAIL"
-                          ? "bg-rose-100 text-rose-800 border border-rose-200"
-                          : "bg-amber-100 text-amber-800 border border-amber-200"
-                      }`}
+                            ? "bg-rose-100 text-rose-800 border border-rose-200"
+                            : "bg-amber-100 text-amber-800 border border-amber-200"
+                        }`}
                     >
                       {item.status === "PASS" ? (
                         <CheckCircle2 className="h-3 w-3" />
@@ -443,3 +434,4 @@ export default function SiteMobilizationChecklist({
     </div>
   );
 }
+

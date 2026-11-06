@@ -460,3 +460,4 @@ export function calculateMobilizationReadiness(items: MobilizationCheckItem[]) {
     decisionVerdict,
   };
 }
+

@@ -131,6 +131,7 @@ export default function AppShell({
   const currentNav = useMemo(() => {
     if (activeNav) return activeNav;
     if (pathname.includes("/pre-construction")) return "pre-construction";
+    if (pathname.includes("/projects")) return "projects";
     if (pathname.includes("/operations")) return "operations";
     if (pathname.includes("/finance")) return "finance";
     if (pathname.includes("/site-store")) return "site-store";
@@ -154,6 +155,13 @@ export default function AppShell({
     {
       group: "Execution & Engineering",
       items: [
+        {
+          id: "projects",
+          label: "Project Lifecycle & WBS",
+          badge: "Module 3",
+          href: "/dashboard/projects",
+          icon: FolderKanban,
+        },
         {
           id: "operations",
           label: "Operations & BOQ Engine",
