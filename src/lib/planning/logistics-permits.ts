@@ -308,3 +308,4 @@ export const DEFAULT_LOGISTICS_ZONES: LogisticsZone[] = [
     notes: "Daily municipal carting access for green disposal compliance.",
   },
 ];
+

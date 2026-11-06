@@ -56,6 +56,8 @@ import InteractiveGanttScheduler from "@/components/planning/InteractiveGanttSch
 import CumulativeCashflowPlanner from "@/components/planning/CumulativeCashflowPlanner";
 import StatutoryPermitsTracker from "@/components/planning/StatutoryPermitsTracker";
 import TemporarySiteLayoutPlanner from "@/components/planning/TemporarySiteLayoutPlanner";
+import CostVarianceContingencyMonitor from "@/components/planning/CostVarianceContingencyMonitor";
+import SiteMobilizationChecklist from "@/components/planning/SiteMobilizationChecklist";
 
 // ==========================================
 // TOOL 1: SITE SURVEY CHECKLIST SPECIFICATION
@@ -293,6 +295,8 @@ export default function PreConstructionEngine() {
     | "cashflow"
     | "permits"
     | "layout"
+    | "variance"
+    | "mobilization"
     | "vault"
   >("survey");
 
@@ -666,6 +670,36 @@ export default function PreConstructionEngine() {
             </button>
 
             <button
+              onClick={() => setActiveTab("variance")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "variance"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <DollarSign className="h-4 w-4 text-amber-500" />
+              <span>Tool 13: Budget Variance</span>
+              <span className="rounded-full bg-amber-50 text-amber-700 px-2 py-0.5 text-[10px] font-mono border border-amber-200">
+                Contingency
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("mobilization")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "mobilization"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <HardHat className="h-4 w-4 text-emerald-500" />
+              <span>Tool 15: Mobilization Gate</span>
+              <span className="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-mono">
+                50 Points
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab("vault")}
               className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
                 activeTab === "vault"
@@ -980,6 +1014,23 @@ export default function PreConstructionEngine() {
         {/* ======================================================== */}
         {activeTab === "layout" && (
           <TemporarySiteLayoutPlanner />
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 14: TOOL 13 - COST VS BUDGET & CONTINGENCY MONITOR   */}
+        {/* ======================================================== */}
+        {activeTab === "variance" && (
+          <CostVarianceContingencyMonitor />
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 15: TOOL 15 - 50-POINT MOBILIZATION READINESS GATE   */}
+        {/* ======================================================== */}
+        {activeTab === "mobilization" && (
+          <SiteMobilizationChecklist
+            projectName={projectName}
+            projectLocation={projectLocation}
+          />
         )}
 
         {/* ======================================================== */}

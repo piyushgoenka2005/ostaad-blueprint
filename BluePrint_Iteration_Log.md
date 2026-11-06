@@ -2485,7 +2485,7 @@ Implement Sub-Modules 2.10 & 2.11 of the approved Ostaad ERP Architecture Plan:
 
 ### Last update
 
-2026-11-06 07:44:00 IST — Commit: `b4c810a` — `feat(planning): implement Sub-Modules 2.12 and 2.13 Statutory Permits Tracker and Site Logistics Planner`
+2026-11-06 07:44:00 IST — Commit: `d43064f` — `feat(planning): implement Sub-Modules 2.12 and 2.13 Statutory Permits Tracker and Site Logistics Planner`
 
 ### Expected change and Functioning
 
@@ -2521,6 +2521,64 @@ Implement Sub-Modules 2.12 & 2.13 of the approved Ostaad ERP Architecture Plan:
 
 - TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
 - Functional verification: Confirmed permit fee summation, critical gate pass/hold logic, and SVG coordinate scaling for logistics zones.
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and deep navy typography.
+
+---
+
+## Iteration 75 — Cost vs. Budget Contingency Monitor & 50-Point Mobilization Readiness Gate (Sub-Modules 2.14 & 2.15 — Module 2 Complete)
+
+### Last update
+
+2026-11-06 07:52:00 IST — Commit: `36e1c8d` — `feat(planning): implement Sub-Modules 2.14 and 2.15 completing Module 2 Pre-Construction Planning Engine`
+
+### Expected change and Functioning
+
+Complete Module 2 (Pre-Construction Planning Engine — All 15 Tools) of the approved Ostaad ERP Architecture Plan:
+1. **Cost vs. Budget Variance & Contingency Drawdown Monitor (`src/lib/planning/variance-readiness.ts` & `src/components/planning/CostVarianceContingencyMonitor.tsx`)**:
+   - Structured 8 package cost codes (Civil Substructure, Superstructure RCC, Mivan Formwork, AAC Masonry, Waterproofing, MEP Services, Finishes & Glazing, External Infrastructure).
+   - Formulated package variance algorithms calculating Baseline Approved Budget, Current Committed POs, Actual Invoiced Outflow, Estimate at Completion ($EAC = \max(\text{Baseline}, \text{Committed})$), and Cost Variance % ($CV$).
+   - Implemented dynamic Contingency Reserve Pool (₹1.25 Cr allocated) tracking drawdowns, approved justification audit trail, and remaining liquidity buffer.
+   - Built interactive budget variance register table with status warning pills (SAFE, VARIANCE, OVERRUN) and "Request Contingency Drawdown" modal.
+2. **Site Mobilization & Project Kickoff Readiness Checklist (`src/components/planning/SiteMobilizationChecklist.tsx`)**:
+   - Structured 50-point comprehensive pre-commencement checklist across 5 categories:
+     1. Statutory Sanctions (CC, Environmental Clearance, Fire NOC, BOCW Cess)
+     2. Insurance & Labour Welfare (CAR policy, Workmen Comp, RO Water, Sanitation)
+     3. Utilities & Power (100 kVA energized, 125 kVA silent DG set, 100kL water tank)
+     4. Safety Barricading & Environmental Controls (2.4m GI perimeter, PPE stock, wheel wash, anti-smog mist cannon)
+     5. Survey & Datum Benchmarks (TBM +100.000m datum pillar, Total Station grid, confirmatory SBC test, Rev-0 GFC foundation drawings).
+   - Formulated strict gating logic: any single failed critical checkpoint halts physical site mobilization with an alert banner.
+   - Built interactive status cycler (PASS, FAIL, PENDING), category tabs, and Official Site Mobilization & Kickoff Clearance Certificate modal with digital sign-off stamps.
+3. **Pre-Construction Planning Suite 100% Finalization**:
+   - Connected all 15 operational tools into `src/app/dashboard/pre-construction/page.tsx`:
+     - Tool 1: Site Survey GO/NO-GO Checklist
+     - Tool 2: Pre-Con Cost Estimator & Rates
+     - Tool 3: Master BOQ Template & Excel Importer/Exporter
+     - Tool 4: Interactive Gantt Timeline & CPM Scheduler
+     - Tool 5: Statutory Permit & NOC Tracker
+     - Tool 6: Plot Area & Geometric Boundary Calculator
+     - Tool 7: Vendor Benchmarking & Comparative Statement
+     - Tool 8: Geotech Soil Investigation & Strata Tracker
+     - Tool 9: Financial Feasibility & Debt/EMI Analyzer
+     - Tool 10: Construction Phase & Cumulative Cashflow S-Curve
+     - Tool 11: Temporary Site Layout & Logistics CAD Planner
+     - Tool 12: Zoning, Setbacks & FAR Permissible Area Engine
+     - Tool 13: Cost vs. Budget Variance & Contingency Monitor
+     - Tool 14: Project Options Scorecard & Gate Matrix
+     - Tool 15: Site Mobilization & Kickoff Readiness Checklist
+     - Plus Cloudflare R2 Document Vault Integration.
+
+### Edits made
+
+- `src/lib/planning/variance-readiness.ts`: Created package budget variance calculations, contingency drawdown models, and 50-point mobilization readiness checklist engine.
+- `src/components/planning/CostVarianceContingencyMonitor.tsx`: Built interactive budget variance register, contingency pool progress bar, and drawdown request modal.
+- `src/components/planning/SiteMobilizationChecklist.tsx`: Built 50-point pre-commencement checklist, critical gating trigger, and official mobilization certificate generator.
+- `src/app/dashboard/pre-construction/page.tsx`: Integrated Tool 13 (`variance`) and Tool 15 (`mobilization`), completing the 15-tool Pre-Construction Hub.
+- `BluePrint_Iteration_Log.md`: Aligned Iteration 74 commit to `d43064f`, appended Iteration 75 sequentially before future template.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- Functional verification: Verified contingency balance math, EAC derivations, and critical gate halt triggers.
 - Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and deep navy typography.
 
 ---

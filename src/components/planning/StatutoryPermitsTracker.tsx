@@ -503,3 +503,4 @@ export default function StatutoryPermitsTracker({
     </div>
   );
 }
+
