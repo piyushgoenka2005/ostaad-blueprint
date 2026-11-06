@@ -95,10 +95,7 @@ export interface AuditEventRecord {
   beforeValue?: string;
   afterValue?: string;
   severity: "INFO" | "WARNING" | "CRITICAL";
-  sha256Hash: string;
-  previousHash: string;
-  digitalSignature: string;
-  verificationStatus: "VERIFIED_VALID" | "TAMPERED";
+  status: "APPROVED" | "FLAGGED" | "BLOCKED" | "LOGGED";
 }
 
 export interface BackupStatusRecord {
@@ -392,10 +389,7 @@ export const DEFAULT_AUDIT_LOGS: AuditEventRecord[] = [
     beforeValue: "Status: PENDING_FINANCE_APPROVAL",
     afterValue: "Status: AUTHORISED_ISSUED (Approval Token: CF-881290-OK)",
     severity: "INFO",
-    previousHash: "0000000000000000000000000000000000000000000000000000000000000000",
-    sha256Hash: "d8e3b2c1f90a5e78341b2a9f88c3412019ab76ef321948da62a8715bc7291a45",
-    digitalSignature: "RSA-PSS-SHA256:3a9f0291e988241b77c54129...",
-    verificationStatus: "VERIFIED_VALID",
+    status: "APPROVED",
   },
   {
     id: "AUD-2026-0002",
@@ -414,10 +408,7 @@ export const DEFAULT_AUDIT_LOGS: AuditEventRecord[] = [
     beforeValue: "Committed: ₹2,10,00,000 / Ceiling: ₹2,20,00,000 (Available: ₹10,00,000)",
     afterValue: "Ceiling Revised: ₹2,35,00,000 / Available: ₹25,00,000",
     severity: "WARNING",
-    previousHash: "d8e3b2c1f90a5e78341b2a9f88c3412019ab76ef321948da62a8715bc7291a45",
-    sha256Hash: "fa76829b3c4179e88d4021bb5562134a7801934bcde1908234ab8761fa0912cb",
-    digitalSignature: "RSA-PSS-SHA256:b145293409ae2211fc548902...",
-    verificationStatus: "VERIFIED_VALID",
+    status: "APPROVED",
   },
   {
     id: "AUD-2026-0003",
@@ -436,10 +427,7 @@ export const DEFAULT_AUDIT_LOGS: AuditEventRecord[] = [
     beforeValue: "PO Authorized Qty: 40.00 MT",
     afterValue: "Weighbridge Net: 43.36 MT (+8.4% variance - GATE REJECTION ISSUED)",
     severity: "CRITICAL",
-    previousHash: "fa76829b3c4179e88d4021bb5562134a7801934bcde1908234ab8761fa0912cb",
-    sha256Hash: "7b19284cf9017634de8219ba43056128fa99142ecbd3315690ab12879aef4103",
-    digitalSignature: "RSA-PSS-SHA256:77f1903e12bb9824c0921477...",
-    verificationStatus: "VERIFIED_VALID",
+    status: "BLOCKED",
   },
   {
     id: "AUD-2026-0004",
@@ -458,10 +446,7 @@ export const DEFAULT_AUDIT_LOGS: AuditEventRecord[] = [
     beforeValue: "Role: SITE_ENGINEER",
     afterValue: "Attempted Action: SETTLE_COMMERCIAL_INVOICE (BLOCKED)",
     severity: "CRITICAL",
-    previousHash: "7b19284cf9017634de8219ba43056128fa99142ecbd3315690ab12879aef4103",
-    sha256Hash: "991823ab45ef6781290a34bcf12934ef8871029348bacde01928347102938471",
-    digitalSignature: "RSA-PSS-SHA256:889912301984abcdef901844...",
-    verificationStatus: "VERIFIED_VALID",
+    status: "BLOCKED",
   },
   {
     id: "AUD-2026-0005",
@@ -480,10 +465,7 @@ export const DEFAULT_AUDIT_LOGS: AuditEventRecord[] = [
     beforeValue: "Baseline Rev 0.0 (Total: ₹43,43,00,000)",
     afterValue: "Baseline Rev 1.0 (Total: ₹43,58,70,000)",
     severity: "INFO",
-    previousHash: "991823ab45ef6781290a34bcf12934ef8871029348bacde01928347102938471",
-    sha256Hash: "6541289abcdef0123456789abcdef0123456789abcdef0123456789abcdef012",
-    digitalSignature: "RSA-PSS-SHA256:55ab8821948833912048fbc0...",
-    verificationStatus: "VERIFIED_VALID",
+    status: "LOGGED",
   },
 ];
 
@@ -526,38 +508,6 @@ export const DEFAULT_BACKUPS: BackupStatusRecord[] = [
     initiatedBy: "Automated Monthly Financial Freeze Protocol",
   },
 ];
-
-// ----------------------------------------------------------------------------
-// CRYPTOGRAPHIC HASH CHAIN & INTEGRITY VERIFICATION
-// ----------------------------------------------------------------------------
-
-export function verifyAuditTrailChain(records: AuditEventRecord[]): {
-  isValid: boolean;
-  totalVerified: number;
-  brokenRecordId?: string;
-  errorMessage?: string;
-} {
-  if (!records || records.length === 0) {
-    return { isValid: true, totalVerified: 0 };
-  }
-
-  for (let i = 0; i < records.length; i++) {
-    const current = records[i];
-    if (i > 0) {
-      const prev = records[i - 1];
-      if (current.previousHash !== prev.sha256Hash) {
-        return {
-          isValid: false,
-          totalVerified: i,
-          brokenRecordId: current.id,
-          errorMessage: `Hash chain broken at record ${current.id}: previousHash does not match preceding record's sha256Hash.`,
-        };
-      }
-    }
-  }
-
-  return { isValid: true, totalVerified: records.length };
-}
 
 // ----------------------------------------------------------------------------
 // UNIVERSAL DATA EXPORT ENGINE (CSV Generation & Download)

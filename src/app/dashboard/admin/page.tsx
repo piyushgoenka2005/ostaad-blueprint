@@ -125,7 +125,7 @@ export default function AdminReportingDashboard() {
   return (
     <AppShell
       title="Executive Reporting, Audit & Governance"
-      subtitle="Module 8: C-Suite KPI Dashboards, Procurement Spend Analytics, Cryptographic Audit Trail & Cloudflare D1/R2 Backup Engine"
+      subtitle="Module 8: C-Suite KPI Dashboards, Procurement Spend Analytics, System Audit & Activity Logs, and Cloudflare D1/R2 Backup Engine"
       breadcrumbs={[
         { label: "Ostaad ERP", href: "/dashboard" },
         { label: "Module 8: Reporting & Governance" },
@@ -195,7 +195,7 @@ export default function AdminReportingDashboard() {
             }`}
           >
             <Lock className="h-4 w-4" />
-            <span>Sub-Module 8.3: Immutable Audit Trail (SHA-256)</span>
+            <span>Sub-Module 8.3: System Audit & Activity Logs</span>
           </button>
 
           <button

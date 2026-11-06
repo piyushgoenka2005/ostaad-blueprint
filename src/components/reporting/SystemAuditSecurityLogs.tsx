@@ -3,31 +3,23 @@
 import React, { useState, useMemo } from "react";
 import {
   ShieldCheck,
-  ShieldAlert,
-  KeyRound,
-  Lock,
   Search,
   Filter,
-  RefreshCw,
   CheckCircle2,
   AlertTriangle,
   XCircle,
-  FileCheck2,
-  Download,
   Eye,
-  Hash,
-  Terminal,
   Activity,
-  User,
-  Clock,
-  Sparkles,
-  X,
   FileSpreadsheet,
+  X,
+  Clock,
+  User,
+  Shield,
+  FileText,
 } from "lucide-react";
 import {
   AuditEventRecord,
   DEFAULT_AUDIT_LOGS,
-  verifyAuditTrailChain,
   generateCSV,
   downloadCSVFile,
 } from "@/lib/reporting-audit-governance";
@@ -36,23 +28,16 @@ export default function SystemAuditSecurityLogs() {
   const [logs, setLogs] = useState<AuditEventRecord[]>(DEFAULT_AUDIT_LOGS);
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
   const [severityFilter, setSeverityFilter] = useState<string>("ALL");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRecord, setSelectedRecord] = useState<AuditEventRecord | null>(null);
-
-  // Cryptographic integrity verification state
-  const [verificationResult, setVerificationResult] = useState<{
-    verified: boolean;
-    valid: boolean;
-    total: number;
-    timestamp?: string;
-  } | null>(null);
-  const [isVerifying, setIsVerifying] = useState(false);
 
   // Filtered logs
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
       const matchCat = categoryFilter === "ALL" || log.category === categoryFilter;
       const matchSev = severityFilter === "ALL" || log.severity === severityFilter;
+      const matchStatus = statusFilter === "ALL" || log.status === statusFilter;
       const query = searchQuery.toLowerCase().trim();
       const matchQuery =
         !query ||
@@ -61,26 +46,11 @@ export default function SystemAuditSecurityLogs() {
         log.actor.email.toLowerCase().includes(query) ||
         log.entityId.toLowerCase().includes(query) ||
         log.action.toLowerCase().includes(query) ||
-        log.details.toLowerCase().includes(query) ||
-        log.sha256Hash.toLowerCase().includes(query);
+        log.details.toLowerCase().includes(query);
 
-      return matchCat && matchSev && matchQuery;
+      return matchCat && matchSev && matchStatus && matchQuery;
     });
-  }, [logs, categoryFilter, severityFilter, searchQuery]);
-
-  const handleVerifyIntegrity = () => {
-    setIsVerifying(true);
-    setTimeout(() => {
-      const result = verifyAuditTrailChain(logs);
-      setVerificationResult({
-        verified: true,
-        valid: result.isValid,
-        total: result.totalVerified,
-        timestamp: new Date().toLocaleTimeString(),
-      });
-      setIsVerifying(false);
-    }, 600);
-  };
+  }, [logs, categoryFilter, severityFilter, statusFilter, searchQuery]);
 
   const handleExportCSV = () => {
     const headers = [
@@ -96,9 +66,7 @@ export default function SystemAuditSecurityLogs() {
       "Entity ID",
       "Details",
       "Severity",
-      "SHA-256 Hash",
-      "Previous Hash",
-      "Verification Status",
+      "Status",
     ];
 
     const rows = filteredLogs.map((log) => [
@@ -114,13 +82,11 @@ export default function SystemAuditSecurityLogs() {
       log.entityId,
       log.details,
       log.severity,
-      log.sha256Hash,
-      log.previousHash,
-      log.verificationStatus,
+      log.status,
     ]);
 
     const csv = generateCSV(headers, rows);
-    downloadCSVFile(`Immutable_Audit_Trail_${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    downloadCSVFile(`System_Audit_Logs_${new Date().toISOString().slice(0, 10)}.csv`, csv);
   };
 
   return (
@@ -133,72 +99,28 @@ export default function SystemAuditSecurityLogs() {
           <div>
             <div className="flex items-center gap-2">
               <div className="rounded-lg bg-blue-50 p-2 text-blue-600">
-                <Lock className="h-5 w-5" />
+                <ShieldCheck className="h-5 w-5" />
               </div>
               <h2 className="text-base font-bold text-[#122b45]">
-                Cryptographic Immutable Audit Trail (SHA-256 Chain)
+                System Audit & Activity Logs
               </h2>
             </div>
             <p className="mt-1 text-xs text-slate-500 max-w-3xl">
-              Every critical event across finance authorizations, budget pool amendments, gate weighbridge checks, and
-              permission controls is recorded into an append-only cryptographic ledger with preceding block hashes.
+              Centralized, chronological log of all critical transactions across financial approvals, budget ceiling overrides,
+              gate weighbridge verification, and access controls as defined in the ERP governance specifications.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <button
-              onClick={handleVerifyIntegrity}
-              disabled={isVerifying}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#10263d] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#153452] disabled:opacity-50 transition-all"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${isVerifying ? "animate-spin" : ""}`} />
-              {isVerifying ? "Verifying SHA-256..." : "Verify Hash Chain Integrity"}
-            </button>
-
-            <button
               onClick={handleExportCSV}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
             >
               <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-              Export Audit Trail
+              Export Audit Log (CSV)
             </button>
           </div>
         </div>
-
-        {/* Verification Status Feedback Alert */}
-        {verificationResult && (
-          <div
-            className={`mt-4 flex items-center justify-between rounded-lg border p-3.5 text-xs transition-all ${
-              verificationResult.valid
-                ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-                : "border-rose-200 bg-rose-50 text-rose-900"
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              {verificationResult.valid ? (
-                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-              ) : (
-                <XCircle className="h-4 w-4 text-rose-600 shrink-0" />
-              )}
-              <div>
-                <span className="font-bold">
-                  {verificationResult.valid
-                    ? "Cryptographic Verification Passed"
-                    : "Integrity Warning: Discrepancy Found"}
-                </span>
-                <span className="mx-1.5 text-slate-400">·</span>
-                <span>
-                  {verificationResult.valid
-                    ? `All ${verificationResult.total} linked blocks verified against SHA-256 parent hashes without tampering.`
-                    : "Hash chain verification encountered a mismatch."}
-                </span>
-              </div>
-            </div>
-            <span className="text-[11px] text-slate-500 font-mono">
-              Verified at {verificationResult.timestamp}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* ------------------------------------------------------------------ */}
@@ -211,7 +133,7 @@ export default function SystemAuditSecurityLogs() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by actor, IP, hash, or entity..."
+            placeholder="Search by actor, action, entity ID, or keyword..."
             className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-xs outline-none focus:border-blue-500"
           />
         </div>
@@ -245,25 +167,37 @@ export default function SystemAuditSecurityLogs() {
             <option value="WARNING">Warning</option>
             <option value="CRITICAL">Critical</option>
           </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs font-medium text-slate-700 outline-none focus:border-blue-400"
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="APPROVED">Approved</option>
+            <option value="LOGGED">Logged</option>
+            <option value="BLOCKED">Blocked</option>
+            <option value="FLAGGED">Flagged</option>
+          </select>
         </div>
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* AUDIT LOG TABLE WITH BLOCK DETAILS                                 */}
+      {/* AUDIT LOG TABLE                                                    */}
       {/* ------------------------------------------------------------------ */}
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="sticky top-0 z-10 bg-slate-100 shadow-xs text-[10px] uppercase tracking-wide text-slate-700 border-b border-slate-300">
               <tr>
-                <th className="px-5 py-3">Block ID / Timestamp</th>
+                <th className="px-5 py-3">Event ID / Timestamp</th>
                 <th className="px-4 py-3">Actor & Role</th>
                 <th className="px-4 py-3">Category</th>
                 <th className="px-4 py-3">Action Executed</th>
                 <th className="px-4 py-3">Target Entity</th>
                 <th className="px-4 py-3 text-center">Severity</th>
-                <th className="px-4 py-3 text-center">SHA-256 Digest</th>
-                <th className="px-5 py-3 text-center">Inspect</th>
+                <th className="px-4 py-3 text-center">Status</th>
+                <th className="px-5 py-3 text-center">Details</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-sans">
@@ -310,10 +244,19 @@ export default function SystemAuditSecurityLogs() {
                         {log.severity}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 text-center font-mono">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-[10px] font-bold text-emerald-800">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                        <span>SHA-256 Valid</span>
+                    <td className="px-4 py-3.5 text-center">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                          log.status === "APPROVED"
+                            ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                            : log.status === "BLOCKED"
+                            ? "bg-rose-50 text-rose-800 border border-rose-200"
+                            : "bg-slate-100 text-slate-700 border border-slate-200"
+                        }`}
+                      >
+                        {log.status === "APPROVED" && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+                        {log.status === "BLOCKED" && <XCircle className="h-3 w-3 text-rose-600" />}
+                        <span>{log.status}</span>
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-center">
@@ -322,7 +265,7 @@ export default function SystemAuditSecurityLogs() {
                         className="min-h-[36px] inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors"
                       >
                         <Eye className="h-3.5 w-3.5 text-blue-600" />
-                        <span>Inspect Block</span>
+                        <span>View Details</span>
                       </button>
                     </td>
                   </tr>
@@ -339,7 +282,7 @@ export default function SystemAuditSecurityLogs() {
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* AUDIT RECORD CRYPTOGRAPHIC BLOCK MODAL                             */}
+      {/* AUDIT RECORD DETAIL MODAL                                          */}
       {/* ------------------------------------------------------------------ */}
       {selectedRecord && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm">
@@ -347,11 +290,11 @@ export default function SystemAuditSecurityLogs() {
             <div className="flex items-start justify-between border-b border-slate-100 pb-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
-                  Cryptographic Audit Block
+                  System Audit Entry
                 </span>
                 <h3 className="text-xl font-bold font-mono text-[#122b45]">{selectedRecord.id}</h3>
                 <p className="text-xs text-slate-500">
-                  Recorded at {new Date(selectedRecord.timestamp).toISOString()}
+                  Recorded on {new Date(selectedRecord.timestamp).toLocaleString()}
                 </p>
               </div>
               <button
@@ -363,7 +306,7 @@ export default function SystemAuditSecurityLogs() {
             </div>
 
             <div className="mt-5 space-y-4 text-xs">
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2.5">
                 <div className="flex justify-between">
                   <span className="font-semibold text-slate-600">Action:</span>
                   <span className="font-bold text-[#122b45]">{selectedRecord.action}</span>
@@ -383,6 +326,10 @@ export default function SystemAuditSecurityLogs() {
                   <span className="font-mono text-blue-700">
                     {selectedRecord.targetEntity} [{selectedRecord.entityId}]
                   </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold text-slate-600">Status:</span>
+                  <span className="font-bold text-slate-800">{selectedRecord.status}</span>
                 </div>
                 <div className="pt-2 border-t border-slate-200">
                   <span className="font-semibold text-slate-600">Event Narrative:</span>
@@ -405,26 +352,6 @@ export default function SystemAuditSecurityLogs() {
                   </div>
                 </div>
               )}
-
-              {/* Cryptographic Hashes */}
-              <div className="rounded-xl border border-slate-200 bg-slate-900 p-4 text-white font-mono text-[11px] space-y-2">
-                <div className="flex items-center gap-1.5 text-blue-400 text-[10px] uppercase font-bold tracking-wider">
-                  <Terminal className="h-3.5 w-3.5" />
-                  <span>Immutable Block Hashes</span>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400">Parent Previous Hash:</div>
-                  <div className="text-slate-300 break-all select-all">{selectedRecord.previousHash}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400">Record SHA-256 Hash:</div>
-                  <div className="text-emerald-400 break-all select-all">{selectedRecord.sha256Hash}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400">Digital Signature:</div>
-                  <div className="text-sky-300 break-all select-all">{selectedRecord.digitalSignature}</div>
-                </div>
-              </div>
             </div>
 
             <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
@@ -433,15 +360,6 @@ export default function SystemAuditSecurityLogs() {
                 className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
               >
                 Close
-              </button>
-              <button
-                onClick={() => {
-                  alert(`Audit Certificate for block ${selectedRecord.id} generated.`);
-                  setSelectedRecord(null);
-                }}
-                className="rounded-lg bg-[#10263d] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#153452]"
-              >
-                Download Block Certificate
               </button>
             </div>
           </div>

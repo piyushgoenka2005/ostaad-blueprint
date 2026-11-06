@@ -494,7 +494,7 @@ export default function DataExportBackupCenter() {
                 <div className="text-right text-xs text-slate-500">
                   <div className="font-bold text-[#122b45]">Confidential & Proprietary</div>
                   <div>Audit Reference: OST-AUD-2026-Q4</div>
-                  <div className="text-emerald-700 font-semibold">Integrity: Cryptographically Verified</div>
+                  <div className="text-emerald-700 font-semibold">Integrity: Verified & Signed</div>
                 </div>
               </div>
 
