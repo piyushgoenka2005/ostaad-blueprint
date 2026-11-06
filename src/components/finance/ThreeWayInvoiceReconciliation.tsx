@@ -188,8 +188,8 @@ export default function ThreeWayInvoiceReconciliation({
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+            <thead className="sticky top-0 z-10 bg-slate-100 shadow-xs border-b border-slate-300">
+              <tr className="bg-slate-100 border-b border-slate-300 text-[11px] font-bold text-slate-800 uppercase tracking-wider">
                 <th className="py-3 px-3 w-28">PO Number</th>
                 <th className="py-3 px-3 w-28">GRN Number</th>
                 <th className="py-3 px-3 w-28">Invoice No</th>
@@ -260,7 +260,7 @@ export default function ThreeWayInvoiceReconciliation({
                           setSelectedItem(row);
                           setShowCertificateModal(true);
                         }}
-                        className="px-2.5 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 text-[11px] font-semibold transition"
+                        className="min-h-[36px] px-3.5 py-1.5 rounded-lg bg-blue-50 text-blue-800 hover:bg-blue-100 text-xs font-bold transition border border-blue-200 shadow-xs"
                       >
                         Settlement
                       </button>

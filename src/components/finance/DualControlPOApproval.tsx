@@ -358,28 +358,28 @@ export default function DualControlPOApproval({
 
               {/* Action Buttons Bar */}
               {selectedApproval.status === "PENDING_FINANCE_APPROVAL" && (
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-end gap-3">
                   <button
                     onClick={() => setShowClarifyModal(true)}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-semibold transition"
+                    className="min-h-[44px] flex items-center gap-2 px-4 py-2.5 rounded-xl border border-blue-300 bg-blue-50 text-blue-800 hover:bg-blue-100 text-xs font-bold transition shadow-xs"
                   >
-                    <MessageSquareText className="w-3.5 h-3.5" />
+                    <MessageSquareText className="w-4 h-4" />
                     <span>Request Clarification</span>
                   </button>
 
                   <button
                     onClick={() => setShowRejectModal(true)}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-semibold transition"
+                    className="min-h-[44px] flex items-center gap-2 px-4 py-2.5 rounded-xl border border-rose-300 bg-rose-50 text-rose-800 hover:bg-rose-100 text-xs font-bold transition shadow-xs"
                   >
-                    <XCircle className="w-3.5 h-3.5" />
+                    <XCircle className="w-4 h-4" />
                     <span>Reject</span>
                   </button>
 
                   <button
                     onClick={() => setShowApproveModal(true)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#10263d] text-white hover:bg-blue-900 text-xs font-semibold transition shadow-sm"
+                    className="min-h-[44px] flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#10263d] text-white hover:bg-blue-900 text-xs font-bold transition shadow-md"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>Authorize Legal PO Release</span>
                   </button>
                 </div>

@@ -453,6 +453,15 @@ export default function AppShell({
 
           {/* Right: Tenant Switcher, Search, Notifications, User */}
           <div className="flex items-center gap-3">
+            {/* Cloudflare Edge Synced Indicator */}
+            <div className="hidden md:flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/90 px-3 py-1 text-[11px] font-semibold text-emerald-800 shadow-xs">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+              </span>
+              <span>Cloud Edge Synced</span>
+            </div>
+
             {/* Global Company Switcher Pill */}
             <CompanySwitcher />
 

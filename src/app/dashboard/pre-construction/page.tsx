@@ -300,6 +300,9 @@ export default function PreConstructionEngine() {
     | "vault"
   >("survey");
 
+  // Lifecycle Stage Filter (Reduces cognitive fatigue for planning teams)
+  const [selectedPhase, setSelectedPhase] = useState<"ALL" | "PHASE_A" | "PHASE_B" | "PHASE_C">("ALL");
+
   // Project Meta State
   const [projectName, setProjectName] = useState("Commercial Complex — Tower B");
   const [projectLocation, setProjectLocation] = useState("Kalyani Nagar, Pune, Maharashtra");
@@ -471,9 +474,38 @@ export default function PreConstructionEngine() {
       }
     >
       <div className="space-y-6">
+        {/* Lifecycle Phase Segment Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider px-2">Lifecycle Stage:</span>
+            <div className="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-xl">
+              {[
+                { id: "ALL", label: "All 15 Tools" },
+                { id: "PHASE_A", label: "Stage 1: Feasibility & Design" },
+                { id: "PHASE_B", label: "Stage 2: Clearances & Sourcing" },
+                { id: "PHASE_C", label: "Stage 3: Mobilization & Logistics" },
+              ].map((phase) => (
+                <button
+                  key={phase.id}
+                  onClick={() => setSelectedPhase(phase.id as any)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    selectedPhase === phase.id
+                      ? "bg-white text-[#122b45] shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {phase.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Navigation Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
           <div className="flex flex-wrap gap-2">
+            {(selectedPhase === "ALL" || selectedPhase === "PHASE_A") && (
+              <>
             <button
               onClick={() => setActiveTab("survey")}
               className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
@@ -578,6 +610,11 @@ export default function PreConstructionEngine() {
                 IS 13920
               </span>
             </button>
+              </>
+            )}
+
+            {(selectedPhase === "ALL" || selectedPhase === "PHASE_B") && (
+              <>
 
             <button
               onClick={() => setActiveTab("boq")}
@@ -653,7 +690,11 @@ export default function PreConstructionEngine() {
                 Clearances
               </span>
             </button>
+              </>
+            )}
 
+            {(selectedPhase === "ALL" || selectedPhase === "PHASE_C") && (
+              <>
             <button
               onClick={() => setActiveTab("layout")}
               className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
@@ -713,6 +754,8 @@ export default function PreConstructionEngine() {
                 R2 Secure
               </span>
             </button>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-500">

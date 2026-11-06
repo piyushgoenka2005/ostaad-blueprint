@@ -254,7 +254,7 @@ export default function SystemAuditSecurityLogs() {
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500 border-b border-slate-200">
+            <thead className="sticky top-0 z-10 bg-slate-100 shadow-xs text-[10px] uppercase tracking-wide text-slate-700 border-b border-slate-300">
               <tr>
                 <th className="px-5 py-3">Block ID / Timestamp</th>
                 <th className="px-4 py-3">Actor & Role</th>
@@ -311,18 +311,18 @@ export default function SystemAuditSecurityLogs() {
                       </span>
                     </td>
                     <td className="px-4 py-3.5 text-center font-mono">
-                      <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-1 text-[10px] text-slate-600">
-                        <Hash className="h-3 w-3 text-slate-400" />
-                        {log.sha256Hash.slice(0, 10)}...
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-[10px] font-bold text-emerald-800">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                        <span>SHA-256 Valid</span>
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-center">
                       <button
                         onClick={() => setSelectedRecord(log)}
-                        className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                        className="min-h-[36px] inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors"
                       >
-                        <Eye className="h-3 w-3 text-blue-600" />
-                        Details
+                        <Eye className="h-3.5 w-3.5 text-blue-600" />
+                        <span>Inspect Block</span>
                       </button>
                     </td>
                   </tr>

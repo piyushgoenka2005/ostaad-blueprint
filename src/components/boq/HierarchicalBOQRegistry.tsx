@@ -410,8 +410,8 @@ export default function HierarchicalBOQRegistry({
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+            <thead className="sticky top-0 z-10 bg-slate-100 shadow-xs">
+              <tr className="bg-slate-100 border-b border-slate-300 text-[11px] font-bold text-slate-800 uppercase tracking-wider">
                 <th className="py-3 px-3 w-10 text-center">Verify</th>
                 <th className="py-3 px-3 w-20">WBS Code</th>
                 <th className="py-3 px-3 w-36">Category</th>

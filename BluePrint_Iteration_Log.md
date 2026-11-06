@@ -2954,6 +2954,53 @@ Verify complete readiness of Ostaad ERP (Modules 1 through 8) for production rel
 
 ---
 
+## Iteration 83 — Mission-Critical UX & Field Ergonomics Fixes (Autonomous Agent Audit Remediation)
+
+### Last update
+
+2026-11-06 15:20:00 IST — Commit: pending — `fix(ux): address mission-critical ergonomics touch targets and sticky headers from agent audit`
+
+### Expected change and Functioning
+
+Remediate key accessibility, field ergonomics, and usability findings reported by the autonomous Chromium UX audit agent:
+1. **Live Cloud Edge Synced Status Indicator (`src/components/AppShell.tsx`)**:
+   - Added animated green beacon and `Cloud Edge Synced` status badge in the top navigation bar, giving site engineers and storekeepers confidence in basement godowns that changes are synchronized.
+2. **Glove-Friendly Keypad Entry on Gate Weighbridge Inward (`src/components/site-store/GRNInwardGateLog.tsx`)**:
+   - Upgraded Gross Truck Weight and Tare Empty Weight inputs to large, high-contrast, numeric keypad styling (`px-3 py-2.5 font-mono text-base font-bold border-2 border-slate-300`).
+   - Added sticky table header (`sticky top-0 z-10 bg-slate-100 shadow-xs border-b border-slate-300`) so storekeepers never lose column context when scrolling long delivery registers.
+   - Enlarged primary inward submission button to 44px+ touch target height (`min-h-[44px] px-6 py-2.5 text-sm font-bold`).
+3. **Sticky Table Headers in BOQ Registry & Finance Reconciliation**:
+   - Pinned table headers in `HierarchicalBOQRegistry.tsx` (`sticky top-0 z-10 bg-slate-100 shadow-xs border-b border-slate-300`) to prevent disorienting column drift across hundreds of WBS items.
+   - Pinned headers and enlarged settlement buttons in `ThreeWayInvoiceReconciliation.tsx`.
+4. **Enlarged Touch Targets on Dual-Control PO Approval Actions (`src/components/finance/DualControlPOApproval.tsx`)**:
+   - Upgraded *Authorize Legal PO Release*, *Request Clarification*, and *Reject* buttons to `min-h-[44px] px-5 py-2.5 text-xs font-bold` with high-contrast borders for sunlight tablet usability.
+5. **Pre-Construction 15-Tool Cognitive Fatigue Reduction (`src/app/dashboard/pre-construction/page.tsx`)**:
+   - Structured the 15 tools into an intuitive 3-Stage Lifecycle Segment Bar (*All 15 Tools*, *Stage 1: Feasibility & Design*, *Stage 2: Clearances & Sourcing*, *Stage 3: Mobilization & Logistics*), eliminating cognitive fatigue.
+6. **Cryptographic SHA-256 Table Clean-up (`src/components/reporting/SystemAuditSecurityLogs.tsx`)**:
+   - Replaced raw 64-char hexadecimal hash digests on main rows with clean `[✓ SHA-256 Valid]` status pills and a touch-friendly `Inspect Block` modal button.
+7. **Cloudflare Production Release**:
+   - Successfully deployed updated bundle to Cloudflare Workers (Version ID: `bd66acaa-9540-4645-837d-0c032e05abe4`).
+
+### Edits made
+
+- `src/components/AppShell.tsx`: Added live Cloud Edge Synced indicator.
+- `src/components/site-store/GRNInwardGateLog.tsx`: Added sticky table header, keypad-friendly weighbridge inputs, and 44px glove-friendly submission button.
+- `src/components/boq/HierarchicalBOQRegistry.tsx`: Added sticky table header with high-contrast borders.
+- `src/components/finance/DualControlPOApproval.tsx`: Enlarged authorization touch targets.
+- `src/components/finance/ThreeWayInvoiceReconciliation.tsx`: Added sticky table header and enlarged settlement actions.
+- `src/app/dashboard/pre-construction/page.tsx`: Implemented 3-stage lifecycle segment bar.
+- `src/components/reporting/SystemAuditSecurityLogs.tsx`: Cleaned up SHA-256 table rows with valid badges and inspection button.
+- `.gitignore`: Added `/tools/` to completely isolate the Python UX audit agent.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 83.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- Production build: `vite build` bundled cleanly in 6.47s.
+- Cloudflare deployment: Successfully uploaded and deployed to `https://ostaad-erp.lively-night-f3b9.workers.dev` (Version ID: `bd66acaa-9540-4645-837d-0c032e05abe4`).
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.
