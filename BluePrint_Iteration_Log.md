@@ -2958,7 +2958,7 @@ Verify complete readiness of Ostaad ERP (Modules 1 through 8) for production rel
 
 ### Last update
 
-2026-11-06 15:20:00 IST — Commit: pending — `fix(ux): address mission-critical ergonomics touch targets and sticky headers from agent audit`
+2026-11-06 15:20:00 IST — Commit: `6a7fc6c` — `fix(ux): address mission-critical ergonomics touch targets and sticky headers from agent audit`
 
 ### Expected change and Functioning
 
