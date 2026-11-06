@@ -2587,7 +2587,7 @@ Complete Module 2 (Pre-Construction Planning Engine — All 15 Tools) of the app
 
 ### Last update
 
-2026-11-06 08:05:00 IST — Commit: `7df91a2` — `feat(lifecycle): implement Module 3 Project Setup WBS Drawings and Daily Site Progress Logs`
+2026-11-06 08:05:00 IST — Commit: `bc9dee3` — `feat(lifecycle): implement Module 3 Project Setup WBS Drawings and Daily Site Progress Logs`
 
 ### Expected change and Functioning
 
@@ -2631,6 +2631,77 @@ Implement Module 3 (Project Management & Lifecycle Monitoring — All 4 Sub-Modu
 - TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
 - Functional verification: Confirmed WBS tree nesting, GFC revision timeline, and DPR labour muster calculations.
 - Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and deep navy typography.
+
+---
+
+## Iteration 77 — Full Module 4: BOQ Engine, Material Decomposition BOM & RA Billing (Sub-Modules 4.1, 4.2, 4.3, 4.4, 4.5 — 100% Complete)
+
+### Last update
+
+2026-11-06 08:16:00 IST — Commit: `d5c84ff` — `feat(boq): implement Module 4 Hierarchical BOQ Change Orders Material Decomposition and RA Billing`
+
+### Expected change and Functioning
+
+Implement Module 4 (BOQ, Rate Analysis & Cost Control — All 5 Sub-Modules) of the approved Ostaad ERP Architecture Plan:
+1. **Sub-Module 4.1: Hierarchical BOQ Sections, Items & Units Registry (`src/lib/boq-cost-control.ts` & `src/components/boq/HierarchicalBOQRegistry.tsx`)**:
+   - Structured 11 trade categories conforming to IS 1200 / CPWD standard specifications (Earthwork, PCC, RCC, Reinforcement, Formwork, Masonry, Plastering, Waterproofing, Flooring, MEP Electrical, MEP Plumbing).
+   - Formulated item registry with WBS item codes, IS specification clauses, units (cum, sqm, rmt, MT, bags, nos), tender quantities, CPWD DSR unit rates, and total amounts.
+   - Built inline editable tender quantity and approved unit rates with live total amount recalculation.
+   - Built Project Manager bulk verification and digital sign-off capability with status indicator badges.
+2. **Sub-Module 4.2: Excel/CSV Import, Column Mapping Wizard & Bulk Verification (`src/components/boq/HierarchicalBOQRegistry.tsx`)**:
+   - Built 3-step interactive column mapping wizard modal.
+   - Step 1: Detects uploaded contractor Excel headers (`Item_Ref_No`, `Scope_of_Work`, `Trade_Section`, `Tender_Qty`, `Measurement_Unit`, `Unit_Rate_INR`).
+   - Step 2: Interactive schema selector mapping external sheet columns to Ostaad standard fields (WBS Code, Description, Category, Unit, Quantity, Rate, Spec).
+   - Step 3: Schema validation preview with unit compatibility checks and one-click bulk ingestion into the live BOQ registry.
+   - Real-time CSV export with tender quantities, rates, and verification sign-offs.
+3. **Sub-Module 4.3: Versioning, Revision History & Change Order Variations (`src/components/boq/BOQVariationChangeOrderVault.tsx`)**:
+   - Baseline freeze governance banner: Rev-00 baseline locked upon Managing Authority sign-off (₹5.87 Cr baseline).
+   - Multi-revision lineage timeline (Rev-00 Tender, Rev-01 Foundation Raft Thickening, Rev-02 Seismic Ductile Detailing).
+   - Change Order (CO) variation log table tracking original quantity, revised quantity, quantity delta (+/-), contract rate, net cost impact, and technical justifications.
+   - "Raise Change Order" modal with automated quantity delta calculations and financial impact preview.
+   - Dual-action approval workflow (Approve / Reject) with real-time updates applied back into the master BOQ state.
+4. **Sub-Module 4.4: Material Breakdown & Requirement Derivation Engine (`src/components/boq/MaterialBOMDecompositionEngine.tsx`)**:
+   - Empirical IS 456 / IS 1200 mix design decomposition engine converting concrete volumes into:
+     - Ordinary Portland Cement (OPC 53 Grade) bags (8.2 bags/cum for M35, 4.4 bags/cum for M10).
+     - Manufactured Sand (M-Sand Zone II) cum (0.45 cum/cum for M35).
+     - Crushed 20mm & 10mm Graded Stone Aggregates cum (0.85 cum/cum for M35).
+     - Primary Producer TMT Fe 550D Rebar tonnage (1.035 MT gross purchase per tender MT).
+     - AAC lightweight blocks (28 nos/cum) and jointing mortar adhesive bags.
+   - Configurable wastage buffers (2% cement handling, 3.5% rebar lapping/cutting scrap, 5% sand).
+   - Benchmark landed rates and estimated capex outlay calculation.
+   - "Generate Procurement RFQs" one-click handoff mechanism to Sourcing Module 5.
+   - "Mix Design Constants" inspector modal detailing IS 456 conversion factors.
+5. **Sub-Module 4.5: Running Account (RA) Billing & Client Measurement Sheets (`src/components/boq/RABillingMeasurementSheet.tsx`)**:
+   - Progressive Running Account Bill generator (RA Bill #04 for Commercial Complex Tower B).
+   - Item-wise Measurement Book (MB) table: Tender Qty, Previous Executed Qty, Current Period Executed Qty (inline editable), Cumulative Qty, Progress %, Approved Rate, and Period Value.
+   - Commercial deductions ledger:
+     - Gross Current Period Value.
+     - Less: 5% Retention Money deduction (held until defect liability).
+     - Less: 10% Mobilization Advance recovery.
+     - Less: 2% TDS under Section 194C on Works Contract.
+     - Add: 18% Works Contract GST (9% CGST + 9% SGST).
+     - Net Payable to Contractor for RTGS disbursement.
+   - "Official RA Bill Tax Invoice Certificate" modal with contractor and client signatures, verification seals, and print-ready layout.
+6. **Navigation & Dashboard Route Integration**:
+   - Created `src/app/dashboard/boq/page.tsx` integrating all 4 sub-module components with responsive tabbed switching (`registry`, `change-orders`, `decomposition`, `ra-billing`).
+   - Updated `src/components/AppShell.tsx` navigation sidebar with "BOQ & Cost Control" (Module 4) under Execution & Engineering.
+
+### Edits made
+
+- `src/lib/boq-cost-control.ts`: Created data models, IS 456 decomposition formula engine, and default datasets for BOQ items, change orders, and RA billing.
+- `src/components/boq/HierarchicalBOQRegistry.tsx`: Built tree-structured BOQ items table, inline editing, and 3-step column mapping wizard.
+- `src/components/boq/BOQVariationChangeOrderVault.tsx`: Built baseline freeze banner, change orders log, and variation creation modal.
+- `src/components/boq/MaterialBOMDecompositionEngine.tsx`: Built live IS 456 material decomposition engine, KPI cards, and RFQ generator.
+- `src/components/boq/RABillingMeasurementSheet.tsx`: Built progressive measurement sheet, deductions calculation ledger, and official tax invoice certificate modal.
+- `src/app/dashboard/boq/page.tsx`: Created Module 4 BOQ & Cost Control Hub page route.
+- `src/components/AppShell.tsx`: Added BOQ & Cost Control link to navigation sidebar and expanded `activeNav` union type.
+- `BluePrint_Iteration_Log.md`: Aligned Iteration 76 commit to `bc9dee3`, appended Iteration 77 sequentially before future template.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- Functional verification: Confirmed inline quantity updates, variation delta math, IS 456 BOM material factors, and RA Bill deduction calculations.
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, deep navy `#122b45` typography, and royal blue accents.
 
 ---
 

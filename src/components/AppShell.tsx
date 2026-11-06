@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   Clock,
   Sparkles,
+  Calculator,
 } from "lucide-react";
 import CompanySwitcher from "@/components/CompanySwitcher";
 import { RoleBadge } from "@/components/RoleGate";
@@ -42,7 +43,7 @@ export interface AppShellProps {
   title?: string;
   subtitle?: string;
   breadcrumbs?: BreadcrumbItem[];
-  activeNav?: "pre-construction" | "operations" | "finance" | "site-store" | "admin";
+  activeNav?: "pre-construction" | "projects" | "boq" | "operations" | "finance" | "site-store" | "admin";
   actions?: React.ReactNode;
 }
 
@@ -132,6 +133,7 @@ export default function AppShell({
     if (activeNav) return activeNav;
     if (pathname.includes("/pre-construction")) return "pre-construction";
     if (pathname.includes("/projects")) return "projects";
+    if (pathname.includes("/boq")) return "boq";
     if (pathname.includes("/operations")) return "operations";
     if (pathname.includes("/finance")) return "finance";
     if (pathname.includes("/site-store")) return "site-store";
@@ -163,9 +165,16 @@ export default function AppShell({
           icon: FolderKanban,
         },
         {
+          id: "boq",
+          label: "BOQ & Cost Control",
+          badge: "Module 4",
+          href: "/dashboard/boq",
+          icon: Calculator,
+        },
+        {
           id: "operations",
-          label: "Operations & BOQ Engine",
-          badge: "WBS",
+          label: "Operations & Tasks",
+          badge: "Site Ops",
           href: "/dashboard/operations",
           icon: ClipboardList,
         },
