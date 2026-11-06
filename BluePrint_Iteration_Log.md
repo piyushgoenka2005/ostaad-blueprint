@@ -3001,6 +3001,41 @@ Remediate key accessibility, field ergonomics, and usability findings reported b
 
 ---
 
+## Iteration 84 — Architectural Alignment: Removal of Blueprint Takeoff & Enterprise System Audit Logs
+
+### Last update
+
+2026-11-06 22:58:30 IST — Commit: `649cab4` — `refactor(architecture): remove ai blueprint takeoff and replace sha256 audit hash chains with enterprise activity logs`
+
+### Expected change and Functioning
+
+Align codebase strictly with the architectural boundaries outlined in `Ostaad_ERP.pdf`:
+1. **Removal of AI Blueprint Takeoff**:
+   - As mandated by PDF Section 6.3 & 15 (*"Automatic blueprint-to-BOQ conversion is explicitly outside the scope of this development phase... CAD quantity extraction will not be implemented now"*), removed the legacy AI blueprint takeoff parser, upload dropzone, and `/api/takeoff/process` endpoints.
+   - Refactored `OperationsDashboard` (`src/app/dashboard/operations/page.tsx`) to support standard project creation and BOQ management, retiring the "Blueprint to BOQ" upload banner and updating the 8-stage execution workflow tracker.
+2. **Enterprise System Audit & Activity Logs**:
+   - Replaced experimental SHA-256 cryptographic hash-chains, Merkle parent hashing, and block verification buttons with enterprise-grade **System Audit & Activity Logs** (`src/components/reporting/SystemAuditSecurityLogs.tsx` and `src/lib/reporting-audit-governance.ts`).
+   - Retained chronological tracking across 7 mission-critical categories (Financial Decisions, Budget Overrides, PO Approvals, Weighbridge Discrepancies, RBAC Escalations, BOQ Revisions, Invoice Reconciliations) with actor name, role, IP address, severity levels, before/after diffs, and universal CSV export.
+
+### Edits made
+
+- `src/app/api/takeoff/process/route.ts`: Deleted legacy blueprint takeoff processing route.
+- `src/app/api/erp/projects/from-takeoff/route.ts`: Deleted project creation from takeoff route.
+- `src/lib/api.ts`: Removed `TakeoffLine`, `TakeoffResponse`, `uploadBlueprint`, and `importTakeoffAsProject`.
+- `src/app/dashboard/operations/page.tsx`: Removed blueprint upload UI, file handlers, and takeoff state. Added direct project creation with baseline BOQ generation.
+- `src/lib/reporting-audit-governance.ts`: Cleaned `AuditEventRecord` interface, updated seed logs to use clean status badges, removed `verifyAuditTrailChain`.
+- `src/components/reporting/SystemAuditSecurityLogs.tsx`: Rewrote component as "System Audit & Activity Logs" with status filters, clean detail inspection modal, and CSV export.
+- `src/app/dashboard/admin/page.tsx`: Updated Sub-Module 8.3 tab and header to "System Audit & Activity Logs".
+- `src/components/reporting/DataExportBackupCenter.tsx`: Updated backup integrity label to "Verified & Signed".
+- `BluePrint_Iteration_Log.md`: Appended Iteration 84.
+
+### Verification
+
+- Build verification: `npm run build:vinext` (`vite build`) compiled all client and SSR environments cleanly with zero errors in 6.16s.
+- Route verification: Confirmed removal of `/api/takeoff/process` and `/api/erp/projects/from-takeoff` from the compiled route manifest.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.
