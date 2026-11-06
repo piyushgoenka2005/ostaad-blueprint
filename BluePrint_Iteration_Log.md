@@ -2442,7 +2442,7 @@ Implement Sub-Modules 2.8 & 2.9 of the approved Ostaad ERP Architecture Plan:
 
 ### Last update
 
-2026-11-06 07:32:00 IST — Commit: `1d835e2` — `feat(planning): implement Sub-Modules 2.10 and 2.11 Interactive Gantt and Cashflow S-Curve`
+2026-11-06 07:32:00 IST — Commit: `fc49afb` — `feat(planning): implement Sub-Modules 2.10 and 2.11 Interactive Gantt and Cashflow S-Curve`
 
 ### Expected change and Functioning
 
@@ -2477,6 +2477,50 @@ Implement Sub-Modules 2.10 & 2.11 of the approved Ostaad ERP Architecture Plan:
 
 - TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
 - Algorithmic verification: Confirmed CPM forward/backward pass math, $TF = 0$ critical path flagging, and cumulative S-Curve cash sums.
+- Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and deep navy typography.
+
+---
+
+## Iteration 74 — Statutory Permits Tracker & Temporary Site Logistics CAD Planner (Sub-Modules 2.12 & 2.13)
+
+### Last update
+
+2026-11-06 07:44:00 IST — Commit: `b4c810a` — `feat(planning): implement Sub-Modules 2.12 and 2.13 Statutory Permits Tracker and Site Logistics Planner`
+
+### Expected change and Functioning
+
+Implement Sub-Modules 2.12 & 2.13 of the approved Ostaad ERP Architecture Plan:
+1. **Statutory Permit, NOC & Clearance Lifecycle Tracker (`src/lib/planning/logistics-permits.ts` & `src/components/planning/StatutoryPermitsTracker.tsx`)**:
+   - Structured 8 comprehensive municipal & statutory sanction registers (30-Year Title Search, Commencement Certificate CC, SEIAA Environmental Clearance, CFO Provisional Fire NOC, AAI Airport Height Clearance, 100 kVA Power Load Sanction, CGWA Ground Water Boring NOC, Tree Authority Clearance).
+   - Built clearance readiness calculation engine tracking Total Sanctions, Approved/In-Review counts, Fee Disbursements (₹ Lakhs), and Mandatory Groundbreaking Hard Gate verification.
+   - Built interactive permit management table with category filtering (Municipal, Environment, Fire, Utilities, Land), dynamic status toggling, expiry alert highlighting, document reference links, and "Add Sanction / NOC" modal.
+2. **Temporary Site Layout & Logistics Zone Planner (`src/components/planning/TemporarySiteLayoutPlanner.tsx`)**:
+   - Demarcated 8 critical temporary site infrastructure facilities:
+     1. Main Entry Gate, Weighbridge & Security Checkpoint (9.2m clear trailer width)
+     2. Moisture-Proof Cement Storage Shed (3,500 bags capacity with elevated pallet plinth)
+     3. TMT Rebar Fabrication & Bar Bending Yard (trailer access)
+     4. Central Tower Crane Base (Potain 45m jib swing radius)
+     5. RMC Transit Mixer Discharge & Concrete Pump Station
+     6. Site PM Office, Meeting Room & QC Testing Lab
+     7. Contractor Labour Colony & Sanitation Block (isolated from crane hazard)
+     8. Segregated Waste & Construction Debris Chute.
+   - Built interactive SVG CAD plot canvas with setback guidelines, building core footprint, and dynamic 360-degree crane jib swing circle overlay to prevent boundary clash.
+   - Built selected zone inspector panel showing technical notes, storage capacities, and statutory safety compliance.
+3. **Pre-Construction Planning Hub Integration**:
+   - Connected Tool 5 (`permits`) and Tool 11 (`layout`) into `src/app/dashboard/pre-construction/page.tsx`.
+
+### Edits made
+
+- `src/lib/planning/logistics-permits.ts`: Created statutory permits data structures, clearance index metrics, and site logistics zone definitions.
+- `src/components/planning/StatutoryPermitsTracker.tsx`: Built interactive statutory NOC tracker, fee summary cards, status cycler, and add sanction modal.
+- `src/components/planning/TemporarySiteLayoutPlanner.tsx`: Built technical SVG site logistics CAD planner, crane swing radius overlay, and zone specification inspector.
+- `src/app/dashboard/pre-construction/page.tsx`: Integrated Tool 5 and Tool 11 tabs into Pre-Construction Planning Hub.
+- `BluePrint_Iteration_Log.md`: Aligned Iteration 73 commit to `fc49afb`, appended Iteration 74 sequentially before future template.
+
+### Verification
+
+- TypeScript check: `npx tsc --noEmit` exited with code 0 (zero errors).
+- Functional verification: Confirmed permit fee summation, critical gate pass/hold logic, and SVG coordinate scaling for logistics zones.
 - Executive White Theme: 100% adherence to `#ffffff` cards, `#f4f8fc` technical surface, and deep navy typography.
 
 ---

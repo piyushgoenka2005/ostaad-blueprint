@@ -38,6 +38,7 @@ import {
   Users,
   CalendarClock,
   Activity,
+  Truck,
 } from "lucide-react";
 
 import CompanySwitcher from "@/components/CompanySwitcher";
@@ -53,6 +54,8 @@ import MasterBOQTemplateEngine from "@/components/planning/MasterBOQTemplateEngi
 import PreConVendorMatrix from "@/components/planning/PreConVendorMatrix";
 import InteractiveGanttScheduler from "@/components/planning/InteractiveGanttScheduler";
 import CumulativeCashflowPlanner from "@/components/planning/CumulativeCashflowPlanner";
+import StatutoryPermitsTracker from "@/components/planning/StatutoryPermitsTracker";
+import TemporarySiteLayoutPlanner from "@/components/planning/TemporarySiteLayoutPlanner";
 
 // ==========================================
 // TOOL 1: SITE SURVEY CHECKLIST SPECIFICATION
@@ -289,6 +292,7 @@ export default function PreConstructionEngine() {
     | "gantt"
     | "cashflow"
     | "permits"
+    | "layout"
     | "vault"
   >("survey");
 
@@ -639,10 +643,25 @@ export default function PreConstructionEngine() {
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
               }`}
             >
-              <FileCheck className="h-4 w-4 text-amber-500" />
-              <span>Tool 5: Statutory NOC Tracker</span>
+              <FileCheck className="h-4 w-4 text-emerald-500" />
+              <span>Tool 5: Statutory NOCs</span>
               <span className="rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-mono">
-                4/5 Cleared
+                Clearances
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("layout")}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "layout"
+                  ? "bg-[#122b45] text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <Truck className="h-4 w-4 text-cyan-500" />
+              <span>Tool 11: Site Logistics</span>
+              <span className="rounded-full bg-cyan-50 text-cyan-700 px-2 py-0.5 text-[10px] font-mono border border-cyan-200">
+                CAD Layout
               </span>
             </button>
 
@@ -950,65 +969,17 @@ export default function PreConstructionEngine() {
         )}
 
         {/* ======================================================== */}
-        {/* TAB 3: TOOL 5 - STATUTORY PERMIT & NOC TRACKER         */}
+        {/* TAB 12: TOOL 5 - STATUTORY PERMIT & NOC LIFECYCLE TRACKER */}
         {/* ======================================================== */}
         {activeTab === "permits" && (
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-[#122b45] text-sm">
-                  Pre-Construction Statutory Sanctions & NOC Tracker
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Track municipal clearances, sanction fees paid, and statutory expiry milestones.
-                </p>
-              </div>
-              <button className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 shadow-sm">
-                <span>Add Statutory NOC</span>
-              </button>
-            </div>
+          <StatutoryPermitsTracker />
+        )}
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200">
-                  <tr>
-                    <th className="px-5 py-3.5">Sanction / Permit Name</th>
-                    <th className="px-5 py-3.5">Issuing Authority</th>
-                    <th className="px-5 py-3.5">Status</th>
-                    <th className="px-5 py-3.5">Sanction Fee Paid</th>
-                    <th className="px-5 py-3.5">Approval Date</th>
-                    <th className="px-5 py-3.5">Expiry Date</th>
-                    <th className="px-5 py-3.5">Document Ref</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {permits.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-5 py-3.5 font-bold text-slate-900">{p.name}</td>
-                      <td className="px-5 py-3.5 text-slate-600">{p.authority}</td>
-                      <td className="px-5 py-3.5">
-                        <span
-                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                            p.status === "APPROVED"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-amber-100 text-amber-800"
-                          }`}
-                        >
-                          {p.status}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 font-mono font-semibold text-slate-800">
-                        ₹{p.feePaid.toLocaleString("en-IN")}
-                      </td>
-                      <td className="px-5 py-3.5 text-slate-500">{p.sanctionDate}</td>
-                      <td className="px-5 py-3.5 font-mono text-slate-600">{p.expiryDate}</td>
-                      <td className="px-5 py-3.5 font-mono text-[11px] text-blue-700">{p.docRef}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+        {/* ======================================================== */}
+        {/* TAB 13: TOOL 11 - TEMPORARY SITE LAYOUT & LOGISTICS CAD  */}
+        {/* ======================================================== */}
+        {activeTab === "layout" && (
+          <TemporarySiteLayoutPlanner />
         )}
 
         {/* ======================================================== */}
