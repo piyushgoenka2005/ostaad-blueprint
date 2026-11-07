@@ -1,0 +1,378 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- Core Geometry & Typography ---
+\usepackage[utf8]{inputenc}
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.2cm, right=2.2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+% --- Color Palette ---
+\definecolor{primarynavy}{RGB}{18, 43, 69}
+\definecolor{brandblue}{RGB}{19, 104, 216}
+\definecolor{darkslate}{RGB}{30, 41, 59}
+\definecolor{lightbg}{RGB}{248, 250, 252}
+\definecolor{bordergray}{RGB}{226, 232, 240}
+\definecolor{successgreen}{RGB}{16, 185, 129}
+\definecolor{warningamber}{RGB}{245, 158, 11}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=brandblue,
+    filecolor=brandblue,
+    urlcolor=brandblue,
+    citecolor=primarynavy,
+    pdftitle={Ostaad ERP - Complete Operational Lifecycle Manual},
+    pdfauthor={Ostaad Engineering Directorate},
+    pdfkeywords={ERP, Construction, BOQ, Pre-Construction, Procurement, Site Store, Post-Construction}
+}
+
+% --- Header & Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{14.5pt}
+\lhead{\textcolor{darkslate}{\textbf{Ostaad ERP} \textbar\ Technical Operational Manual}}
+\rhead{\textcolor{brandblue}{Full Lifecycle: Setup to Closure}}
+\lfoot{\textcolor{darkslate}{\scriptsize \copyright\ 2026 Ostaad Infrastructure \& Construction Technologies. Confidential.}}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0.6pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\begin{document}
+
+% =========================================================================
+% TITLE BLOCK
+% =========================================================================
+\begin{center}
+    {\Huge \textbf{\textcolor{primarynavy}{OSTAAD ERP: OPERATIONAL MANUAL}}}\\[0.3em]
+    {\Large \textbf{\textcolor{brandblue}{End-to-End Civil Engineering Lifecycle \& Execution Framework}}}\\[0.6em]
+    {\normalsize \textbf{From Project Inception, 15 Pre-Construction Tools, BOQ Takeoff, Dual-Control Procurement,}}\\[0.2em]
+    {\normalsize \textbf{Site Store / GRN Inward, DPR Progress, to 3-Way Reconciliation and Handover}}\\[1.2em]
+    \rule{\textwidth}{1.2pt}\\[0.6em]
+    \textbf{System Version:} 2.4.0-Enterprise \quad\textbar\quad 
+    \textbf{Release Date:} March 2026 \quad\textbar\quad 
+    \textbf{Platform URL:} \texttt{https://civix.space}
+\end{center}
+
+\vspace{0.8em}
+
+% =========================================================================
+% EXECUTIVE SUMMARY & ARCHITECTURE OVERVIEW
+% =========================================================================
+\section{Executive Architecture Overview}
+
+Ostaad ERP is a purpose-built, cloud-native Enterprise Resource Planning system tailored for Indian and international infrastructure, commercial real estate, and industrial construction projects. The platform replaces fragmented spreadsheets and disconnected point solutions with a unified, tenant-isolated data backbone across three distinct stages:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Pre-Construction Feasibility \& Permitting:} Complete 15-tool analytical suite executing National Building Code (NBC 2016) zoning, irregular land geometry calculations, soil bearing analysis, statutory NOC tracking, and mobilization gating.
+    \item \textbf{During-Construction Execution \& Controls:} Master BOQ formulation, dynamic item takeoff using 18 civil engineering precedents, automated material decomposition, dual-control RFQ-to-PO procurement, multi-godown Goods Receipt Note (GRN) inward, double-entry stock ledgers, and Daily Progress Reports (DPR).
+    \item \textbf{Post-Construction Settlement \& Closeout:} 3-way automated matching ($\text{PO} \leftrightarrow \text{GRN} \leftrightarrow \text{Tax Invoice}$), Defect Liability Period (DLP) retention escrow, municipal Occupancy Certificate (OC) signoff, and As-Built drawing archiving.
+\end{enumerate}
+
+\begin{table}[h!]
+\centering
+\small
+\begin{tabularx}{\textwidth}{l l X}
+\toprule
+\textbf{Lifecycle Stage} & \textbf{Operating Route} & \textbf{Primary Core Modules} \\
+\midrule
+\textbf{Pre-Construction} & \texttt{/dashboard/pre-construction} & 15 Tools Suite, NBC Setbacks, Soil SBC, Gantt, Cashflow S-Curve. \\
+\textbf{Project Initiation} & \texttt{/dashboard/operations} & Tenant entity setup, Client metadata, Project Master initialization. \\
+\textbf{BOQ Formulation} & \texttt{/dashboard/operations} & Precedent specifications, WBS Level 1--4, live quantity rate takeoff. \\
+\textbf{Procurement \& RFQ} & \texttt{/dashboard/operations} & Material decomposition, Comparative Statement (CS), L1 evaluation. \\
+\textbf{Finance Dual-Control} & \texttt{/dashboard/finance} & Budget pool hard stops, PO issuance, UTR bank disbursement ledger. \\
+\textbf{Site Store \& GRN} & \texttt{/dashboard/site-store} & Multi-godowns, weighbridge logging, +5\% damage tolerance, stock ledger. \\
+\textbf{Site Execution} & \texttt{/dashboard/projects} & DPR, workforce headcount, machinery hours, GFC Drawing Vault. \\
+\textbf{Post-Construction} & \texttt{/dashboard/finance} & 3-way invoice matching, 5\%--10\% retention release, OC handover. \\
+\bottomrule
+\end{tabularx}
+\caption{System Module and Navigation Directory}
+\end{table}
+
+\newpage
+
+% =========================================================================
+% STEP 1: PROJECT SETUP & TENANT ISOLATION
+% =========================================================================
+\section{Step 1: Project Setup \& Tenant Entity Definition}
+
+\subsection{Multi-Tenant Operating Entity Switcher}
+Every construction site operates within a legal corporate entity registered with the Ministry of Corporate Affairs and the Goods and Services Tax (GST) Network. 
+The system header incorporates an active entity selector managing tenant-isolated records:
+\begin{itemize}[noitemsep]
+    \item \textbf{Entity Name:} Legal business name (e.g., \textit{Ostaad Infrastructure \& Projects Ltd}).
+    \item \textbf{GSTIN Identification:} 15-character alphanumeric GSTIN (e.g., \texttt{19AAACO9988P1Z5}).
+    \item \textbf{State Jurisdiction:} State code (e.g., Code 19 for West Bengal, Code 27 for Maharashtra).
+    \item \textbf{Tenant Data Isolation:} Ensures cross-entity budgets, ledgers, and vendor accounts never bleed into separate contracts.
+\end{itemize}
+
+\subsection{Project Inception Modal Workflow}
+From the Operations dashboard (\texttt{/dashboard/operations}), the user clicks \textbf{+ Create Project}:
+\begin{enumerate}[noitemsep]
+    \item \textbf{Project Name:} Unique project identifier (e.g., \textit{Sansara Tower A}).
+    \item \textbf{Client / Developer:} Customer name (e.g., \textit{PS Group Consortium}).
+    \item \textbf{Geographical Location:} Site city and district (e.g., \textit{Howrah, West Bengal}).
+    \item \textbf{Project Code Generation:} The system assigns an immutable, unique code (\texttt{PRJ-MW6E8SRQ}).
+    \item \textbf{Initialization Options:} Checkbox option to pre-populate standard baseline civil works or start with a blank registry.
+\end{enumerate}
+
+% =========================================================================
+% STEP 2: BOQ FORMULATION & PRECEDENT SPECIFICATIONS
+% =========================================================================
+\section{Step 2: BOQ Formulation \& Precedent Takeoff Engine}
+
+\subsection{The Precedent-Driven BOQ Modal Dialog}
+Rather than requiring manual spreadsheet preparation, the ERP provides an interactive dialog populated with \textbf{18 standardized Indian construction precedent specifications} across 6 core engineering divisions:
+
+\begin{table}[h!]
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{l l l c r}
+\toprule
+\textbf{WBS Code} & \textbf{Category} & \textbf{Engineering Specification Description} & \textbf{UOM} & \textbf{Std. Rate (INR)} \\
+\midrule
+\texttt{1.1.1} & Earthwork & Excavation in foundation trenches in ordinary soil up to 1.5m & CUM & 285.00 \\
+\texttt{1.1.2} & Earthwork & Plinth filling with selected quarry dust in 15cm compacted layers & CUM & 420.00 \\
+\texttt{1.1.3} & Earthwork & Chemical anti-termite emulsion treatment (IS 6313 compliance) & SQM & 110.00 \\
+\texttt{1.2.1} & Concrete & Plain Cement Concrete (PCC) 1:4:8 under footings & CUM & 4,250.00 \\
+\texttt{1.2.2} & Concrete & Reinforced Cement Concrete (RCC) M25 in isolated footings & CUM & 6,250.00 \\
+\texttt{1.2.3} & Concrete & Reinforced Cement Concrete (RCC) M30 in columns \& shear walls & CUM & 6,900.00 \\
+\texttt{1.2.4} & Concrete & Ready-Mix Concrete (RMC) M35 pumpable mix for post-tensioned slabs & CUM & 7,450.00 \\
+\texttt{2.1.1} & Steel & Thermo-Mechanically Treated (TMT) Fe-550D rebar (8mm--32mm) & MT & 58,500.00 \\
+\texttt{2.1.2} & Steel & Structural steel fabrication and erection in trusses and bracing & MT & 74,000.00 \\
+\texttt{2.1.3} & Steel & 18-gauge annealed mild steel binding wire for intersections & KG & 85.00 \\
+\texttt{3.1.1} & Masonry & Autoclaved Aerated Concrete (AAC) blocks 200mm with polymer mortar & CUM & 4,850.00 \\
+\texttt{3.1.2} & Masonry & Fly ash brick masonry 230mm thick in cement mortar 1:6 & CUM & 5,200.00 \\
+\texttt{3.1.3} & Masonry & Half-brick internal partition wall 115mm with hoop reinforcement & SQM & 780.00 \\
+\texttt{3.2.1} & Finishes & Internal cement plaster 12mm thick in cement mortar 1:4 & SQM & 240.00 \\
+\texttt{4.1.1} & Finishes & Double-charged vitrified floor tiles 800$\times$800mm with adhesive & SQM & 1,150.00 \\
+\texttt{4.2.1} & Finishes & Premium interior acrylic emulsion paint (2 coats over primer) & SQM & 165.00 \\
+\texttt{5.1.1} & Waterproofing & Two-component polymer elastomeric coating in wet areas & SQM & 520.00 \\
+\texttt{5.2.1} & MEP & CPVC SDR-11 water supply piping concealed with brass fittings & RMT & 340.00 \\
+\bottomrule
+\end{tabularx}
+\caption{Standard Indian Civil Engineering Precedents Library}
+\end{table}
+
+\subsection{Manual / Custom Mode \& Live Amount Calculation}
+When the user selects \texttt{-- None / Custom Specification (Manual Entry) --}, all fields unlock:
+\begin{itemize}[noitemsep]
+    \item The user defines a custom WBS code (e.g., \texttt{GEN-401}) and custom text descriptions.
+    \item Real-time frontend math calculates total committed cost:
+    \begin{equation}
+        \text{Total Line Amount (INR)} = \text{Quantity} \times \text{Unit Rate (INR)}
+    \end{equation}
+    \item Line items enter the register with status \texttt{In Review} (rendered on a strict single line with zero text wrapping).
+    \item Clicking \textbf{Finalise BOQ} validates all lines, changes statuses to \texttt{Finalised}, and unlocks downstream material decomposition.
+\end{itemize}
+
+\newpage
+
+% =========================================================================
+% STEP 3: THE 15 PRE-CONSTRUCTION PLANNING TOOLS
+% =========================================================================
+\section{Step 3: The 15 Pre-Construction Planning \& Feasibility Suite}
+
+The Pre-Construction Engine (\texttt{/dashboard/pre-construction}) features 15 integrated analytical tools divided into three engineering phases:
+
+\subsection{Phase A: Site Viability, Regulatory Zoning \& Preliminary Finance}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Tool 1: Site Survey GO / NO-GO Verification Engine} \\
+    Executes a 10-point weighted inspection verifying geotechnical access, stormwater flooding risks, overhead high-tension (HT) electrical lines, proximity to railway tracks/waterbodies, and water table depth.
+    \begin{equation}
+        \text{Survey Viability Score (\%)} = \frac{\sum_{i=1}^{10} \text{Weight}_i \times \text{Pass}_i}{\sum_{i=1}^{10} \text{Weight}_i} \times 100 \quad (\ge 75\% = \text{GO})
+    \end{equation}
+
+    \item \textbf{Tool 6: Plot Area, Irregular Geometry \& Setbacks Calculator} \\
+    Computes precise plot acreage from irregular polygon survey coordinates. Converts units across Metric, British, and Indian regional land measures:
+    \begin{equation}
+        1\text{ Acre} = 43,560\text{ sq.ft} = 4,046.86\text{ sq.m} = 40\text{ Gunthas} = 3.025\text{ Bighas (Bengal)}
+    \end{equation}
+
+    \item \textbf{Tool 12: Zoning, Setbacks \& Permissible FAR Engine (NBC 2016)} \\
+    Applies National Building Code norms according to access road width:
+    \begin{equation}
+        \text{Max Built-Up Area (BUA)} = \text{Plot Area} \times \text{Base FAR} + \text{Purchasable Premium FAR}
+    \end{equation}
+    Determines mandatory front, rear, and lateral clearances based on building height $H$:
+    \begin{equation}
+        \text{Front Setback (m)} = \max\left(6.0,\, \frac{H - 15}{3} + 4.5\right)
+    \end{equation}
+
+    \item \textbf{Tool 8: Geotechnical Soil Stratification \& Safe Bearing Capacity (SBC)} \\
+    Analyzes Standard Penetration Test (SPT $N$-values) across strata depths:
+    \begin{equation}
+        \text{Net Allowable Bearing Pressure } q_a = 12.5\, N \left(1 + \frac{0.3}{B}\right)^2 R_\gamma \quad (\text{in kN/m}^2)
+    \end{equation}
+    Provides structural foundation advisory: Isolated Footings ($\ge 200\text{ kN/m}^2$), Raft Foundation ($100$--$180\text{ kN/m}^2$), or Bored Cast-in-Situ Piling ($< 100\text{ kN/m}^2$).
+
+    \item \textbf{Tool 2: Pre-Construction Cost Estimator \& CPWD DSR Rates} \\
+    Translates architectural massing into preliminary elemental budgets based on Central Public Works Department (CPWD) Delhi Schedule of Rates (DSR).
+
+    \item \textbf{Tool 9: Financial Feasibility, Debt/EMI Modeling \& DSCR} \\
+    Evaluates project capital structuring, builder equity requirements, and loan amortizations:
+    \begin{equation}
+        \text{Debt Service Coverage Ratio (DSCR)} = \frac{\text{Net Operating Income (NOI)}}{\text{Annual Principal + Interest Service}} \quad (\text{Target } \ge 1.35)
+    \end{equation}
+
+    \item \textbf{Tool 14: Options Gate Matrix (IS 13920 Structural Framing)} \\
+    Multi-attribute comparison evaluating Cast-in-Situ RCC Frame vs. Post-Tensioned Slabs vs. Precast Concrete vs. Structural Steel on cost, crane dependency, and seismic ductilization.
+\end{enumerate}
+
+\subsection{Phase B: Estimation, Scheduling \& Statutory Permitting}
+
+\begin{enumerate}[leftmargin=*]
+    \setcounter{enumi}{7}
+    \item \textbf{Tool 3: Master BOQ Importer \& WBS Codifier} \\
+    Bulk Excel/CSV takeoff ingestion validating standard WBS coding structures (Level-1 Phase, Level-2 Package, Level-3 Work Item, Level-4 Task).
+
+    \item \textbf{Tool 7: Historic Vendor Rate Benchmarking} \\
+    Tracks variance between current market bids against historical rates indexed over the preceding 24 months ($L1$ vs. $V1$ benchmark).
+
+    \item \textbf{Tool 4: Gantt \& Critical Path Method (CPM) Scheduler} \\
+    Calculates Early Start (ES), Late Start (LS), Early Finish (EF), and Late Finish (LF) across all dependencies. Pinpoints zero-float activities driving the critical path:
+    \begin{equation}
+        \text{Total Float } TF = LS - ES = LF - EF \quad (TF = 0 \implies \text{Critical Path})
+    \end{equation}
+
+    \item \textbf{Tool 10: Cashflow S-Curve Forecast \& Monthly Burn Demand} \\
+    Generates cumulative capital expenditure projections modeled via Sigmoid / Cumulative Normal Distribution:
+    \begin{equation}
+        S(t) = \frac{\text{Approved Capex}}{1 + e^{-k(t - t_0)}}
+    \end{equation}
+
+    \item \textbf{Tool 5: Statutory NOCs \& Municipal Permitting Pipeline} \\
+    Real-time tracking of mandatory legal clearances: Title Search Clearance, Airport Authority of India (AAI) Obstacle Clearance, Fire Department Provisional NOC, State Pollution Control Board Consent to Establish (CTE), and RERA Registration.
+\end{enumerate}
+
+\subsection{Phase C: Site Mobilization Readiness \& Document Governance}
+
+\begin{enumerate}[leftmargin=*]
+    \setcounter{enumi}{12}
+    \item \textbf{Tool 11: Site Logistics, Laydown \& Equipment Layout} \\
+    Dynamic zone allocation for 50-tonne mobile cranes, batching plants, rebar fabrication tables, aggregate bins, and security cabins.
+
+    \item \textbf{Tool 13: Budget Variance \& Contingency Risk Allocation} \\
+    Calculates dynamic contingency reserves (5\%--10\%) based on site soil risks and municipal permit delays.
+
+    \item \textbf{Tool 15: 50-Point Ground Mobilization Readiness Gate} \\
+    Rigorous pre-construction audit covering boundary barricading, CCTV installation, labor camp EHS compliance, water/power connections, and builder risk insurance. Requires 100\% signoff before earthmoving commences.
+
+    \item \textbf{Cloud Project Document Vault \& GFC Drawing Engine} \\
+    Repository stamping and archiving Good-For-Construction drawings (\texttt{Rev-0}, \texttt{Rev-1}, \texttt{Rev-2}) with immutable cryptographic audit tracking.
+\end{enumerate}
+
+\newpage
+
+% =========================================================================
+% STEP 4: DURING CONSTRUCTION EXECUTION
+% =========================================================================
+\section{Step 4: During Construction (Execution, Procurement, Store \& Finance)}
+
+\subsection{Procurement Decomposition \& RFQ Generation}
+Once the BOQ is finalized, the system automatically decomposes line items into discrete procurement material lots:
+\begin{itemize}[noitemsep]
+    \item Concrete works decompose into \textbf{OPC 53 Cement Bags}, \textbf{Crushed Aggregates (10mm/20mm)}, and \textbf{M-Sand}.
+    \item Rebar line items decompose into diameter-specific bundles (\textbf{8mm, 10mm, 12mm, 16mm, 20mm, 25mm, 32mm}).
+    \item RFQs are generated and transmitted to verified, GST-registered suppliers.
+\end{itemize}
+
+\subsection{Vendor Comparative Statement (CS) Matrix}
+Incoming supplier quotations are parsed side-by-side:
+\begin{equation}
+    \text{Landed Cost} = \text{Base Price} + \text{Freight / Loading} + \text{CGST} (9\%) + \text{SGST} (9\%) - \text{Input Tax Credit (ITC)}
+\end{equation}
+The Project Manager submits an $L1$ selection justification to the Commercial Directorate.
+
+\subsection{Finance Directorate Dual-Control PO Approval}
+Commercial safety is enforced via automated budget headroom checks:
+\begin{enumerate}[noitemsep]
+    \item \textbf{Hard-Stop Budget Pools:} Dedicated budget reserves exist for Civil Structure, Steel Rebar, Cement, Sand/Aggregates, and Finishes.
+    \item If $\text{Committed Spend} + \text{Pending PO} > \text{Approved Headroom}$, the system halts PO issuance.
+    \item Upon CFO approval, an authorized Purchase Order (PO) PDF is minted with contractual payment milestones (e.g., \textit{15\% Advance against Bank Guarantee, 85\% against Gate Weighbridge GRN}).
+    \item Bank disbursements are logged with Unique Transaction Reference (UTR) numbers.
+\end{enumerate}
+
+\subsection{Site Store Operations, Multi-Godown \& GRN Inward}
+When material arrives at the project gate:
+\begin{enumerate}[noitemsep]
+    \item \textbf{Weighbridge \& Vehicle Logging:} Vehicle registration, driver contact, and gross tare weight are recorded.
+    \item \textbf{Goods Receipt Note (GRN):} Storekeepers inspect cargo and issue a digital GRN.
+    \item \textbf{Damage Tolerance Gate:} Damaged cement bags or corroded steel beyond the \textbf{+5\% tolerance} threshold trigger an automated vendor debit note and partial rejection.
+    \item \textbf{Double-Entry Stock Ledger:} Material shifts from \textit{In-Transit} to \textit{Physical Godown Stock} (Central Cement Shed, Rebar Laydown Yard, Aggregate Silos).
+    \item \textbf{Material Indent Slips:} Subcontractors can only withdraw materials against active WBS tasks, preventing site pilferage and tracking wastage percentages.
+\end{enumerate}
+
+\subsection{Daily Progress Reporting (DPR) \& Engineering Vault}
+Site operations are updated daily in \texttt{/dashboard/projects}:
+\begin{itemize}[noitemsep]
+    \item \textbf{Workforce Headcount:} Trade-specific counts (Bar-benders, Masons, Carpenters, Welders, Helpers).
+    \item \textbf{Plant \& Machinery Log:} Operational vs. idle hours for Tower Cranes, Concrete Boom Pumps, Transit Mixers, and Excavators.
+    \item \textbf{Activity Progress:} Structural pours completed, linear meters plastered, and hindrances encountered.
+    \item \textbf{GFC Stamping:} Site engineers execute exclusively from \textit{Good For Construction} stamped drawing sheets.
+\end{itemize}
+
+\newpage
+
+% =========================================================================
+% STEP 5: POST-CONSTRUCTION & STATUTORY CLOSURE
+% =========================================================================
+\section{Step 5: Post-Construction, Reconciliation \& Final Closure}
+
+\subsection{Automated 3-Way Invoice Reconciliation}
+Prior to disbursing vendor or contractor final payments, the finance engine executes an automated 3-way audit:
+\begin{equation}
+    \begin{matrix}
+        \text{\textbf{Purchase Order (PO)}} & \longleftrightarrow & \text{\textbf{Goods Receipt Note (GRN)}} & \longleftrightarrow & \text{\textbf{Vendor Tax Invoice}} \\
+        \text{\scriptsize(Authorized Quantity \& Rate)} & & \text{\scriptsize(Gate Accepted Inward Weight)} & & \text{\scriptsize(Billed Amount \& GSTIN)}
+    \end{matrix}
+\end{equation}
+Any variance in quantities ($\text{GRN} < \text{Invoice}$) or unapproved rate escalations ($\text{PO Rate} < \text{Billed Rate}$) is highlighted, holding payment pending credit notes.
+
+\subsection{Defect Liability Period (DLP) \& Retention Money Management}
+To safeguard structural integrity and finish quality:
+\begin{itemize}[noitemsep]
+    \item The system deducts \textbf{5\% to 10\% Retention Money} from all progressive Running Account (RA) bills.
+    \item Retention funds are placed in a contractually designated escrow ledger.
+    \item During the 12-to-24 month Defect Liability Period (DLP), any structural seepage, plaster cracking, or mechanical failures are remedied under contractor warranty.
+    \item Upon joint inspection signoff by the Lead Resident Engineer and Quality Head, retention funds are released.
+\end{itemize}
+
+\subsection{Statutory Handover \& Municipal Occupancy Certificate (OC)}
+The project transitions to final commissioning:
+\begin{enumerate}[noitemsep]
+    \item \textbf{Fire Safety Final NOC:} Inspection of wet risers, sprinkler heads, smoke dampers, and fire tender turning radii.
+    \item \textbf{Environmental Audit:} Final Consent to Operate (CTO) issued for the Sewage Treatment Plant (STP) and Organic Waste Converter (OWC).
+    \item \textbf{Occupancy Certificate (OC):} Municipal development authority conducts the final physical survey and issues the formal OC.
+\end{enumerate}
+
+\subsection{As-Built Archiving \& Executive Governance Closeout}
+\begin{itemize}[noitemsep]
+    \item Final \textbf{As-Built CAD/PDF drawings} are permanently locked in the Cloud Project Vault.
+    \item Final earned value metrics are archived for executive audit:
+    \begin{align}
+        \text{Cost Performance Index (CPI)} &= \frac{\text{Earned Value (EV)}}{\text{Actual Cost (AC)}} \\
+        \text{Schedule Performance Index (SPI)} &= \frac{\text{Earned Value (EV)}}{\text{Planned Value (PV)}}
+    \end{align}
+    \item Vendor No-Dues Certificates (NDCs) are captured, and the project status transitions from \texttt{Active Execution} to \texttt{Handed Over / Closed}.
+\end{itemize}
+
+\vfill
+\begin{center}
+    \rule{0.6\textwidth}{0.6pt}\\[0.4em]
+    {\footnotesize \textbf{End of Operational Lifecycle Specification}}\\[0.2em]
+    {\scriptsize Compiled and Verified for Ostaad Construction ERP Suite}
+\end{center}
+
+\end{document}

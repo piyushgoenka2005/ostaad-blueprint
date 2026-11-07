@@ -302,7 +302,7 @@ export default function CompanySwitcher() {
                   required
                   value={newCompanyName}
                   onChange={(e) => setNewCompanyName(e.target.value)}
-                  placeholder="e.g. Larsen & Toubro Dedicated Freight JV"
+                  placeholder="e.g. Ostaad Infrastructure & Projects Ltd"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:border-blue-500 outline-none transition-all"
                 />
               </div>

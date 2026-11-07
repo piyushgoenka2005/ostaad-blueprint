@@ -21,6 +21,229 @@ import { RoleBadge } from "@/components/RoleGate";
 type Quote = { value: string; bidId?: string };
 const money = (value: number) => `₹${value.toLocaleString("en-IN")}`;
 
+// Standard civil engineering precedent specifications
+interface BOQPrecedent {
+  id: string;
+  category: string;
+  wbs: string;
+  description: string;
+  unit: string;
+  defaultRate: number;
+  defaultQty: number;
+}
+
+const BOQ_PRECEDENTS: BOQPrecedent[] = [
+  // 1. Earthwork & Excavation
+  {
+    id: "ew-1",
+    category: "Earthwork & Excavation",
+    wbs: "1.1.1",
+    description: "Earthwork excavation in foundation trenches in ordinary soil up to 1.5m depth including dressing & ramming",
+    unit: "CUM",
+    defaultRate: 285,
+    defaultQty: 250,
+  },
+  {
+    id: "ew-2",
+    category: "Earthwork & Excavation",
+    wbs: "1.1.2",
+    description: "Filling in plinth with quarry dust / selected earth in 15cm layers including watering and compaction",
+    unit: "CUM",
+    defaultRate: 420,
+    defaultQty: 180,
+  },
+  {
+    id: "ew-3",
+    category: "Earthwork & Excavation",
+    wbs: "1.1.3",
+    description: "Anti-termite chemical emulsion treatment under foundation and masonry perimeter (IS 6313)",
+    unit: "SQM",
+    defaultRate: 110,
+    defaultQty: 450,
+  },
+
+  // 2. Concrete Works (PCC & RCC)
+  {
+    id: "cc-1",
+    category: "Concrete Works (PCC & RCC)",
+    wbs: "1.2.1",
+    description: "Plain Cement Concrete (PCC) 1:4:8 in foundation footing trenches and under floor subgrades",
+    unit: "CUM",
+    defaultRate: 4250,
+    defaultQty: 45,
+  },
+  {
+    id: "cc-2",
+    category: "Concrete Works (PCC & RCC)",
+    wbs: "1.2.2",
+    description: "Reinforced Cement Concrete (RCC) M25 grade in isolated column footings and raft foundations",
+    unit: "CUM",
+    defaultRate: 6250,
+    defaultQty: 85,
+  },
+  {
+    id: "cc-3",
+    category: "Concrete Works (PCC & RCC)",
+    wbs: "1.2.3",
+    description: "Reinforced Cement Concrete (RCC) M30 grade in columns, shear walls, beams and suspended slabs",
+    unit: "CUM",
+    defaultRate: 6900,
+    defaultQty: 140,
+  },
+  {
+    id: "cc-4",
+    category: "Concrete Works (PCC & RCC)",
+    wbs: "1.2.4",
+    description: "Ready-Mix Concrete (RMC) M35 high-performance pumpable mix for grade slabs and post-tensioned decks",
+    unit: "CUM",
+    defaultRate: 7450,
+    defaultQty: 110,
+  },
+
+  // 3. Steel & Rebar Reinforcement
+  {
+    id: "st-1",
+    category: "Steel & Reinforcement",
+    wbs: "2.1.1",
+    description: "Thermo-Mechanically Treated (TMT) Fe-550D high-yield steel rebar reinforcement (8mm - 32mm)",
+    unit: "MT",
+    defaultRate: 58500,
+    defaultQty: 18,
+  },
+  {
+    id: "st-2",
+    category: "Steel & Reinforcement",
+    wbs: "2.1.2",
+    description: "Structural steel fabrication & erection in roof trusses, purlins, bracings and built-up gantry girders",
+    unit: "MT",
+    defaultRate: 74000,
+    defaultQty: 12,
+  },
+  {
+    id: "st-3",
+    category: "Steel & Reinforcement",
+    wbs: "2.1.3",
+    description: "Binding wire 18-gauge annealed mild steel for securing bar intersections",
+    unit: "KG",
+    defaultRate: 85,
+    defaultQty: 250,
+  },
+
+  // 4. Masonry & Blockwork
+  {
+    id: "ms-1",
+    category: "Masonry & Blockwork",
+    wbs: "3.1.1",
+    description: "Autoclaved Aerated Concrete (AAC) block masonry 200mm thick with thin-bed polymer adhesive mortar",
+    unit: "CUM",
+    defaultRate: 4850,
+    defaultQty: 65,
+  },
+  {
+    id: "ms-2",
+    category: "Masonry & Blockwork",
+    wbs: "3.1.2",
+    description: "Fly ash brick masonry in cement mortar 1:6 for external 230mm envelope walls",
+    unit: "CUM",
+    defaultRate: 5200,
+    defaultQty: 40,
+  },
+  {
+    id: "ms-3",
+    category: "Masonry & Blockwork",
+    wbs: "3.1.3",
+    description: "Half-brick masonry 115mm thick with 2 nos 6mm MS hoop reinforcement for internal partition walls",
+    unit: "SQM",
+    defaultRate: 780,
+    defaultQty: 150,
+  },
+
+  // 5. Plastering & Architectural Finishes
+  {
+    id: "pl-1",
+    category: "Plastering & Finishes",
+    wbs: "3.2.1",
+    description: "Internal cement plastering 12mm thick in cement mortar 1:4 with neat lime wash / smooth sponge finish",
+    unit: "SQM",
+    defaultRate: 240,
+    defaultQty: 400,
+  },
+  {
+    id: "pl-2",
+    category: "Plastering & Finishes",
+    wbs: "3.2.2",
+    description: "External double-coat sand-faced cement plaster 20mm with waterproofing admixture",
+    unit: "SQM",
+    defaultRate: 380,
+    defaultQty: 260,
+  },
+  {
+    id: "fl-1",
+    category: "Plastering & Finishes",
+    wbs: "4.1.1",
+    description: "Vitrified floor tiles 800x800mm double-charged with approved polymer-modified tile adhesive",
+    unit: "SQM",
+    defaultRate: 1150,
+    defaultQty: 180,
+  },
+  {
+    id: "fl-2",
+    category: "Plastering & Finishes",
+    wbs: "4.1.2",
+    description: "Granite stone slab 18mm thick mirror-polished for staircase treads & risers with pencil edge profiling",
+    unit: "SQM",
+    defaultRate: 2400,
+    defaultQty: 45,
+  },
+  {
+    id: "pt-1",
+    category: "Plastering & Finishes",
+    wbs: "4.2.1",
+    description: "Premium interior acrylic emulsion paint (2 coats over 1 coat alkali-resistant primer and putty)",
+    unit: "SQM",
+    defaultRate: 165,
+    defaultQty: 550,
+  },
+  {
+    id: "pt-2",
+    category: "Plastering & Finishes",
+    wbs: "4.2.2",
+    description: "Weather-proof exterior silicone emulsion paint with anti-fungal formulation (2 finishing coats)",
+    unit: "SQM",
+    defaultRate: 195,
+    defaultQty: 320,
+  },
+
+  // 6. Waterproofing & MEP Infrastructure
+  {
+    id: "wp-1",
+    category: "Waterproofing & MEP",
+    wbs: "5.1.1",
+    description: "Two-component polymer-modified elastomeric waterproofing coating for wet areas, balconies & sunken slabs",
+    unit: "SQM",
+    defaultRate: 520,
+    defaultQty: 160,
+  },
+  {
+    id: "wp-2",
+    category: "Waterproofing & MEP",
+    wbs: "5.1.2",
+    description: "APP-modified 3mm thick bituminous torch-on waterproofing membrane for terrace roof slabs with geotextile",
+    unit: "SQM",
+    defaultRate: 640,
+    defaultQty: 220,
+  },
+  {
+    id: "mep-1",
+    category: "Waterproofing & MEP",
+    wbs: "5.2.1",
+    description: "CPVC SDR-11 water supply piping concealed in masonry walls including brass fittings & pressure test",
+    unit: "RMT",
+    defaultRate: 340,
+    defaultQty: 120,
+  },
+];
+
 export default function OperationsDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -50,6 +273,16 @@ export default function OperationsDashboard() {
   const [formClientName, setFormClientName] = useState("");
   const [formLocation, setFormLocation] = useState("");
   const [seedBOQ, setSeedBOQ] = useState(true);
+
+  // Add BOQ Line Item Modal state
+  const [isAddBOQModalOpen, setIsAddBOQModalOpen] = useState(false);
+  const [selectedPrecedent, setSelectedPrecedent] = useState("");
+  const [boqWbsCode, setBoqWbsCode] = useState("");
+  const [boqDescription, setBoqDescription] = useState("");
+  const [boqUnit, setBoqUnit] = useState("CUM");
+  const [boqQuantity, setBoqQuantity] = useState<number>(1);
+  const [boqUnitRate, setBoqUnitRate] = useState<number>(0);
+  const [isSubmittingBOQLine, setIsSubmittingBOQLine] = useState(false);
 
   const loadProject = async (id: string) => {
     try {
@@ -341,19 +574,69 @@ export default function OperationsDashboard() {
     }
   };
 
-  const addLine = async () => {
-    if (!projectId) { setNotice("Create or select a project first."); return; }
-    const description = window.prompt("Description", "Structural concrete work");
-    if (!description) return;
-    await addBOQItem({
-      project_id: projectId,
-      wbs_code: `GEN-${Math.floor(100 + Math.random() * 900)}`,
-      description,
-      unit: "CUM",
-      quantity: 1,
-      unit_rate: 0,
-    });
-    await loadProject(projectId);
+  const openAddBOQModal = () => {
+    if (!projectId) {
+      setNotice("Create or select a project first.");
+      return;
+    }
+    const first = BOQ_PRECEDENTS[0];
+    setSelectedPrecedent(first.id);
+    setBoqWbsCode(first.wbs);
+    setBoqDescription(first.description);
+    setBoqUnit(first.unit);
+    setBoqQuantity(first.defaultQty);
+    setBoqUnitRate(first.defaultRate);
+    setIsAddBOQModalOpen(true);
+  };
+
+  const handlePrecedentChange = (precedentId: string) => {
+    setSelectedPrecedent(precedentId);
+    if (!precedentId || precedentId === "custom") {
+      setBoqWbsCode(`GEN-${Math.floor(100 + Math.random() * 900)}`);
+      setBoqDescription("");
+      setBoqUnit("CUM");
+      setBoqQuantity(1);
+      setBoqUnitRate(0);
+      return;
+    }
+    const found = BOQ_PRECEDENTS.find((p) => p.id === precedentId);
+    if (found) {
+      setBoqWbsCode(found.wbs);
+      setBoqDescription(found.description);
+      setBoqUnit(found.unit);
+      setBoqQuantity(found.defaultQty);
+      setBoqUnitRate(found.defaultRate);
+    }
+  };
+
+  const handleConfirmAddBOQLine = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!projectId) {
+      setNotice("Create or select a project first.");
+      return;
+    }
+    if (!boqDescription.trim()) {
+      setNotice("Please provide a description for the BOQ line item.");
+      return;
+    }
+    setIsSubmittingBOQLine(true);
+    try {
+      await addBOQItem({
+        project_id: projectId,
+        wbs_code: boqWbsCode.trim() || `GEN-${Math.floor(100 + Math.random() * 900)}`,
+        description: boqDescription.trim(),
+        unit: boqUnit.trim() || "CUM",
+        quantity: Number(boqQuantity) > 0 ? Number(boqQuantity) : 1,
+        unit_rate: Number(boqUnitRate) >= 0 ? Number(boqUnitRate) : 0,
+      });
+      setIsAddBOQModalOpen(false);
+      await loadProject(projectId);
+      setNotice(`Added "${boqDescription.trim().slice(0, 32)}..." to BOQ.`);
+    } catch (error: any) {
+      setNotice(error.message || "Failed to add BOQ item.");
+    } finally {
+      setIsSubmittingBOQLine(false);
+    }
   };
 
   const removeLine = async (id: string) => {
@@ -561,43 +844,43 @@ export default function OperationsDashboard() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500">
                   <tr>
-                    <th className="px-4 py-3">Project ID</th>
-                    <th className="px-4 py-3">Project Name</th>
-                    <th className="px-4 py-3">Client</th>
-                    <th className="px-4 py-3">Location</th>
-                    <th className="px-4 py-3">Project Manager</th>
-                    <th className="px-4 py-3">Project Status</th>
-                    <th className="px-4 py-3">BOQ Status</th>
-                    <th className="px-4 py-3">Vendor Selection</th>
-                    <th className="px-4 py-3">Finance Approval</th>
-                    <th className="px-4 py-3">Purchase Orders</th>
-                    <th className="px-4 py-3">Actions</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Project ID</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Project Name</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Client</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Location</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Project Manager</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Project Status</th>
+                    <th className="px-4 py-3 whitespace-nowrap">BOQ Status</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Vendor Selection</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Finance Approval</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Purchase Orders</th>
+                    <th className="px-4 py-3 whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {projectId ? (
                     <tr className="border-t border-slate-100">
-                      <td className="px-4 py-4 font-mono font-semibold text-blue-700">{projectId}</td>
-                      <td className="px-4 py-4 font-semibold text-slate-800">{projectName}</td>
-                      <td className="px-4 py-4 text-slate-500">{projectClient}</td>
-                      <td className="px-4 py-4 text-slate-500">{projectLocation}</td>
-                      <td className="px-4 py-4 text-slate-600">{user?.full_name || "Project Manager"}</td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 whitespace-nowrap font-mono font-semibold text-blue-700">{projectId}</td>
+                      <td className="px-4 py-4 whitespace-nowrap font-semibold text-slate-800">{projectName}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-slate-500">{projectClient}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-slate-500">{projectLocation}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-slate-600">{user?.full_name || "Project Manager"}</td>
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <Status text={verified ? "In Progress" : "Planning"} tone={verified ? "blue" : "violet"} />
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <Status text={!boqItems.length ? "Draft" : (verified ? "Finalised" : "In Review")} tone={!boqItems.length ? "slate" : (verified ? "green" : "amber")} />
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <Status text={!materials.length ? "Not Started" : (hasVendorsSelected ? "Completed" : "In Progress")} tone={!materials.length ? "slate" : (hasVendorsSelected ? "green" : "amber")} />
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <Status text={sentToFinance ? "In Review" : "Not Started"} tone={sentToFinance ? "amber" : "slate"} />
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <Status text={sentToFinance ? "Pending Signoff" : "Not Created"} tone={sentToFinance ? "amber" : "slate"} />
                       </td>
-                      <td className="px-4 py-4 flex items-center gap-1.5">
+                      <td className="px-4 py-4 whitespace-nowrap flex items-center gap-1.5">
                         <button
                           onClick={() => document.getElementById("boq")?.scrollIntoView({ behavior: "smooth" })}
                           className="rounded-md border border-blue-200 px-3 py-1.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-50"
@@ -704,11 +987,11 @@ export default function OperationsDashboard() {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={addLine}
-                      className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                      onClick={openAddBOQModal}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-sm transition-all"
                     >
-                      <Plus className="mr-1 inline h-3 w-3" />
-                      Add line
+                      <Plus className="h-3.5 w-3.5 text-blue-600" />
+                      <span>Add line</span>
                     </button>
                     <button
                       onClick={approveBOQ}
@@ -721,30 +1004,30 @@ export default function OperationsDashboard() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 text-[10px] uppercase text-slate-500">
+                    <thead className="bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500">
                       <tr>
-                        <th className="px-4 py-3">BOQ / WBS</th>
-                        <th className="px-4 py-3">Description</th>
-                        <th className="px-4 py-3">Qty</th>
-                        <th className="px-4 py-3">Unit</th>
-                        <th className="px-4 py-3">Rate</th>
-                        <th className="px-4 py-3">Amount</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th />
+                        <th className="px-4 py-3 whitespace-nowrap">BOQ / WBS</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Description</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Qty</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Unit</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Rate</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Amount</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Status</th>
+                        <th className="px-4 py-3 whitespace-nowrap" />
                       </tr>
                     </thead>
                     <tbody>
                       {filteredItems.map((item) => (
                         <tr key={item.id} className="border-t border-slate-100">
-                          <td className="px-4 py-3 font-mono font-semibold text-blue-700">{item.wbs_code}</td>
-                          <td className="min-w-[220px] px-4 py-3">
+                          <td className="px-4 py-3 font-mono font-semibold text-blue-700 whitespace-nowrap">{item.wbs_code}</td>
+                          <td className="min-w-[260px] px-4 py-3">
                             <input
                               value={item.description}
                               onChange={(event) => updateLine(item, "description", event.target.value)}
                               className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs outline-none focus:border-blue-400"
                             />
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-4 py-3 whitespace-nowrap">
                             <input
                               type="number"
                               value={item.quantity}
@@ -752,8 +1035,8 @@ export default function OperationsDashboard() {
                               className="w-20 rounded border border-slate-200 px-2 py-1.5 text-right text-xs"
                             />
                           </td>
-                          <td className="px-4 py-3 text-slate-500">{item.unit}</td>
-                          <td className="px-4 py-3">
+                          <td className="px-4 py-3 text-slate-500 font-mono text-[11px] whitespace-nowrap">{item.unit}</td>
+                          <td className="px-4 py-3 whitespace-nowrap">
                             <input
                               type="number"
                               value={item.unit_rate}
@@ -761,14 +1044,14 @@ export default function OperationsDashboard() {
                               className="w-24 rounded border border-slate-200 px-2 py-1.5 text-right text-xs"
                             />
                           </td>
-                          <td className="px-4 py-3 font-semibold">{money(item.total_amount)}</td>
-                          <td className="px-4 py-3">
+                          <td className="px-4 py-3 font-semibold whitespace-nowrap">{money(item.total_amount)}</td>
+                          <td className="px-4 py-3 whitespace-nowrap">
                             <Status
                               text={item.is_verified ? "Finalised" : "In Review"}
                               tone={item.is_verified ? "green" : "amber"}
                             />
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-4 py-3 whitespace-nowrap">
                             <button onClick={() => removeLine(item.id)} className="text-slate-400 hover:text-rose-600">
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -988,6 +1271,171 @@ export default function OperationsDashboard() {
           </div>
         </div>
       )}
+
+      {/* ADD BOQ LINE ITEM MODAL */}
+      {isAddBOQModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-[#122b45]">Add BOQ Line Item</h3>
+                <p className="text-xs text-slate-500">
+                  Select a standard precedent specification or write a custom item manually
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddBOQModalOpen(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmAddBOQLine} className="mt-4 space-y-4 text-xs">
+              {/* Precedent Dropdown */}
+              <div>
+                <label className="font-semibold text-slate-700">
+                  Precedent Specification / Template
+                </label>
+                <select
+                  value={selectedPrecedent}
+                  onChange={(e) => handlePrecedentChange(e.target.value)}
+                  className="mt-1 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+                >
+                  <option value="custom">-- None / Custom Specification (Manual Entry) --</option>
+                  {Array.from(new Set(BOQ_PRECEDENTS.map((p) => p.category))).map((cat) => (
+                    <optgroup key={cat} label={`📂 ${cat}`}>
+                      {BOQ_PRECEDENTS.filter((p) => p.category === cat).map((p) => (
+                        <option key={p.id} value={p.id}>
+                          [{p.wbs}] {p.description.slice(0, 50)}... ({p.unit} @ ₹{p.defaultRate})
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  {selectedPrecedent === "custom"
+                    ? "Custom mode: write your own WBS, description, unit, rate, and quantity below."
+                    : "Template loaded: all fields below are editable before adding to your project BOQ."}
+                </p>
+              </div>
+
+              {/* WBS Code, Unit & Status */}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div>
+                  <label className="font-semibold text-slate-700">WBS / Item Code *</label>
+                  <input
+                    type="text"
+                    required
+                    value={boqWbsCode}
+                    onChange={(e) => setBoqWbsCode(e.target.value)}
+                    placeholder="e.g. 1.2.1 or GEN-101"
+                    className="mt-1 h-9 w-full rounded-lg border border-slate-200 px-3 font-mono text-xs outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700">Unit of Measurement (UOM) *</label>
+                  <select
+                    value={boqUnit}
+                    onChange={(e) => setBoqUnit(e.target.value)}
+                    className="mt-1 h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs outline-none focus:border-blue-500"
+                  >
+                    <option value="CUM">CUM (Cubic Metres)</option>
+                    <option value="SQM">SQM (Square Metres)</option>
+                    <option value="RMT">RMT (Running Metres)</option>
+                    <option value="MT">MT (Metric Tonnes)</option>
+                    <option value="KG">KG (Kilograms)</option>
+                    <option value="NOS">NOS (Numbers / Pieces)</option>
+                    <option value="BAGS">BAGS (Bags)</option>
+                    <option value="LS">LS (Lump Sum)</option>
+                    <option value="SETS">SETS (Sets)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700">Status</label>
+                  <div className="mt-1 flex h-9 items-center">
+                    <Status text="In Review" tone="amber" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="font-semibold text-slate-700">Work / Material Description *</label>
+                <textarea
+                  required
+                  rows={3}
+                  value={boqDescription}
+                  onChange={(e) => setBoqDescription(e.target.value)}
+                  placeholder="Detailed engineering specification, grade, mix ratio, thickness, installation method..."
+                  className="mt-1 w-full rounded-lg border border-slate-200 p-2.5 text-xs outline-none focus:border-blue-500"
+                />
+              </div>
+
+              {/* Quantity & Unit Rate */}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="font-semibold text-slate-700">Quantity *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0.001"
+                    step="any"
+                    value={boqQuantity}
+                    onChange={(e) => setBoqQuantity(Number(e.target.value))}
+                    className="mt-1 h-9 w-full rounded-lg border border-slate-200 px-3 text-xs outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700">Unit Rate (₹ per {boqUnit}) *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="any"
+                    value={boqUnitRate}
+                    onChange={(e) => setBoqUnitRate(Number(e.target.value))}
+                    className="mt-1 h-9 w-full rounded-lg border border-slate-200 px-3 text-xs outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Calculated Total Card */}
+              <div className="flex items-center justify-between rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3">
+                <div>
+                  <div className="text-[11px] font-medium text-slate-500">Calculated Line Amount</div>
+                  <div className="text-base font-bold text-[#122b45]">
+                    ₹{Math.round((Number(boqQuantity) || 0) * (Number(boqUnitRate) || 0)).toLocaleString("en-IN")}
+                  </div>
+                </div>
+                <div className="text-right text-[11px] text-slate-400">
+                  {Number(boqQuantity) || 0} {boqUnit} × ₹{(Number(boqUnitRate) || 0).toLocaleString("en-IN")}
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div className="mt-6 flex justify-end gap-2.5 border-t border-slate-100 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsAddBOQModalOpen(false)}
+                  className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingBOQLine}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#1368d8] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#0f59bb] disabled:opacity-50"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>{isSubmittingBOQLine ? "Adding Line..." : "Add Line to BOQ"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1068,7 +1516,7 @@ function Status({ text, tone }: { text: string; tone: string }) {
     slate: "bg-slate-100 text-slate-500 border-slate-200",
   };
   return (
-    <span className={`inline-flex rounded-full border px-2 py-1 text-[10px] font-semibold ${styles[tone] || styles.slate}`}>
+    <span className={`inline-flex items-center justify-center whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-semibold leading-none ${styles[tone] || styles.slate}`}>
       {text}
     </span>
   );
