@@ -3062,6 +3062,35 @@ Establish zero-touch CI/CD automation so every push to `main` automatically trig
 
 ---
 
+## Iteration 86 — Clean Slate Architecture: Mock Project Purge, Dynamic Master Configuration & DNS Resolution Guide
+
+### Last update
+
+2026-11-07 13:30:00 IST — Commit: Pending — `feat: purge mock project fallbacks, add project configuration modal and dynamic master binding`
+
+### Expected change and Functioning
+
+Eliminate hardcoded mock project fallbacks (`proj-demo-101` and static `Commercial Complex — Tower B`) across all modules so the user starts with a clean slate:
+1. `src/app/dashboard/operations/page.tsx`: Purged default fallback to `proj-demo-101`, added automated cleanup of legacy IDs, introduced a project creation modal (`isCreateModalOpen`) and a "Clear / Reset Project" action.
+2. `src/components/projects/ProjectSetupMemberAssignment.tsx`: Added an "Edit / Configure Project" modal allowing users to enter custom project names, codes, clients, categories, BUA, capex, and dates, persisting state to `localStorage` (`ostaad_project_master`, `ostaad_operations_project_name`, `ostaad_operations_project_id`).
+3. `src/app/dashboard/projects/page.tsx`: Replaced static header badge and breadcrumb with dynamic state loaded from `localStorage`.
+4. Resolved Cloudflare Error 522 and Worker Custom Domain conflict on `civix.space` / `www.civix.space` by isolating conflicting legacy A/AAAA/CNAME records.
+
+### Edits made
+
+- `src/app/dashboard/operations/page.tsx`: Removed fallback to `proj-demo-101`, added `isCreateModalOpen` modal, added `handleClearProject` action.
+- `src/components/projects/ProjectSetupMemberAssignment.tsx`: Added `isEditModalOpen` state, `editForm`, and modal for configuring project master data with `localStorage` persistence.
+- `src/app/dashboard/projects/page.tsx`: Added dynamic project name and location bindings from `localStorage`.
+- `.github/workflows/deploy.yml`: Cleaned whitespace.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 86.
+
+### Verification
+
+- Build verification: `npm run build:vinext` passed cleanly with code 0 in 5.23s.
+- Clean slate verification: Empty browser state defaults cleanly to blank project workspace without forcing mock project data.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.

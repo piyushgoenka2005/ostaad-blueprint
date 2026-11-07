@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Building2,
   FolderTree,
@@ -21,6 +21,26 @@ import DailySiteProgressLog from "@/components/projects/DailySiteProgressLog";
 
 export default function ProjectLifecycleHub() {
   const [activeTab, setActiveTab] = useState<"setup" | "wbs" | "drawings" | "dpr">("setup");
+  const [projectName, setProjectName] = useState("Project Workspace");
+  const [projectLocation, setProjectLocation] = useState("Active Site");
+
+  useEffect(() => {
+    try {
+      const savedMaster = localStorage.getItem("ostaad_project_master");
+      if (savedMaster) {
+        const parsed = JSON.parse(savedMaster);
+        if (parsed.name) setProjectName(parsed.name);
+        if (parsed.city || parsed.state) {
+          setProjectLocation(`${parsed.city || ""}, ${parsed.state || ""}`.trim().replace(/^,|,$/g, ""));
+        }
+      } else {
+        const savedName = localStorage.getItem("ostaad_operations_project_name");
+        if (savedName) setProjectName(savedName);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   return (
     <AppShell
@@ -29,16 +49,20 @@ export default function ProjectLifecycleHub() {
       breadcrumbs={[
         { label: "Execution & Engineering" },
         { label: "Project Lifecycle", href: "/dashboard/projects" },
-        { label: "Tower B" },
+        { label: projectName },
       ]}
       activeNav="operations"
       actions={
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 shadow-2xs">
             <Building2 className="h-3.5 w-3.5 text-blue-600" />
-            <span className="font-semibold text-slate-900">Commercial Complex — Tower B</span>
-            <span className="text-slate-400">|</span>
-            <span className="text-slate-500">Kalyani Nagar, Pune</span>
+            <span className="font-semibold text-slate-900">{projectName}</span>
+            {projectLocation && (
+              <>
+                <span className="text-slate-400">|</span>
+                <span className="text-slate-500">{projectLocation}</span>
+              </>
+            )}
           </div>
         </div>
       }

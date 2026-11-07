@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Building2,
   MapPin,
@@ -36,6 +36,45 @@ export default function ProjectSetupMemberAssignment({
   const [project, setProject] = useState<ProjectMaster>(DEFAULT_PROJECT_MASTER);
   const [staff, setStaff] = useState<ProjectStaffMember[]>(DEFAULT_PROJECT_STAFF);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Load persisted project master on mount
+  useEffect(() => {
+    try {
+      const savedMaster = localStorage.getItem("ostaad_project_master");
+      if (savedMaster) {
+        setProject(JSON.parse(savedMaster));
+      } else {
+        const savedName = localStorage.getItem("ostaad_operations_project_name");
+        if (savedName) {
+          setProject((prev) => ({ ...prev, name: savedName }));
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Form state for editing project master
+  const [editForm, setEditForm] = useState<ProjectMaster>(DEFAULT_PROJECT_MASTER);
+
+  const handleOpenEditModal = () => {
+    setEditForm(project);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveProjectMaster = (e: React.FormEvent) => {
+    e.preventDefault();
+    setProject(editForm);
+    try {
+      localStorage.setItem("ostaad_project_master", JSON.stringify(editForm));
+      localStorage.setItem("ostaad_operations_project_name", editForm.name);
+      localStorage.setItem("ostaad_operations_project_id", editForm.id);
+    } catch {
+      // ignore
+    }
+    setIsEditModalOpen(false);
+  };
 
   // Form state for assigning new member
   const [name, setName] = useState("");
@@ -120,7 +159,14 @@ export default function ProjectSetupMemberAssignment({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleOpenEditModal}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50/70 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors shadow-xs"
+            >
+              <Edit2 className="h-3.5 w-3.5 text-blue-600" />
+              <span>Edit / Configure Project</span>
+            </button>
             <a
               href={`https://maps.google.com/?q=${project.latitude},${project.longitude}`}
               target="_blank"
@@ -373,6 +419,183 @@ export default function ProjectSetupMemberAssignment({
                   className="rounded-xl bg-[#122b45] px-5 py-2 text-xs font-semibold text-white hover:bg-slate-800 shadow-sm"
                 >
                   Assign to Project
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Edit Project Master Details Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-blue-600" />
+                <h4 className="font-bold text-[#122b45] text-base">Configure Project Master Info</h4>
+              </div>
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProjectMaster} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="text-xs font-semibold text-slate-600">Project Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    placeholder="e.g. Prestige Heights Phase 1"
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-600">Project Code *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.projectCode}
+                    onChange={(e) => setEditForm({ ...editForm, projectCode: e.target.value })}
+                    placeholder="e.g. PRJ-BLR-2026-PH1"
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-600">Client / Developer *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.clientName}
+                    onChange={(e) => setEditForm({ ...editForm, clientName: e.target.value })}
+                    placeholder="e.g. Godrej Urban Properties"
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-600">Category</label>
+                  <select
+                    value={editForm.category}
+                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value as any })}
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  >
+                    <option value="COMMERCIAL">Commercial Office / IT Park</option>
+                    <option value="RESIDENTIAL">Residential High-Rise</option>
+                    <option value="INDUSTRIAL">Industrial Warehousing</option>
+                    <option value="INFRASTRUCTURE">Infrastructure & Highways</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-600">Project Stage</label>
+                  <select
+                    value={editForm.stage}
+                    onChange={(e) => setEditForm({ ...editForm, stage: e.target.value as any })}
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  >
+                    <option value="PLANNING">Planning & Pre-Construction</option>
+                    <option value="MOBILIZING">Site Mobilization</option>
+                    <option value="ACTIVE_EXECUTION">Active Execution</option>
+                    <option value="COMMISSIONING">Testing & Commissioning</option>
+                    <option value="HANDED_OVER">Completed & Handed Over</option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="text-xs font-semibold text-slate-600">Site Address</label>
+                  <input
+                    type="text"
+                    value={editForm.siteAddress}
+                    onChange={(e) => setEditForm({ ...editForm, siteAddress: e.target.value })}
+                    placeholder="e.g. Plot No 42, Outer Ring Road"
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-600">City</label>
+                  <input
+                    type="text"
+                    value={editForm.city}
+                    onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                    placeholder="e.g. Bengaluru"
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-600">State</label>
+                  <input
+                    type="text"
+                    value={editForm.state}
+                    onChange={(e) => setEditForm({ ...editForm, state: e.target.value })}
+                    placeholder="e.g. Karnataka"
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-600">Built-Up Area (Sq.Ft)</label>
+                  <input
+                    type="number"
+                    value={editForm.totalBUASqFt}
+                    onChange={(e) => setEditForm({ ...editForm, totalBUASqFt: Number(e.target.value) || 0 })}
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-600">Number of Floors</label>
+                  <input
+                    type="number"
+                    value={editForm.numberOfFloors}
+                    onChange={(e) => setEditForm({ ...editForm, numberOfFloors: Number(e.target.value) || 0 })}
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-600">Approved Turnkey Capex (INR)</label>
+                  <input
+                    type="number"
+                    value={editForm.approvedCapexINR}
+                    onChange={(e) => setEditForm({ ...editForm, approvedCapexINR: Number(e.target.value) || 0 })}
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-600">Commencement Date</label>
+                  <input
+                    type="date"
+                    value={editForm.commencementDate}
+                    onChange={(e) => setEditForm({ ...editForm, commencementDate: e.target.value })}
+                    className="w-full mt-1 rounded-xl border border-slate-200 p-2 text-xs focus:border-blue-500 focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-xl bg-[#122b45] px-5 py-2 text-xs font-semibold text-white hover:bg-slate-800 shadow-sm"
+                >
+                  Save Project Master
                 </button>
               </div>
             </form>

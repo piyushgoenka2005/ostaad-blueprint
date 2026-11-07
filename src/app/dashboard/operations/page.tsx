@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import {
   AlertTriangle, ArrowRight, Bell, Boxes, Building2, Check, CheckCircle2, ChevronDown,
   ClipboardList, Compass, FileCheck2, FileText, FolderKanban, LayoutDashboard, LogOut, MapPin,
-  Menu, PackageCheck, Phone, Plus, Search, Settings, ShoppingCart, Sparkles, Trash2,
-  Truck, Users, XCircle,
+  Menu, PackageCheck, Phone, Plus, RefreshCw, RotateCcw, Search, Settings, ShoppingCart, Sparkles, Trash2,
+  Truck, Users, X, XCircle,
 } from "lucide-react";
 import {
   addBOQItem, clearAuthSession, createMaterialRFQ, decomposeBOQ, deleteBOQItem,
@@ -25,7 +25,9 @@ export default function OperationsDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
-  const [projectName, setProjectName] = useState("No project selected");
+  const [projectName, setProjectName] = useState("No active project");
+  const [projectClient, setProjectClient] = useState("Client not specified");
+  const [projectLocation, setProjectLocation] = useState("Location not specified");
   const [boqItems, setBoqItems] = useState<BOQItem[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -40,6 +42,13 @@ export default function OperationsDashboard() {
   const [sending, setSending] = useState(false);
   const [search, setSearch] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
+
+  // Project Creation Modal state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [formProjectName, setFormProjectName] = useState("");
+  const [formClientName, setFormClientName] = useState("");
+  const [formLocation, setFormLocation] = useState("");
+  const [seedBOQ, setSeedBOQ] = useState(true);
 
   const loadProject = async (id: string) => {
     try {
@@ -63,58 +72,136 @@ export default function OperationsDashboard() {
       return;
     }
     setUser(session.user);
-    const id =
-      window.localStorage.getItem("ostaad_operations_project_id") ||
-      "proj-demo-101";
-    const name =
-      window.localStorage.getItem("ostaad_operations_project_name") ||
-      "Commercial Complex - Tower B";
-    setProjectId(id);
-    setProjectName(name);
-    if (id) {
+
+    const id = window.localStorage.getItem("ostaad_operations_project_id");
+    const name = window.localStorage.getItem("ostaad_operations_project_name");
+
+    // Purge legacy mock demo project from localStorage so user starts with a clean slate
+    if (id === "proj-demo-101" || name === "Commercial Complex - Tower B") {
+      window.localStorage.removeItem("ostaad_operations_project_id");
+      window.localStorage.removeItem("ostaad_operations_project_name");
+      setProjectId(null);
+      setProjectName("No active project");
+      setBoqItems([]);
+      setLoading(false);
+      return;
+    }
+
+    if (id && name) {
+      setProjectId(id);
+      setProjectName(name);
+
+      // Check master details if present
+      const masterStr = window.localStorage.getItem("ostaad_project_master");
+      if (masterStr) {
+        try {
+          const master = JSON.parse(masterStr);
+          if (master.clientName) setProjectClient(master.clientName);
+          if (master.city) setProjectLocation(`${master.city}, ${master.state || ""}`);
+        } catch {}
+      }
+
       loadProject(id).finally(() => setLoading(false));
     } else {
+      setProjectId(null);
+      setProjectName("No active project");
+      setBoqItems([]);
       setLoading(false);
     }
   }, [router]);
 
-  const handleCreateProject = async () => {
-    const name = window.prompt("Enter New Project Name", "Commercial Complex - Tower B");
-    if (!name) return;
-    const newId = `proj-${Date.now().toString(36).slice(-6)}`;
+  const handleSaveNewProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formProjectName.trim()) return;
+
+    const cleanName = formProjectName.trim();
+    const cleanClient = formClientName.trim() || "Apex Consortium Ltd";
+    const cleanLoc = formLocation.trim() || "Mumbai, Maharashtra";
+    const newId = `PRJ-${Date.now().toString(36).toUpperCase()}`;
+
     setProjectId(newId);
-    setProjectName(name);
+    setProjectName(cleanName);
+    setProjectClient(cleanClient);
+    setProjectLocation(cleanLoc);
+
     localStorage.setItem("ostaad_operations_project_id", newId);
-    localStorage.setItem("ostaad_operations_project_name", name);
+    localStorage.setItem("ostaad_operations_project_name", cleanName);
+    localStorage.setItem(
+      "ostaad_project_master",
+      JSON.stringify({
+        id: newId,
+        projectCode: newId,
+        name: cleanName,
+        category: "COMMERCIAL",
+        stage: "PLANNING",
+        clientName: cleanClient,
+        siteAddress: cleanLoc,
+        city: cleanLoc.split(",")[0]?.trim() || cleanLoc,
+        state: cleanLoc.split(",")[1]?.trim() || "India",
+        latitude: 19.076,
+        longitude: 72.8777,
+        plotAreaSqFt: 50000,
+        totalBUASqFt: 85000,
+        numberOfFloors: 10,
+        commencementDate: new Date().toISOString().slice(0, 10),
+        targetCompletionDate: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+        approvedCapexINR: 250000000,
+      })
+    );
 
-    // Seed standard structural BOQ lines
-    await addBOQItem({
-      project_id: newId,
-      wbs_code: "1.1.1",
-      description: "Excavation in all soils for isolated pad footings",
-      unit: "cum",
-      quantity: 1250,
-      unit_rate: 285.5,
-    });
-    await addBOQItem({
-      project_id: newId,
-      wbs_code: "1.2.1",
-      description: "Reinforced Cement Concrete M25 grade in column footings",
-      unit: "cum",
-      quantity: 480,
-      unit_rate: 6250,
-    });
-    await addBOQItem({
-      project_id: newId,
-      wbs_code: "1.3.1",
-      description: "TMT Fe-550D rebar reinforcement for foundations and columns",
-      unit: "MT",
-      quantity: 45,
-      unit_rate: 58500,
-    });
+    if (seedBOQ) {
+      // Seed standard structural BOQ lines
+      await addBOQItem({
+        project_id: newId,
+        wbs_code: "1.1.1",
+        description: "Excavation in all soils for isolated pad footings",
+        unit: "cum",
+        quantity: 1250,
+        unit_rate: 285.5,
+      });
+      await addBOQItem({
+        project_id: newId,
+        wbs_code: "1.2.1",
+        description: "Reinforced Cement Concrete M25 grade in column footings",
+        unit: "cum",
+        quantity: 480,
+        unit_rate: 6250,
+      });
+      await addBOQItem({
+        project_id: newId,
+        wbs_code: "1.3.1",
+        description: "TMT Fe-550D rebar reinforcement for foundations and columns",
+        unit: "MT",
+        quantity: 45,
+        unit_rate: 58500,
+      });
+      await loadProject(newId);
+    } else {
+      setBoqItems([]);
+    }
 
-    await loadProject(newId);
-    setNotice(`Project "${name}" created successfully with baseline BOQ items.`);
+    setIsCreateModalOpen(false);
+    setFormProjectName("");
+    setFormClientName("");
+    setFormLocation("");
+    setNotice(`Project "${cleanName}" created successfully! Begin executing lifecycle stages below.`);
+  };
+
+  const handleClearProject = () => {
+    if (!window.confirm("Remove active project and start with a clean slate?")) return;
+    localStorage.removeItem("ostaad_operations_project_id");
+    localStorage.removeItem("ostaad_operations_project_name");
+    localStorage.removeItem("ostaad_project_master");
+    setProjectId(null);
+    setProjectName("No active project");
+    setProjectClient("Client not specified");
+    setProjectLocation("Location not specified");
+    setBoqItems([]);
+    setMaterials([]);
+    setQuotes({});
+    setComparisons({});
+    setSelectedBids({});
+    setNotice("Mock project removed. You are now starting with a blank canvas.");
   };
 
   const approveBOQ = async () => {
@@ -352,13 +439,25 @@ export default function OperationsDashboard() {
                 Monitor project progress, material requirements, procurement, and approvals.
               </p>
             </div>
-            <button
-              onClick={handleCreateProject}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#1368d8] px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#0f59bb]"
-            >
-              <Plus className="h-4 w-4" />
-              Create Project
-            </button>
+            <div className="flex items-center gap-2.5">
+              {projectId && (
+                <button
+                  onClick={handleClearProject}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors"
+                  title="Remove project and start fresh"
+                >
+                  <RotateCcw className="h-3.5 w-3.5 text-slate-500" />
+                  <span>Clear Project</span>
+                </button>
+              )}
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#1368d8] px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#0f59bb] transition-all"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Create New Project</span>
+              </button>
+            </div>
           </div>
 
           {notice && (
@@ -394,7 +493,7 @@ export default function OperationsDashboard() {
           </div>
 
           <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-            <Metric icon={FolderKanban} label="Total Projects" value={projectId ? 1 : 0} note="All projects" tone="blue" />
+            <Metric icon={FolderKanban} label="Total Projects" value={projectId ? 1 : 0} note="Active projects" tone="blue" />
             <Metric icon={CheckCircle2} label="Projects In Progress" value={projectId && !verified ? 1 : 0} note="Active workflows" tone="sky" />
             <Metric icon={FileText} label="BOQs Awaiting Review" value={projectId && !verified ? 1 : 0} note="Need finalisation" tone="violet" />
             <Metric icon={Users} label="Pending Vendor Selection" value={materials.length && Object.keys(selectedBids).length < materials.length ? 1 : 0} note="Awaiting selection" tone="orange" />
@@ -434,8 +533,8 @@ export default function OperationsDashboard() {
                     <tr className="border-t border-slate-100">
                       <td className="px-4 py-4 font-mono font-semibold text-blue-700">{projectId}</td>
                       <td className="px-4 py-4 font-semibold text-slate-800">{projectName}</td>
-                      <td className="px-4 py-4 text-slate-500">Apex Infra Corp</td>
-                      <td className="px-4 py-4 text-slate-500">BKC, Mumbai</td>
+                      <td className="px-4 py-4 text-slate-500">{projectClient}</td>
+                      <td className="px-4 py-4 text-slate-500">{projectLocation}</td>
                       <td className="px-4 py-4 text-slate-600">{user?.full_name || "Project Manager"}</td>
                       <td className="px-4 py-4">
                         <Status text={verified ? "In Progress" : "Planning"} tone={verified ? "blue" : "violet"} />
@@ -460,7 +559,22 @@ export default function OperationsDashboard() {
                   ) : (
                     <tr>
                       <td colSpan={11} className="p-12 text-center text-sm text-slate-400">
-                        No projects yet. Click Create Project to initialize a new project.
+                        <div className="max-w-md mx-auto space-y-3">
+                          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                            <FolderKanban className="h-6 w-6" />
+                          </div>
+                          <div className="font-semibold text-slate-700 text-base">No active projects yet</div>
+                          <p className="text-xs text-slate-500">
+                            Create your first construction project to manage planning, BOQs, quotations, and approvals.
+                          </p>
+                          <button
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="inline-flex items-center gap-2 rounded-lg bg-[#1368d8] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#0f59bb] transition-all"
+                          >
+                            <Plus className="h-4 w-4" />
+                            <span>Create Your First Project</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -661,8 +775,8 @@ export default function OperationsDashboard() {
                 <div className="mt-4 space-y-4 text-xs">
                   <Info label="Project" value={projectName} />
                   <Info label="Project ID" value={projectId || "Not available"} />
-                  <Info label="Client" value="Apex Infra Corp" />
-                  <Info label="Site location" value="BKC, Mumbai" />
+                  <Info label="Client" value={projectClient} />
+                  <Info label="Site location" value={projectLocation} />
                   <div className="grid grid-cols-3 gap-2 border-t border-slate-100 pt-4">
                     <Stat label="BOQ items" value={boqItems.length} />
                     <Stat label="Materials" value={materials.length || "—"} />
@@ -710,6 +824,94 @@ export default function OperationsDashboard() {
           </section>
         </main>
       </div>
+
+      {/* CREATE PROJECT MODAL */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-[#122b45]">Create New Project</h3>
+                <p className="text-xs text-slate-500">Initialize a new construction project with custom parameters</p>
+              </div>
+              <button
+                onClick={() => setIsCreateModalOpen(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveNewProject} className="mt-4 space-y-4 text-xs">
+              <div>
+                <label className="font-semibold text-slate-700">Project Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={formProjectName}
+                  onChange={(e) => setFormProjectName(e.target.value)}
+                  placeholder="e.g. Skyline Heights - Tower A"
+                  className="mt-1 h-9 w-full rounded-lg border border-slate-200 px-3 text-xs outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="font-semibold text-slate-700">Client / Developer Name</label>
+                  <input
+                    type="text"
+                    value={formClientName}
+                    onChange={(e) => setFormClientName(e.target.value)}
+                    placeholder="e.g. Prestige Estates"
+                    className="mt-1 h-9 w-full rounded-lg border border-slate-200 px-3 text-xs outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700">Site Location</label>
+                  <input
+                    type="text"
+                    value={formLocation}
+                    onChange={(e) => setFormLocation(e.target.value)}
+                    placeholder="e.g. Whitefield, Bengaluru"
+                    className="mt-1 h-9 w-full rounded-lg border border-slate-200 px-3 text-xs outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-3.5">
+                <label className="flex items-center gap-2 cursor-pointer font-semibold text-[#122b45]">
+                  <input
+                    type="checkbox"
+                    checked={seedBOQ}
+                    onChange={(e) => setSeedBOQ(e.target.checked)}
+                    className="h-4 w-4 rounded text-blue-600"
+                  />
+                  <span>Initialize with standard baseline BOQ items (Excavation, RCC M25, TMT Rebar)</span>
+                </label>
+                <p className="mt-1 text-[11px] text-slate-500 pl-6">
+                  Recommended: Uncheck if you want to start with a completely empty BOQ registry.
+                </p>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-2.5 border-t border-slate-100 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-lg bg-[#1368d8] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#0f59bb]"
+                >
+                  Create & Launch Project
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -775,9 +977,7 @@ function Metric({
           <div className="mt-2 text-2xl font-bold text-[#122b45]">{value}</div>
           <div className="mt-1 text-[10px] text-slate-400">{note}</div>
         </div>
-        <div className={`rounded-lg border p-2 ${colors[tone]}`}>
-          <Icon className="h-4 w-4" />
-        </div>
+        <div className={`rounded-lg border p-2 ${colors[tone]}`}><Icon className="h-4 w-4" /></div>
       </div>
     </div>
   );
