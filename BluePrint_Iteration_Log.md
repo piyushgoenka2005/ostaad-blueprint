@@ -3249,7 +3249,7 @@ Fix the Cloudflare Vite plugin configuration parser error (`Error: Invalid cloud
 
 ### Last update
 
-2026-11-07 17:58:00 IST — Commit: Pending — `fix: remove unprovisioned ostaad-erp-storage R2 binding to allow clean Cloudflare deploy`
+2026-11-07 17:58:00 IST — Commit: 29c412a — `fix: remove unprovisioned ostaad-erp-storage R2 binding to allow clean Cloudflare deploy`
 
 ### Expected change and Functioning
 
