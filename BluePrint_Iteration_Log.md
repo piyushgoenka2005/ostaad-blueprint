@@ -3037,6 +3037,31 @@ Align codebase strictly with the architectural boundaries outlined in `Ostaad_ER
 
 ---
 
+## Iteration 85 — CI/CD Automation: GitHub Actions Autodeploy Workflow for Cloudflare Workers
+
+### Last update
+
+2026-11-07 12:20:00 IST — Commit: `<commit-sha>` — `ci: add GitHub Actions workflow for automatic Cloudflare Workers deployment on push`
+
+### Expected change and Functioning
+
+Establish zero-touch CI/CD automation so every push to `main` automatically triggers build and deployment to Cloudflare Workers without requiring local manual execution:
+1. Created `.github/workflows/deploy.yml` with automated checkout, Node.js 20 environment, dependency caching, and `vinext-cloudflare deploy`.
+2. Utilizes GitHub repository secrets (`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`) with concurrency control to prevent deployment race conditions.
+3. Enabled manual `workflow_dispatch` trigger in the GitHub UI for on-demand redeployment.
+
+### Edits made
+
+- `.github/workflows/deploy.yml`: Created GitHub Actions CI/CD deployment pipeline.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 85.
+
+### Verification
+
+- Syntax validation: Validated YAML structure and GitHub Actions syntax for Ubuntu 22.04 LTS runner with Node 20.
+- Build command consistency: Ensured `npm ci` and `npm run deploy:vinext` mirror local production build commands.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.
