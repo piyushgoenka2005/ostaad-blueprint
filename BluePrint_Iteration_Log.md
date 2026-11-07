@@ -3118,6 +3118,31 @@ Eliminate hardcoded mock project fallbacks (`proj-demo-101` and static `Commerci
 
 ---
 
+## Iteration 88 — Native Cloudflare Workers Git Integration & Workflow Deprecation
+
+### Last update
+
+2026-11-07 17:05:00 IST — Commit: Pending — `chore: remove GitHub Actions deploy workflow in favor of Cloudflare native Git integration`
+
+### Expected change and Functioning
+
+1. Transition from external GitHub Actions runner to Cloudflare's native Workers Builds (Git Integration), matching the Ostaad production CI/CD architecture.
+2. Removed `.github/workflows/deploy.yml` as deployment is now triggered directly by Cloudflare on GitHub push webhooks without requiring manual secrets.
+3. Aligned `package.json` scripts (`build:worker`, `cloudflare:build`, `deploy:vinext`) to support automated builds from Cloudflare's dashboard.
+
+### Edits made
+
+- `.github/workflows/deploy.yml`: Removed deprecated workflow file.
+- `package.json`: Added `build:worker` and `cloudflare:build` convenience scripts.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 88.
+
+### Verification
+
+- Repository cleanliness: Verified `.github` directory removed and git tree clean.
+- Build command verification: Confirmed `npm run build:vinext` builds with code 0.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.
