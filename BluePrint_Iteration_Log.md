@@ -3200,6 +3200,29 @@ Resolve Cloudflare Workers build failure during dependency installation (`npm cl
 
 ---
 
+## Iteration 91 — Linux Cross-Platform Emnapi Lockfile Resolution
+
+### Last update
+
+2026-11-07 17:35:00 IST — Commit: Pending — `fix: explicitly lock @emnapi/core and @emnapi/runtime in optionalDependencies for Linux Cloudflare runners`
+
+### Expected change and Functioning
+
+Eliminate `npm ci` failure (`EUSAGE Missing: @emnapi/runtime@1.11.3 from lock file`) on Cloudflare's Linux build runner. By declaring `@emnapi/core: 1.11.3` and `@emnapi/runtime: 1.11.3` in `optionalDependencies` of `package.json`, npm locks the exact versions into the root manifest and sub-dependency trees across both Windows development machines and Linux Cloudflare CI runners.
+
+### Edits made
+
+- `package.json`: Added `optionalDependencies` with `@emnapi/core: 1.11.3` and `@emnapi/runtime: 1.11.3`.
+- `package-lock.json`: Re-locked exact `@emnapi` 1.11.3 artifacts.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 91.
+
+### Verification
+
+- Build verification: `npm ci --dry-run` passed with code 0 (`up to date in 2s`).
+- Vite verification: `npm run build:vinext` verified.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.
