@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Award,
   TrendingDown,
@@ -47,6 +47,22 @@ export default function ComparativeStatementMatrix({
   );
   const [showDossierModal, setShowDossierModal] = useState(false);
   const [submissionSuccessNotice, setSubmissionSuccessNotice] = useState(false);
+  const [activeProjectName, setActiveProjectName] = useState("Active Project Workspace");
+
+  useEffect(() => {
+    try {
+      const master = localStorage.getItem("ostaad_project_master");
+      if (master) {
+        const p = JSON.parse(master);
+        if (p.name) {
+          setActiveProjectName(p.name);
+          return;
+        }
+      }
+      const opName = localStorage.getItem("ostaad_operations_project_name");
+      if (opName) setActiveProjectName(opName);
+    } catch {}
+  }, []);
 
   const activeRFQ = useMemo(() => {
     return rfqs.find((r) => r.id === selectedRFQId) || rfqs[0];
@@ -443,7 +459,7 @@ export default function ComparativeStatementMatrix({
                   <div>Requisition Quantity: <strong className="font-mono">{activeRFQ.requiredQuantity.toLocaleString("en-IN")} {activeRFQ.standardUOM}</strong></div>
                 </div>
                 <div className="text-right">
-                  <div>Project: <strong>Commercial Complex — Tower B</strong></div>
+                  <div>Project: <strong>{activeProjectName}</strong></div>
                   <div>Evaluation Date: <strong>{new Date().toISOString().split("T")[0]}</strong></div>
                   <div>Approved Baseline Budget: <strong className="font-mono">₹{baselineTotalBudget.toLocaleString("en-IN")}</strong></div>
                 </div>

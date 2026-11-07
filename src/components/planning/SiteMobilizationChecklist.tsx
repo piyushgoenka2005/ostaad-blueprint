@@ -34,8 +34,8 @@ interface SiteMobilizationChecklistProps {
 
 export default function SiteMobilizationChecklist({
   className = "",
-  projectName = "Commercial Complex — Tower B",
-  projectLocation = "Kalyani Nagar, Pune, Maharashtra",
+  projectName = "Project Workspace",
+  projectLocation = "Active Site",
 }: SiteMobilizationChecklistProps) {
   const [items, setItems] = useState<MobilizationCheckItem[]>(INITIAL_MOBILIZATION_CHECKLIST);
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
 import {
   Calculator,
@@ -31,6 +31,26 @@ export default function BOQCostControlDashboard() {
   const [activeTab, setActiveTab] = useState<
     "registry" | "change-orders" | "decomposition" | "ra-billing"
   >("registry");
+
+  const [activeProjectName, setActiveProjectName] = useState("Active Project Workspace");
+
+  useEffect(() => {
+    try {
+      const master = localStorage.getItem("ostaad_project_master");
+      if (master) {
+        const p = JSON.parse(master);
+        if (p.name) {
+          setActiveProjectName(`${p.projectCode ? p.projectCode + " — " : ""}${p.name}`);
+          return;
+        }
+      }
+      const opName = localStorage.getItem("ostaad_operations_project_name");
+      const opId = localStorage.getItem("ostaad_operations_project_id");
+      if (opName) {
+        setActiveProjectName(`${opId ? opId + " — " : ""}${opName}`);
+      }
+    } catch {}
+  }, []);
 
   // Shared state for BOQ Items
   const [boqItems, setBoqItems] = useState<HierarchicalBOQItem[]>(DEFAULT_DETAILED_BOQ_ITEMS);
@@ -69,7 +89,7 @@ export default function BOQCostControlDashboard() {
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-xs text-blue-900 font-medium">
             <Building2 className="w-3.5 h-3.5 text-blue-700" />
-            <span>PRJ-PUN-2026-TWR-B (Tower B)</span>
+            <span>{activeProjectName}</span>
           </div>
         </div>
       }

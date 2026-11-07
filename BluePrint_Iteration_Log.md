@@ -3143,6 +3143,42 @@ Eliminate hardcoded mock project fallbacks (`proj-demo-101` and static `Commerci
 
 ---
 
+## Iteration 89 — Dynamic Workflow Tracker & Global Hardcoded Data Elimination
+
+### Last update
+
+2026-11-07 17:25:00 IST — Commit: Pending — `feat: make project workflow tracker fully dynamic and eliminate hardcoded project badges across all dashboard modules`
+
+### Expected change and Functioning
+
+1. Operations Project Workflow Tracker: Replaced the static `completed` constant (`projectId ? (verified ? 3 : 2) : 0`) with a fully reactive 8-stage progress calculator evaluating actual project setup, BOQ items formulation, BOQ verification, material quotes, vendor bid selection, and Finance dispatch.
+2. Dynamic KPI & Operations Table Synchronization: Converted static "—" and hardcoded "Not Started" / "Not Created" status badges in `/dashboard/operations` to reflect live state (`sentToFinance`, `hasVendorsSelected`, `boqItems.length`).
+3. Global Hardcoded Badge Purge: Removed static `"Commercial Complex — Tower B"` and `"PRJ-PUN-2026-TWR-B (Tower B)"` from the header action bars of all 5 main modules:
+   - `/dashboard/boq`: Dynamically resolves active project code & name from `localStorage`.
+   - `/dashboard/finance`: Dynamically displays active project name in header badge.
+   - `/dashboard/procurement`: Dynamically displays active project name in header badge & comparative dossiers.
+   - `/dashboard/site-store`: Dynamically displays active project name in header badge.
+   - `/dashboard/pre-construction`: Dynamically displays active project name in header badge & site mobilization checklist.
+
+### Edits made
+
+- `src/app/dashboard/operations/page.tsx`: Implemented dynamic `completed` state, `sentToFinance` tracking, dynamic KPI metrics, and live table status indicators.
+- `src/app/dashboard/boq/page.tsx`: Added `activeProjectName` dynamic loader and replaced hardcoded badge.
+- `src/app/dashboard/finance/page.tsx`: Added `activeProjectName` dynamic loader and replaced hardcoded badge.
+- `src/app/dashboard/procurement/page.tsx`: Added `activeProjectName` dynamic loader and replaced hardcoded badge.
+- `src/app/dashboard/site-store/page.tsx`: Added `activeProjectName` dynamic loader and replaced hardcoded badge.
+- `src/app/dashboard/pre-construction/page.tsx`: Added `useEffect` dynamic loader for project name and location.
+- `src/components/planning/SiteMobilizationChecklist.tsx`: Updated fallback props to generic active workspace defaults.
+- `src/components/procurement/ComparativeStatementMatrix.tsx`: Replaced hardcoded dossier project name with dynamic project binding.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 89.
+
+### Verification
+
+- Build verification: `npm run build:vinext` compiled with 0 errors in 5.74s.
+- Dynamic binding verification: Verified all 5 module action bars reflect the current active project dynamically.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Compass,
@@ -304,9 +304,23 @@ export default function PreConstructionEngine() {
   const [selectedPhase, setSelectedPhase] = useState<"ALL" | "PHASE_A" | "PHASE_B" | "PHASE_C">("ALL");
 
   // Project Meta State
-  const [projectName, setProjectName] = useState("Commercial Complex — Tower B");
-  const [projectLocation, setProjectLocation] = useState("Kalyani Nagar, Pune, Maharashtra");
-  const [surveyorName, setSurveyorName] = useState("Rajesh Sharma, Senior PM");
+  const [projectName, setProjectName] = useState("Project Workspace");
+  const [projectLocation, setProjectLocation] = useState("Site Location");
+  const [surveyorName, setSurveyorName] = useState("Project Operations Lead");
+
+  useEffect(() => {
+    try {
+      const master = localStorage.getItem("ostaad_project_master");
+      if (master) {
+        const p = JSON.parse(master);
+        if (p.name) setProjectName(p.name);
+        if (p.city || p.state) setProjectLocation(`${p.city || ""}, ${p.state || ""}`.trim().replace(/^,|,$/g, ""));
+        return;
+      }
+      const opName = localStorage.getItem("ostaad_operations_project_name");
+      if (opName) setProjectName(opName);
+    } catch {}
+  }, []);
 
   // ----------------------------------------------------
   // TOOL 1 STATE: SITE SURVEY

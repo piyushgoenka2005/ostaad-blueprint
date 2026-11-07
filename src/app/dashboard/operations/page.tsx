@@ -42,6 +42,7 @@ export default function OperationsDashboard() {
   const [sending, setSending] = useState(false);
   const [search, setSearch] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
+  const [sentToFinance, setSentToFinance] = useState(false);
 
   // Project Creation Modal state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -90,7 +91,11 @@ export default function OperationsDashboard() {
       window.localStorage.removeItem("ostaad_operations_project_id");
       window.localStorage.removeItem("ostaad_operations_project_name");
       window.localStorage.removeItem("ostaad_project_master");
-      setProjectId(null);
+      if (projectId) {
+      window.localStorage.removeItem(`ostaad_sent_to_finance_${projectId}`);
+    }
+    setSentToFinance(false);
+    setProjectId(null);
       setProjectName("No active project");
       setBoqItems([]);
       setLoading(false);
@@ -100,6 +105,9 @@ export default function OperationsDashboard() {
     if (id && name) {
       setProjectId(id);
       setProjectName(name);
+
+      const isSent = window.localStorage.getItem(`ostaad_sent_to_finance_${id}`) === "true";
+      setSentToFinance(isSent);
 
       // Check master details if present
       const masterStr = window.localStorage.getItem("ostaad_project_master");
@@ -113,7 +121,11 @@ export default function OperationsDashboard() {
 
       loadProject(id).finally(() => setLoading(false));
     } else {
-      setProjectId(null);
+      if (projectId) {
+      window.localStorage.removeItem(`ostaad_sent_to_finance_${projectId}`);
+    }
+    setSentToFinance(false);
+    setProjectId(null);
       setProjectName("No active project");
       setBoqItems([]);
       setLoading(false);
@@ -130,6 +142,7 @@ export default function OperationsDashboard() {
     const newId = `PRJ-${Date.now().toString(36).toUpperCase()}`;
 
     setProjectId(newId);
+    setSentToFinance(false);
     setProjectName(cleanName);
     setProjectClient(cleanClient);
     setProjectLocation(cleanLoc);
@@ -202,6 +215,10 @@ export default function OperationsDashboard() {
     localStorage.removeItem("ostaad_operations_project_id");
     localStorage.removeItem("ostaad_operations_project_name");
     localStorage.removeItem("ostaad_project_master");
+    if (projectId) {
+      window.localStorage.removeItem(`ostaad_sent_to_finance_${projectId}`);
+    }
+    setSentToFinance(false);
     setProjectId(null);
     setProjectName("No active project");
     setProjectClient("Client not specified");
@@ -301,6 +318,10 @@ export default function OperationsDashboard() {
           manager_notes: "Vendor selection reviewed by Project Manager.",
         });
       }
+      if (projectId) {
+        window.localStorage.setItem(`ostaad_sent_to_finance_${projectId}`, "true");
+      }
+      setSentToFinance(true);
       setNotice("Vendor selections sent to Finance for approval.");
     } catch (error: any) {
       setNotice(error.message || "Could not send vendor selections.");
@@ -356,7 +377,22 @@ export default function OperationsDashboard() {
     "Purchase Orders",
     "Sent to Vendors",
   ];
-  const completed = projectId ? (verified ? 3 : 2) : 0;
+  const hasProject = Boolean(projectId);
+  const hasBOQ = boqItems.length > 0;
+  const isBOQFinalised = verified;
+  const hasQuotes = materials.length > 0 && Object.keys(quotes).length > 0;
+  const hasVendorsSelected =
+    materials.length > 0 && Object.keys(selectedBids).length >= materials.length;
+
+  const completed = useMemo(() => {
+    if (!hasProject) return 0;
+    if (!hasBOQ) return 1;
+    if (!isBOQFinalised) return 2;
+    if (!hasQuotes) return 3;
+    if (!hasVendorsSelected) return 4;
+    if (!sentToFinance) return 5;
+    return 6;
+  }, [hasProject, hasBOQ, isBOQFinalised, hasQuotes, hasVendorsSelected, sentToFinance]);
 
   const logout = () => { clearAuthSession(); router.push("/login"); };
 
@@ -505,10 +541,10 @@ export default function OperationsDashboard() {
           <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
             <Metric icon={FolderKanban} label="Total Projects" value={projectId ? 1 : 0} note="Active projects" tone="blue" />
             <Metric icon={CheckCircle2} label="Projects In Progress" value={projectId && !verified ? 1 : 0} note="Active workflows" tone="sky" />
-            <Metric icon={FileText} label="BOQs Awaiting Review" value={projectId && !verified ? 1 : 0} note="Need finalisation" tone="violet" />
+            <Metric icon={FileText} label="BOQs Awaiting Review" value={projectId && !verified ? (boqItems.length ? 1 : 0) : 0} note="Need finalisation" tone="violet" />
             <Metric icon={Users} label="Pending Vendor Selection" value={materials.length && Object.keys(selectedBids).length < materials.length ? 1 : 0} note="Awaiting selection" tone="orange" />
-            <Metric icon={PackageCheck} label="Pending Finance Approval" value="—" note="Live Finance queue" tone="amber" />
-            <Metric icon={ShoppingCart} label="Purchase Orders Created" value="—" note="After approval" tone="emerald" />
+            <Metric icon={PackageCheck} label="Pending Finance Approval" value={sentToFinance ? 1 : 0} note={sentToFinance ? "In Finance queue" : "Not submitted"} tone={sentToFinance ? "amber" : "slate"} />
+            <Metric icon={ShoppingCart} label="Purchase Orders Created" value={sentToFinance ? "Pending" : 0} note={sentToFinance ? "Awaiting CFO signoff" : "Not initiated"} tone="emerald" />
           </section>
 
           <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -550,13 +586,17 @@ export default function OperationsDashboard() {
                         <Status text={verified ? "In Progress" : "Planning"} tone={verified ? "blue" : "violet"} />
                       </td>
                       <td className="px-4 py-4">
-                        <Status text={verified ? "Finalised" : "In Review"} tone={verified ? "green" : "amber"} />
+                        <Status text={!boqItems.length ? "Draft" : (verified ? "Finalised" : "In Review")} tone={!boqItems.length ? "slate" : (verified ? "green" : "amber")} />
                       </td>
                       <td className="px-4 py-4">
-                        <Status text={materials.length ? "Pending" : "Not Started"} tone="amber" />
+                        <Status text={!materials.length ? "Not Started" : (hasVendorsSelected ? "Completed" : "In Progress")} tone={!materials.length ? "slate" : (hasVendorsSelected ? "green" : "amber")} />
                       </td>
-                      <td className="px-4 py-4"><Status text="Not Started" tone="slate" /></td>
-                      <td className="px-4 py-4"><Status text="Not Created" tone="slate" /></td>
+                      <td className="px-4 py-4">
+                        <Status text={sentToFinance ? "In Review" : "Not Started"} tone={sentToFinance ? "amber" : "slate"} />
+                      </td>
+                      <td className="px-4 py-4">
+                        <Status text={sentToFinance ? "Pending Signoff" : "Not Created"} tone={sentToFinance ? "amber" : "slate"} />
+                      </td>
                       <td className="px-4 py-4 flex items-center gap-1.5">
                         <button
                           onClick={() => document.getElementById("boq")?.scrollIntoView({ behavior: "smooth" })}
@@ -606,7 +646,26 @@ export default function OperationsDashboard() {
                 <h2 className="font-bold text-[#122b45]">Project Workflow Tracker</h2>
                 <p className="mt-1 text-xs text-slate-500">Selected project: {projectName}</p>
               </div>
-              <Status text={projectId ? (verified ? "BOQ finalised" : "In Progress") : "No project"} tone={verified ? "green" : "amber"} />
+              <Status
+                text={
+                  !projectId
+                    ? "No project"
+                    : completed === 1
+                    ? "Step 1/8: Setup"
+                    : completed === 2
+                    ? "Step 2/8: BOQ Formulated"
+                    : completed === 3
+                    ? "Step 3/8: BOQ Finalised"
+                    : completed === 4
+                    ? "Step 4/8: RFQ & Quotes"
+                    : completed === 5
+                    ? "Step 5/8: Vendors Selected"
+                    : completed >= 6
+                    ? "Step 6/8: Sent to Finance"
+                    : "In Progress"
+                }
+                tone={completed >= 3 ? (completed >= 6 ? "blue" : "green") : (projectId ? "amber" : "slate")}
+              />
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-8">
               {workflow.map((step, index) => (

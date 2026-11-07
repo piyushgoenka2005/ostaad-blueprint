@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AppShell from "@/components/AppShell";
 import {
   ShieldCheck,
@@ -36,6 +36,25 @@ export default function CommercialFinanceDashboard() {
   const [activeTab, setActiveTab] = useState<
     "approvals" | "budgets" | "orders" | "payments" | "reconciliation"
   >("approvals");
+
+  const [activeProjectName, setActiveProjectName] = useState("Active Project Workspace");
+
+  useEffect(() => {
+    try {
+      const master = localStorage.getItem("ostaad_project_master");
+      if (master) {
+        const p = JSON.parse(master);
+        if (p.name) {
+          setActiveProjectName(p.name);
+          return;
+        }
+      }
+      const opName = localStorage.getItem("ostaad_operations_project_name");
+      if (opName) {
+        setActiveProjectName(opName);
+      }
+    } catch {}
+  }, []);
 
   // Shared State
   const [budgetPools, setBudgetPools] = useState<DepartmentBudgetPool[]>(DEFAULT_BUDGET_POOLS);
@@ -86,7 +105,7 @@ export default function CommercialFinanceDashboard() {
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-xs text-blue-900 font-medium">
             <Building2 className="w-3.5 h-3.5 text-blue-700" />
-            <span>Commercial Complex — Tower B</span>
+            <span>{activeProjectName}</span>
           </div>
         </div>
       }
