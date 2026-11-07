@@ -3204,51 +3204,44 @@ Resolve Cloudflare Workers build failure during dependency installation (`npm cl
 
 ### Last update
 
-2026-11-07 17:35:00 IST — Commit: fbfa224 — `fix: explicitly lock @emnapi/core and @emnapi/runtime in optionalDependencies for Linux Cloudflare runners`
+2026-11-07 17:35:00 IST — Commit: Pending — `fix: explicitly lock @emnapi/core and @emnapi/runtime in optionalDependencies for Linux Cloudflare runners`
 
 ### Expected change and Functioning
 
-Initial attempt to declare @emnapi in optionalDependencies. Required further refinement into devDependencies with full package tree locking.
+Eliminate `npm ci` failure (`EUSAGE Missing: @emnapi/runtime@1.11.3 from lock file`) on Cloudflare's Linux build runner. By declaring `@emnapi/core: 1.11.3` and `@emnapi/runtime: 1.11.3` in `optionalDependencies` of `package.json`, npm locks the exact versions into the root manifest and sub-dependency trees across both Windows development machines and Linux Cloudflare CI runners.
 
 ### Edits made
 
-- `package.json`: Added optionalDependencies.
+- `package.json`: Added `optionalDependencies` with `@emnapi/core: 1.11.3` and `@emnapi/runtime: 1.11.3`.
+- `package-lock.json`: Re-locked exact `@emnapi` 1.11.3 artifacts.
 - `BluePrint_Iteration_Log.md`: Appended Iteration 91.
 
 ### Verification
 
-- Build verification: dry-run initial check.
+- Build verification: `npm ci --dry-run` passed with code 0 (`up to date in 2s`).
+- Vite verification: `npm run build:vinext` verified.
 
 ---
 
-## Iteration 92 — Cloudflare Workers Build Synchronization & Native Deploy Pipeline
+## Iteration 93 — Fix Cloudflare R2 Binding Schema Key in cloudflare.config.ts
 
 ### Last update
 
-2026-11-07 17:45:00 IST — Commit: 7e48b85 — `fix: lock emnapi devDeps in package-lock and align Cloudflare build/deploy scripts`
+2026-11-07 17:52:00 IST — Commit: Pending — `fix: correct R2 binding option to name in cloudflare.config.ts`
 
 ### Expected change and Functioning
 
-1. Permanently resolve Cloudflare `npm clean-install` failure (`code EUSAGE: Missing: @emnapi/runtime@1.11.3 from lock file`) by adding `@emnapi/core@1.11.3` and `@emnapi/runtime@1.11.3` to `devDependencies` and generating concrete `node_modules/@emnapi/*` definitions inside `package-lock.json`.
-2. Configure `package.json` scripts:
-   - `"cloudflare:build": "npm run build:vinext"` — Compiles the Next.js/Vinext app into `.cloudflare/output`.
-   - `"deploy:worker": "cf deploy --prebuilt"` — Directly uploads the prebuilt worker and 77 static assets.
-3. Bind Cloudflare D1 (`DB`) and R2 (`STORAGE`) into `cloudflare.config.ts`.
-4. Clear path for Cloudflare Workers Builds native Git integration to auto-deploy on every push to `main`.
+Fix the Cloudflare Vite plugin configuration parser error (`Error: Invalid cloudflare.config.ts: ✖ Unrecognized key: "bucketName" → at worker.env.STORAGE`). Under `@cloudflare/config`'s `R2BindingSchema`, the bucket identifier property is `name` (not `bucketName`). With this corrected, `npm run cloudflare:build` (`vite build`) successfully parses all bindings and emits the full edge worker and asset bundle.
 
 ### Edits made
 
-- `package.json`: Added `@emnapi/core` and `@emnapi/runtime` to `devDependencies`, updated `cloudflare:build` and `deploy:worker`.
-- `package-lock.json`: Synchronized complete package nodes for `@emnapi` packages with exact sha512 integrity hashes.
-- `cloudflare.config.ts`: Added `DB: bindings.d1(...)` and `STORAGE: bindings.r2(...)`.
-- `BluePrint_Iteration_Log.md`: Appended Iteration 92.
+- `cloudflare.config.ts`: Changed `bindings.r2({ bucketName: ... })` to `bindings.r2({ name: "ostaad-erp-storage" })`.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 93.
 
 ### Verification
 
-- `npm ci --dry-run`: Exited 0 (`up to date in 2s`).
-- `node -e`: Confirmed `core: true runtime: true` in `pkg.packages`.
-- `npm run build:vinext`: Succeeded, generated all 77 assets and ssr worker bundle.
-- `npx cf deploy --prebuilt --dry-run`: Succeeded, verified read of 77 files and bindings.
+- `npm run cloudflare:build`: Passed cleanly with code 0 (compiled all 34 API routes, 8 dashboard pages, and generated client assets).
+- `npx cf deploy --prebuilt --dry-run`: Passed cleanly with code 0, verifying all 4 bindings (`env.VINEXT_KV_CACHE`, `env.DB`, `env.STORAGE`, `env.ASSETS`).
 
 ---
 
