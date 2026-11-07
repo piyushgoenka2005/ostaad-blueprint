@@ -17,12 +17,6 @@
       "migrations_dir": "./migrations"
     }
   ],
-  "r2_buckets": [
-    {
-      "binding": "STORAGE",
-      "bucket_name": "ostaad-erp-storage"
-    }
-  ],
   "vars": {
     "APP_ENV": "production"
   }

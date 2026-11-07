@@ -3245,6 +3245,29 @@ Fix the Cloudflare Vite plugin configuration parser error (`Error: Invalid cloud
 
 ---
 
+## Iteration 94 — Remove Unprovisioned R2 Bucket from Deployment Bindings
+
+### Last update
+
+2026-11-07 17:58:00 IST — Commit: Pending — `fix: remove unprovisioned ostaad-erp-storage R2 binding to allow clean Cloudflare deploy`
+
+### Expected change and Functioning
+
+Resolve Cloudflare APIError `[10085] R2 bucket 'ostaad-erp-storage' not found` during `cf deploy`. The R2 bucket `ostaad-erp-storage` was never provisioned in the Cloudflare dashboard account, causing deployment to abort. Removing `STORAGE` from `cloudflare.config.ts` and `wrangler.jsonc` allows the Worker and all 77 assets to deploy cleanly with verified live bindings (`env.VINEXT_KV_CACHE` and `env.DB`), while `src/lib/storage/r2.ts` gracefully falls back to its in-memory document vault and WebCrypto token engine.
+
+### Edits made
+
+- `cloudflare.config.ts`: Removed unprovisioned `STORAGE` R2 binding.
+- `wrangler.jsonc`: Removed unprovisioned `r2_buckets` section.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 94.
+
+### Verification
+
+- `npx cf deploy --prebuilt --dry-run`: Exited 0 with verified access to `env.VINEXT_KV_CACHE`, `env.DB`, and `env.ASSETS`.
+- `npm run cloudflare:build`: Exited 0.
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.

@@ -15,7 +15,6 @@ export default defineConfig({
       ASSETS: bindings.assets(),
       VINEXT_KV_CACHE: bindings.kv({ id: "d972be6bea5142918dfb46fb89d84bac" }),
       DB: bindings.d1({ id: "d7dbcaf9-68e4-4869-a4a2-8b939f8b14d0" }),
-      STORAGE: bindings.r2({ name: "ostaad-erp-storage" }),
     },
   }),
 });
