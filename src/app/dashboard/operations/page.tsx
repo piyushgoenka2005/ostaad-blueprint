@@ -76,10 +76,20 @@ export default function OperationsDashboard() {
     const id = window.localStorage.getItem("ostaad_operations_project_id");
     const name = window.localStorage.getItem("ostaad_operations_project_name");
 
-    // Purge legacy mock demo project from localStorage so user starts with a clean slate
-    if (id === "proj-demo-101" || name === "Commercial Complex - Tower B") {
+    // Purge ANY legacy mock demo project from localStorage so user starts with a clean slate
+    const isMock =
+      !id ||
+      id === "proj-demo-101" ||
+      id.toLowerCase().includes("demo") ||
+      !name ||
+      name.toLowerCase().includes("commercial complex") ||
+      name.toLowerCase().includes("tower b") ||
+      name.toLowerCase().includes("tower 8");
+
+    if (isMock) {
       window.localStorage.removeItem("ostaad_operations_project_id");
       window.localStorage.removeItem("ostaad_operations_project_name");
+      window.localStorage.removeItem("ostaad_project_master");
       setProjectId(null);
       setProjectName("No active project");
       setBoqItems([]);
@@ -547,12 +557,19 @@ export default function OperationsDashboard() {
                       </td>
                       <td className="px-4 py-4"><Status text="Not Started" tone="slate" /></td>
                       <td className="px-4 py-4"><Status text="Not Created" tone="slate" /></td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 flex items-center gap-1.5">
                         <button
                           onClick={() => document.getElementById("boq")?.scrollIntoView({ behavior: "smooth" })}
                           className="rounded-md border border-blue-200 px-3 py-1.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-50"
                         >
                           View Project
+                        </button>
+                        <button
+                          onClick={handleClearProject}
+                          className="rounded-md border border-rose-200 px-2 py-1.5 text-[10px] font-semibold text-rose-600 hover:bg-rose-50"
+                          title="Remove and reset project"
+                        >
+                          <Trash2 className="h-3 w-3" />
                         </button>
                       </td>
                     </tr>

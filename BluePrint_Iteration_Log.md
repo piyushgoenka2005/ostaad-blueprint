@@ -3091,6 +3091,33 @@ Eliminate hardcoded mock project fallbacks (`proj-demo-101` and static `Commerci
 
 ---
 
+## Iteration 87 — CI/CD Pipeline Fix & Comprehensive Mock Project Sanitization
+
+### Last update
+
+2026-11-07 16:30:00 IST — Commit: Pending — `fix: sanitize mock project auto-cleanup and fix GitHub Actions CI/CD npm install step`
+
+### Expected change and Functioning
+
+1. Fix GitHub Actions CI/CD pipeline failure: Replaced strict `npm ci` with `npm install --legacy-peer-deps` in `.github/workflows/deploy.yml` to prevent peer dependency resolution errors and platform-specific lockfile issues on Ubuntu runners.
+2. Comprehensive Clean Slate Purge: Broadened automatic sanitization in `src/app/dashboard/operations/page.tsx` to detect and wipe any legacy mock project references (`proj-demo-101`, "demo", "Commercial Complex", "Tower B", "Tower 8") from `localStorage`, ensuring the clean empty-state table renders reliably.
+3. Row-level Delete/Reset Action: Added a trash icon delete button in the Operations table action cell alongside "View Project" for immediate project clearing.
+4. Production Edge Deployment: Deployed fresh build directly to Cloudflare Workers (Version ID: `60fceb99-65f2-42b2-9b4b-c7051ea20f75`) serving `https://civix.space`.
+
+### Edits made
+
+- `.github/workflows/deploy.yml`: Replaced `npm ci` with `npm install --legacy-peer-deps` to guarantee clean builds across Linux environments.
+- `src/app/dashboard/operations/page.tsx`: Broadened purge criteria to wipe all variants of mock projects, added row delete button in table.
+- `BluePrint_Iteration_Log.md`: Appended Iteration 87.
+
+### Verification
+
+- Build verification: `npm run build:vinext` passed cleanly with code 0 in 8.04s.
+- Deployment verification: Live Cloudflare Worker deployed successfully (Version ID: `60fceb99-65f2-42b2-9b4b-c7051ea20f75`).
+- Operations page verification: Empty project state displays with "No active projects yet" and "+ Create Your First Project".
+
+---
+
 ## Future update template
 
 Copy this block and append it below the latest iteration. Do not rewrite previous entries. Every iteration must appear before this template and include the exact update time in IST.
